@@ -1,0 +1,118 @@
+@extends('layouts.app')
+
+@section('title', 'Log Entries - LIMS')
+
+@push('styles')
+<link rel="stylesheet" href="{{ asset('css/student-log-entries.css') }}">
+@endpush
+
+@section('sidebar-menu')
+<a class="nav-link" href="{{ route('student.dashboard') }}"><i class="fas fa-th-large"></i> Dashboard</a>
+<a class="nav-link active" href="{{ route('student.log-entries') }}"><i class="fas fa-pen-fancy"></i> Log Entries</a>
+<a class="nav-link" href="{{ route('student.progress') }}"><i class="fas fa-chart-bar"></i> View Progress</a>
+<a class="nav-link" href="{{ route('student.profile') }}"><i class="fas fa-user-cog"></i> Profile</a>
+@endsection
+
+@section('page-title', 'Daily Log Entry')
+
+@section('main-content')
+<div class="row justify-content-between">
+    <div class="col-12">
+        <div class="card card-custom p-4">
+            <form action="{{ route('student.log-entries.store') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Date</label>
+                        <input type="date" name="entry_date" class="form-control @error('entry_date') is-invalid @enderror" 
+                               value="{{ old('entry_date', date('Y-m-d')) }}" required>
+                        @error('entry_date')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Week</label>
+                        <select class="form-select" name="week_number">
+                            @for($i = 1; $i <= ($internship->total_weeks ?? 12); $i++)
+                                <option value="{{ $i }}" {{ old('week_number') == $i ? 'selected' : '' }}>Week {{ $i }}</option>
+                            @endfor
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Task Description</label>
+                    <div class="position-relative">
+                        <textarea name="task_description" class="form-control @error('task_description') is-invalid @enderror" 
+                                  rows="6" placeholder="Describe your daily activities..." required>{{ old('task_description') }}</textarea>
+                        <button type="button" class="btn btn-sm btn-outline-primary position-absolute bottom-0 end-0 m-2" title="AI Suggest Summary">
+                            <i class="fas fa-magic me-1"></i> AI Helper
+                        </button>
+                    </div>
+                    <div class="form-text">Click the AI Helper button to generate a professional summary of your tasks.</div>
+                    @error('task_description')
+                        <div class="text-danger small">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Attachments (Images)</label>
+                    <div class="border border-dashed p-4 text-center rounded bg-light">
+                        <i class="fas fa-cloud-upload-alt fa-2x text-muted mb-2"></i>
+                        <p class="text-muted mb-2">Drag & drop files or <label for="attachments" class="text-primary" style="cursor:pointer">Browse</label></p>
+                        <input type="file" name="attachments[]" id="attachments" multiple accept="image/*" class="d-none">
+                        <small class="text-muted">Supported formats: JPG, PNG</small>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-3">
+                    <button type="submit" name="save_draft" value="1" class="btn btn-outline-secondary px-4">Save Draft</button>
+                    <button type="submit" class="btn btn-primary-custom px-4">Submit Log</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Previous Entries -->
+@if($logs->count() > 0)
+<div class="card card-custom p-4 mt-4">
+    <h5 class="fw-bold mb-3">Previous Entries</h5>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Week</th>
+                    <th>Date</th>
+                    <th>Task Summary</th>
+                    <th>Status</th>
+                    <th>Feedback</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($logs as $log)
+                <tr>
+                    <td>W{{ $log->week_number }}</td>
+                    <td>{{ $log->entry_date->format('d M Y') }}</td>
+                    <td>{{ Str::limit($log->task_description, 50) }}</td>
+                    <td>
+                        @if($log->status === 'approved')
+                            <span class="badge badge-status-approved">Approved</span>
+                        @elseif($log->status === 'rejected')
+                            <span class="badge badge-status-rejected">Rejected</span>
+                        @elseif($log->status === 'pending')
+                            <span class="badge badge-status-pending">Pending</span>
+                        @else
+                            <span class="badge bg-secondary">Draft</span>
+                        @endif
+                    </td>
+                    <td>{{ $log->supervisor_comment ?? '-' }}</td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+    {{ $logs->links() }}
+</div>
+@endif
+@endsection

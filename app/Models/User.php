@@ -21,7 +21,42 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
+        'company',
+        'supervisor_id',
     ];
+
+    /**
+     * Get the supervisor for a student
+     */
+    public function supervisor()
+    {
+        return $this->belongsTo(User::class, 'supervisor_id');
+    }
+
+    /**
+     * Get students under this supervisor
+     */
+    public function students()
+    {
+        return $this->hasMany(User::class, 'supervisor_id');
+    }
+
+    /**
+     * Get log entries for this user
+     */
+    public function logEntries()
+    {
+        return $this->hasMany(\App\Models\LogEntry::class, 'student_id');
+    }
+
+    /**
+     * Get internships for this user
+     */
+    public function internships()
+    {
+        return $this->hasMany(\App\Models\Internship::class, 'student_id');
+    }
 
     /**
      * The attributes that should be hidden for serialization.
