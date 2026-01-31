@@ -25,11 +25,13 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $credentials = $request->validate([
-            'email' => 'required|email',
+            'email' => 'required', // Removed 'email' rule to allow ID
             'password' => 'required',
         ]);
 
-        if (Auth::attempt($credentials, $request->boolean('remember'))) {
+        $fieldType = filter_var($request->email, FILTER_VALIDATE_EMAIL) ? 'email' : 'matrix_id';
+
+        if (Auth::attempt([$fieldType => $request->email, 'password' => $request->password], $request->boolean('remember'))) {
             $request->session()->regenerate();
 
             // Redirect based on role
@@ -54,6 +56,7 @@ class AuthController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
+            'matrix_id' => 'required|string|unique:users',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => ['required', 'confirmed', Password::min(8)],
             'role' => 'required|in:student,supervisor',
@@ -63,6 +66,7 @@ class AuthController extends Controller
 
         $user = User::create([
             'name' => $request->name,
+            'matrix_id' => $request->matrix_id,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => $request->role,

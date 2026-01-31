@@ -45,11 +45,11 @@
                 <form method="POST" action="{{ route('login') }}">
                     @csrf
                     <div class="mb-3">
-                        <label class="form-label">Email Address</label>
+                        <label class="form-label">Email Address / ID</label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fas fa-envelope"></i></span>
-                            <input type="email" name="email" class="form-control @error('email') is-invalid @enderror" 
-                                   placeholder="name@example.com" value="{{ old('email') }}" required>
+                            <span class="input-group-text"><i class="fas fa-user"></i></span>
+                            <input type="text" name="email" class="form-control @error('email') is-invalid @enderror" 
+                                   placeholder="Email or Student/Staff ID" value="{{ old('email') }}" required>
                         </div>
                         @error('email')
                             <div class="text-danger small mt-1">{{ $message }}</div>
@@ -85,6 +85,14 @@
                         <input type="text" name="name" class="form-control @error('name') is-invalid @enderror" 
                                placeholder="John Doe" value="{{ old('name') }}" required>
                         @error('name')
+                            <div class="text-danger small mt-1">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Student / Supervisor ID</label>
+                        <input type="text" name="matrix_id" class="form-control @error('matrix_id') is-invalid @enderror" 
+                               placeholder="SW0108XXX / S12345" value="{{ old('matrix_id') }}" required>
+                        @error('matrix_id')
                             <div class="text-danger small mt-1">{{ $message }}</div>
                         @enderror
                     </div>
