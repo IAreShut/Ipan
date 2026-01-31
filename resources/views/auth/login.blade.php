@@ -60,7 +60,10 @@
                         <div class="input-group">
                             <span class="input-group-text"><i class="fas fa-lock"></i></span>
                             <input type="password" name="password" class="form-control @error('password') is-invalid @enderror" 
-                                   placeholder="********" required>
+                                   placeholder="********" required id="loginPassword">
+                            <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('loginPassword', this)">
+                                <i class="fas fa-eye"></i>
+                            </button>
                         </div>
                         @error('password')
                             <div class="text-danger small mt-1">{{ $message }}</div>
@@ -128,14 +131,24 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Password</label>
-                        <input type="password" name="password" class="form-control @error('password') is-invalid @enderror" required>
+                        <div class="input-group">
+                            <input type="password" name="password" class="form-control @error('password') is-invalid @enderror" required id="regPassword">
+                            <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('regPassword', this)">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
                         @error('password')
                             <div class="text-danger small mt-1">{{ $message }}</div>
                         @enderror
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Confirm Password</label>
-                        <input type="password" name="password_confirmation" class="form-control" required>
+                        <div class="input-group">
+                            <input type="password" name="password_confirmation" class="form-control" required id="regConfirmPassword">
+                            <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('regConfirmPassword', this)">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
                     </div>
                     <div class="d-grid">
                         <button type="submit" class="btn btn-success btn-lg">Register Account</button>
@@ -152,5 +165,20 @@
 document.getElementById('regRole').addEventListener('change', function() {
     document.getElementById('supervisorField').style.display = this.value === 'student' ? 'block' : 'none';
 });
+
+function togglePassword(inputId, btn) {
+    const input = document.getElementById(inputId);
+    const icon = btn.querySelector('i');
+    
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+    } else {
+        input.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+    }
+}
 </script>
 @endpush
