@@ -25,6 +25,7 @@ class User extends Authenticatable
         'company',
         'supervisor_id',
         'matrix_id',
+        'phone',
     ];
 
     /**

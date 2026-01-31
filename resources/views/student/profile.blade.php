@@ -46,6 +46,16 @@
                         <input type="text" class="form-control" value="{{ $user->supervisor->name ?? 'Not assigned' }}" readonly>
                     </div>
                 </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Phone Number</label>
+                        <input type="text" class="form-control" value="{{ $user->phone ?? 'Not specified' }}" readonly>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Student / Supervisor ID</label>
+                        <input type="text" class="form-control" value="{{ $user->matrix_id ?? 'Not specified' }}" readonly>
+                    </div>
+                </div>
                 @if($internship)
                 <div class="row mb-3">
                     <div class="col-md-6">

@@ -108,6 +108,17 @@
                         @enderror
                     </div>
                     <div class="mb-3">
+                        <label class="form-label">Phone Number</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                            <input type="tel" name="phone" class="form-control @error('phone') is-invalid @enderror" 
+                                   placeholder="0123456789" value="{{ old('phone') }}">
+                        </div>
+                        @error('phone')
+                            <div class="text-danger small mt-1">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <div class="mb-3">
                         <label class="form-label">Company / Internship Place</label>
                         <input type="text" name="company" class="form-control" 
                                placeholder="ABC Tech Solutions" value="{{ old('company') }}">
