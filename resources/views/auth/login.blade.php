@@ -94,7 +94,7 @@
                     <div class="mb-3">
                         <label class="form-label">Student / Supervisor ID</label>
                         <input type="text" name="matrix_id" class="form-control @error('matrix_id') is-invalid @enderror" 
-                               placeholder="SW0108XXX / S12345" value="{{ old('matrix_id') }}" required>
+                               placeholder="e.g. 12345678" value="{{ old('matrix_id') }}" pattern="[0-9]+" title="Numbers only" required>
                         @error('matrix_id')
                             <div class="text-danger small mt-1">{{ $message }}</div>
                         @enderror
@@ -112,7 +112,7 @@
                         <div class="input-group">
                             <span class="input-group-text"><i class="fas fa-phone"></i></span>
                             <input type="tel" name="phone" class="form-control @error('phone') is-invalid @enderror" 
-                                   placeholder="0123456789" value="{{ old('phone') }}">
+                                   placeholder="e.g. 0123456789" value="{{ old('phone') }}" pattern="01[0-9]{8,9}" title="Malaysian phone number (e.g., 0123456789)" required>
                         </div>
                         @error('phone')
                             <div class="text-danger small mt-1">{{ $message }}</div>
@@ -120,8 +120,11 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Company / Internship Place</label>
-                        <input type="text" name="company" class="form-control" 
-                               placeholder="ABC Tech Solutions" value="{{ old('company') }}">
+                        <input type="text" name="company" class="form-control @error('company') is-invalid @enderror" 
+                               placeholder="ABC Tech Solutions" value="{{ old('company') }}" required>
+                        @error('company')
+                            <div class="text-danger small mt-1">{{ $message }}</div>
+                        @enderror
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Role</label>
@@ -130,15 +133,17 @@
                             <option value="supervisor" {{ old('role') == 'supervisor' ? 'selected' : '' }}>Supervisor</option>
                         </select>
                     </div>
-                    <div class="mb-3" id="supervisorField">
-                        <label class="form-label">Select Supervisor</label>
-                        <select class="form-select" name="supervisor_id">
-                            <option value="">Choose...</option>
+                    <div class="mb-3" id="supervisorField" style="{{ old('role') == 'supervisor' ? 'display: none;' : '' }}">
+                        <label class="form-label">Select Supervisor <span class="text-danger">*</span></label>
+                        <select class="form-select @error('supervisor_id') is-invalid @enderror" name="supervisor_id" id="supervisorSelect" {{ old('role') != 'supervisor' ? 'required' : '' }}>
+                            <option value="">-- Select Supervisor --</option>
                             @foreach($supervisors ?? [] as $supervisor)
-                                <option value="{{ $supervisor->id }}">{{ $supervisor->name }}</option>
+                                <option value="{{ $supervisor->id }}" {{ old('supervisor_id') == $supervisor->id ? 'selected' : '' }}>{{ $supervisor->name }}</option>
                             @endforeach
                         </select>
-                        <div class="form-text">Required for students only.</div>
+                        @error('supervisor_id')
+                            <div class="text-danger small mt-1">{{ $message }}</div>
+                        @enderror
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Password</label>
@@ -174,7 +179,13 @@
 @push('scripts')
 <script>
 document.getElementById('regRole').addEventListener('change', function() {
-    document.getElementById('supervisorField').style.display = this.value === 'student' ? 'block' : 'none';
+    const supervisorField = document.getElementById('supervisorField');
+    const supervisorSelect = document.getElementById('supervisorSelect');
+    const isStudent = this.value === 'student';
+    
+    supervisorField.style.display = isStudent ? 'block' : 'none';
+    supervisorSelect.required = isStudent;
+    if (!isStudent) supervisorSelect.value = '';
 });
 
 function togglePassword(inputId, btn) {
