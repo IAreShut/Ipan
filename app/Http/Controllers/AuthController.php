@@ -83,12 +83,7 @@ class AuthController extends Controller
             'supervisor_id' => $request->role === 'student' ? $request->supervisor_id : null,
         ]);
 
-        Auth::login($user);
-
-        if ($user->role === 'supervisor') {
-            return redirect()->route('supervisor.dashboard');
-        }
-        return redirect()->route('student.dashboard');
+        return redirect()->route('login')->with('success', 'Registration successful! Please login to continue.');
     }
 
     /**
