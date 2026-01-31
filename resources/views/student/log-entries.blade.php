@@ -116,7 +116,6 @@
     {{ $logs->links() }}
 </div>
 @endif
-@endif
 @endsection
 
 @push('scripts')
