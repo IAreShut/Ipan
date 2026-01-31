@@ -32,16 +32,16 @@
         <!-- Tabs for Login / Register -->
         <ul class="nav nav-pills mb-4 justify-content-center" id="pills-tab" role="tablist">
             <li class="nav-item" role="presentation">
-                <button class="nav-link active rounded-pill px-4" id="pills-login-tab" data-bs-toggle="pill" data-bs-target="#pills-login" type="button" role="tab">Login</button>
+                <button class="nav-link {{ old('name') || old('matrix_id') ? '' : 'active' }} rounded-pill px-4" id="pills-login-tab" data-bs-toggle="pill" data-bs-target="#pills-login" type="button" role="tab">Login</button>
             </li>
             <li class="nav-item" role="presentation">
-                <button class="nav-link rounded-pill px-4" id="pills-register-tab" data-bs-toggle="pill" data-bs-target="#pills-register" type="button" role="tab">Register</button>
+                <button class="nav-link {{ old('name') || old('matrix_id') ? 'active' : '' }} rounded-pill px-4" id="pills-register-tab" data-bs-toggle="pill" data-bs-target="#pills-register" type="button" role="tab">Register</button>
             </li>
         </ul>
 
         <div class="tab-content" id="pills-tabContent">
             <!-- LOGIN FORM -->
-            <div class="tab-pane fade show active" id="pills-login" role="tabpanel">
+            <div class="tab-pane fade {{ old('name') || old('matrix_id') ? '' : 'show active' }}" id="pills-login" role="tabpanel">
                 <form method="POST" action="{{ route('login') }}">
                     @csrf
                     <div class="mb-3">
@@ -80,7 +80,7 @@
             </div>
 
             <!-- REGISTER FORM -->
-            <div class="tab-pane fade" id="pills-register" role="tabpanel">
+            <div class="tab-pane fade {{ old('name') || old('matrix_id') ? 'show active' : '' }}" id="pills-register" role="tabpanel">
                 <form method="POST" action="{{ route('register') }}">
                     @csrf
                     <div class="mb-3">
