@@ -4,6 +4,7 @@
 
 @push('styles')
 <link rel="stylesheet" href="{{ asset('css/student-log-entries.css') }}">
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
 @endpush
 
 @section('sidebar-menu')
@@ -79,7 +80,7 @@
 <div class="card card-custom p-4 mt-4">
     <h5 class="fw-bold mb-3">Previous Entries</h5>
     <div class="table-responsive">
-        <table class="table table-hover align-middle">
+        <table id="logEntriesTable" class="table table-hover align-middle">
             <thead class="table-light">
                 <tr>
                     <th>Week</th>
@@ -115,4 +116,20 @@
     {{ $logs->links() }}
 </div>
 @endif
+@endif
 @endsection
+
+@push('scripts')
+<script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#logEntriesTable').DataTable({
+            paging: false, // Keep Laravel pagination
+            info: false,
+            searching: true
+        });
+    });
+</script>
+@endpush

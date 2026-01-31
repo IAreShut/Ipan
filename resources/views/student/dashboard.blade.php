@@ -92,7 +92,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse($recentLogs as $log)
+                        @foreach($recentLogs as $log)
                         <tr>
                             <td>W{{ $log->week_number }}</td>
                             <td>{{ $log->entry_date->format('d M Y') }}</td>
@@ -112,11 +112,7 @@
                                 <button class="btn btn-sm btn-light text-primary"><i class="fas fa-eye"></i></button>
                             </td>
                         </tr>
-                        @empty
-                        <tr>
-                            <td colspan="5" class="text-center text-muted py-4">No log entries yet. Start by creating your first log!</td>
-                        </tr>
-                        @endforelse
+                        @endforeach
                     </tbody>
                 </table>
             </div>

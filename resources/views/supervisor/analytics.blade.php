@@ -12,6 +12,9 @@
 @section('page-subtitle', 'View statistics and reports.')
 
 @section('main-content')
+@push('styles')
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+@endpush
 <div class="row g-4">
     <div class="col-md-3">
         <div class="card card-custom p-4 text-center">
@@ -63,7 +66,7 @@
 <div class="card card-custom p-4 mt-4">
     <h5 class="fw-bold mb-4">Student Performance</h5>
     <div class="table-responsive">
-        <table class="table table-hover align-middle">
+        <table id="analyticsTable" class="table table-hover align-middle">
             <thead class="table-light">
                 <tr>
                     <th>Student</th>
@@ -107,3 +110,14 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#analyticsTable').DataTable();
+    });
+</script>
+@endpush

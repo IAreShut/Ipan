@@ -54,7 +54,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse($students as $student)
+                        @foreach($students as $student)
                         @php
                             $pendingCount = $student->logEntries->where('status', 'pending')->count();
                         @endphp
@@ -80,11 +80,7 @@
                                 <a href="{{ route('supervisor.review-logbook') }}" class="btn btn-sm btn-primary-custom">Review</a>
                             </td>
                         </tr>
-                        @empty
-                        <tr>
-                            <td colspan="4" class="text-center text-muted py-4">No students assigned yet.</td>
-                        </tr>
-                        @endforelse
+                        @endforeach
                     </tbody>
                 </table>
             </div>
