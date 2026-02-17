@@ -126,19 +126,19 @@
                         @enderror
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Company / Internship Place</label>
-                        <input type="text" name="company" class="form-control @error('company') is-invalid @enderror" 
-                               placeholder="ABC Tech Solutions" value="{{ old('company') }}" required>
-                        @error('company')
-                            <div class="text-danger small mt-1">{{ $message }}</div>
-                        @enderror
-                    </div>
-                    <div class="mb-3">
                         <label class="form-label">Role</label>
                         <select class="form-select" name="role" id="regRole">
                             <option value="student" {{ old('role') == 'student' ? 'selected' : '' }}>Student</option>
                             <option value="supervisor" {{ old('role') == 'supervisor' ? 'selected' : '' }}>Supervisor</option>
                         </select>
+                    </div>
+                    <div class="mb-3" id="companyField" style="{{ old('role') == 'supervisor' ? 'display: none;' : '' }}">
+                        <label class="form-label">Company / Internship Place <span class="text-danger">*</span></label>
+                        <input type="text" name="company" class="form-control @error('company') is-invalid @enderror" 
+                               placeholder="ABC Tech Solutions" value="{{ old('company') }}" {{ old('role') != 'supervisor' ? 'required' : '' }}>
+                        @error('company')
+                            <div class="text-danger small mt-1">{{ $message }}</div>
+                        @enderror
                     </div>
                     <div class="mb-3" id="supervisorField" style="{{ old('role') == 'supervisor' ? 'display: none;' : '' }}">
                         <label class="form-label">Select Supervisor <span class="text-danger">*</span></label>
@@ -188,11 +188,17 @@
 document.getElementById('regRole').addEventListener('change', function() {
     const supervisorField = document.getElementById('supervisorField');
     const supervisorSelect = document.getElementById('supervisorSelect');
+    const companyField = document.getElementById('companyField');
+    const companyInput = companyField.querySelector('input[name="company"]');
     const isStudent = this.value === 'student';
     
     supervisorField.style.display = isStudent ? 'block' : 'none';
     supervisorSelect.required = isStudent;
     if (!isStudent) supervisorSelect.value = '';
+
+    companyField.style.display = isStudent ? 'block' : 'none';
+    companyInput.required = isStudent;
+    if (!isStudent) companyInput.value = '';
 });
 
 function togglePassword(inputId, btn) {

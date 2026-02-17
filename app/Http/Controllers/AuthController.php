@@ -61,7 +61,7 @@ class AuthController extends Controller
             'phone' => ['required', 'regex:/^01[0-9]{8,9}$/', 'unique:users'],
             'password' => ['required', 'confirmed', Password::min(8)],
             'role' => 'required|in:student,supervisor',
-            'company' => 'required|string|max:255',
+            'company' => $request->role === 'student' ? 'required|string|max:255' : 'nullable|string|max:255',
             'supervisor_id' => $request->role === 'student' ? 'required|exists:users,id' : 'nullable|exists:users,id',
         ], [
             'phone.regex' => 'Please enter a valid Malaysian phone number (e.g., 0123456789).',
