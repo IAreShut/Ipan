@@ -58,29 +58,6 @@
                 <i class="fas fa-times me-1"></i> Reject
             </button>
         </div>
-
-        <!-- Reject Modal -->
-        <div class="modal fade" id="rejectModal{{ $log->id }}" tabindex="-1">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <form action="{{ route('supervisor.reject', $log->id) }}" method="POST">
-                        @csrf
-                        <div class="modal-header">
-                            <h5 class="modal-title">Reject Log Entry</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                        </div>
-                        <div class="modal-body">
-                            <label class="form-label">Reason for rejection (required)</label>
-                            <textarea name="comment" class="form-control" rows="3" required placeholder="Please provide feedback for the student..."></textarea>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                            <button type="submit" class="btn btn-danger">Reject</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
     </div>
     @empty
     <div class="text-center py-5">
@@ -92,6 +69,31 @@
 
     {{ $logs->links() }}
 </div>
+
+{{-- Reject Modals - placed OUTSIDE the card to prevent positioning/flickering bugs --}}
+@foreach($logs as $log)
+<div class="modal fade" id="rejectModal{{ $log->id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form action="{{ route('supervisor.reject', $log->id) }}" method="POST">
+                @csrf
+                <div class="modal-header">
+                    <h5 class="modal-title">Reject Log Entry</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <label class="form-label">Reason for rejection (required)</label>
+                    <textarea name="comment" class="form-control" rows="3" required placeholder="Please provide feedback for the student..."></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Reject</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@endforeach
 
 <!-- Image Lightbox Modal -->
 <div class="modal fade" id="svImageModal" tabindex="-1" aria-hidden="true">
