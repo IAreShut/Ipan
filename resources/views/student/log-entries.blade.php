@@ -58,12 +58,17 @@
 
                 <div class="mb-4">
                     <label class="form-label fw-bold">Attachments (Images)</label>
-                    <div class="border border-dashed p-4 text-center rounded bg-light">
+                    <div class="upload-zone" id="uploadZone">
                         <i class="fas fa-cloud-upload-alt fa-2x text-muted mb-2"></i>
-                        <p class="text-muted mb-2">Drag & drop files or <label for="attachments" class="text-primary" style="cursor:pointer">Browse</label></p>
+                        <p class="text-muted mb-2">Drag & drop files or <label for="attachments" class="text-primary fw-semibold" style="cursor:pointer">Browse</label></p>
                         <input type="file" name="attachments[]" id="attachments" multiple accept="image/*" class="d-none">
-                        <small class="text-muted">Supported formats: JPG, PNG</small>
+                        <small class="text-muted">Supported: JPG, PNG, GIF, WebP &bull; Max 5MB per file</small>
                     </div>
+                    @error('attachments.*')
+                        <div class="text-danger small mt-1">{{ $message }}</div>
+                    @enderror
+                    <!-- Image Preview Area -->
+                    <div id="imagePreview" class="image-preview-grid mt-3"></div>
                 </div>
 
                 <div class="d-flex justify-content-end gap-3">
@@ -86,6 +91,7 @@
                     <th>Week</th>
                     <th>Date</th>
                     <th>Task Summary</th>
+                    <th>Attachments</th>
                     <th>Status</th>
                     <th>Feedback</th>
                 </tr>
@@ -96,6 +102,33 @@
                     <td>W{{ $log->week_number }}</td>
                     <td>{{ $log->entry_date->format('d M Y') }}</td>
                     <td>{{ Str::limit($log->task_description, 50) }}</td>
+                    <td>
+                        @if($log->attachments->count() > 0)
+                            <div class="attachment-thumbnails">
+                                @foreach($log->attachments as $attachment)
+                                    <div class="thumb-wrapper">
+                                        <img src="{{ asset('storage/' . $attachment->file_path) }}" 
+                                             alt="{{ $attachment->file_name }}"
+                                             class="attachment-thumb"
+                                             data-bs-toggle="modal" 
+                                             data-bs-target="#imageModal"
+                                             data-img-src="{{ asset('storage/' . $attachment->file_path) }}"
+                                             data-img-name="{{ $attachment->file_name }}"
+                                             title="Click to enlarge">
+                                        <form action="{{ route('student.log-attachments.destroy', $attachment->id) }}" method="POST" class="thumb-delete-form" onsubmit="return confirm('Delete this attachment?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn-thumb-delete" title="Delete attachment">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @else
+                            <span class="text-muted">-</span>
+                        @endif
+                    </td>
                     <td>
                         @if($log->status === 'approved')
                             <span class="badge badge-status-approved">Approved</span>
@@ -116,6 +149,21 @@
     {{ $logs->links() }}
 </div>
 @endif
+
+<!-- Image Lightbox Modal -->
+<div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content bg-dark border-0">
+            <div class="modal-header border-0">
+                <h6 class="modal-title text-white" id="imageModalLabel">Attachment</h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center p-0">
+                <img id="modalImage" src="" alt="" class="img-fluid rounded-bottom" style="max-height:80vh; object-fit:contain;">
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 
 @push('scripts')
@@ -125,10 +173,85 @@
 <script>
     $(document).ready(function() {
         $('#logEntriesTable').DataTable({
-            paging: false, // Keep Laravel pagination
+            paging: false,
             info: false,
             searching: true
         });
+    });
+
+    // ===== FILE PREVIEW =====
+    const fileInput = document.getElementById('attachments');
+    const previewContainer = document.getElementById('imagePreview');
+    const uploadZone = document.getElementById('uploadZone');
+    let selectedFiles = new DataTransfer();
+
+    fileInput.addEventListener('change', function () {
+        for (const file of this.files) {
+            selectedFiles.items.add(file);
+        }
+        fileInput.files = selectedFiles.files;
+        renderPreviews();
+    });
+
+    // Drag & drop
+    uploadZone.addEventListener('dragover', function (e) {
+        e.preventDefault();
+        this.classList.add('drag-active');
+    });
+    uploadZone.addEventListener('dragleave', function () {
+        this.classList.remove('drag-active');
+    });
+    uploadZone.addEventListener('drop', function (e) {
+        e.preventDefault();
+        this.classList.remove('drag-active');
+        for (const file of e.dataTransfer.files) {
+            if (file.type.startsWith('image/')) {
+                selectedFiles.items.add(file);
+            }
+        }
+        fileInput.files = selectedFiles.files;
+        renderPreviews();
+    });
+
+    function renderPreviews() {
+        previewContainer.innerHTML = '';
+        Array.from(selectedFiles.files).forEach((file, index) => {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'preview-item';
+                wrapper.innerHTML = `
+                    <img src="${e.target.result}" alt="${file.name}">
+                    <span class="preview-name">${file.name}</span>
+                    <button type="button" class="btn-preview-remove" data-index="${index}" title="Remove">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                previewContainer.appendChild(wrapper);
+
+                wrapper.querySelector('.btn-preview-remove').addEventListener('click', function () {
+                    removeFile(parseInt(this.dataset.index));
+                });
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    function removeFile(index) {
+        const dt = new DataTransfer();
+        Array.from(selectedFiles.files).forEach((file, i) => {
+            if (i !== index) dt.items.add(file);
+        });
+        selectedFiles = dt;
+        fileInput.files = selectedFiles.files;
+        renderPreviews();
+    }
+
+    // ===== LIGHTBOX MODAL =====
+    document.getElementById('imageModal')?.addEventListener('show.bs.modal', function (event) {
+        const trigger = event.relatedTarget;
+        document.getElementById('modalImage').src = trigger.dataset.imgSrc;
+        document.getElementById('imageModalLabel').textContent = trigger.dataset.imgName;
     });
 </script>
 @endpush

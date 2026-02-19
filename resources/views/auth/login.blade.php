@@ -91,7 +91,7 @@
                 <form method="POST" action="{{ route('register') }}">
                     @csrf
                     <div class="mb-3">
-                        <label class="form-label">Full Name</label>
+                        <label class="form-label">Full Name <span class="text-danger">*</span></label>
                         <input type="text" name="name" class="form-control @error('name') is-invalid @enderror" 
                                placeholder="John Doe" value="{{ old('name') }}" required>
                         @error('name')
@@ -99,7 +99,7 @@
                         @enderror
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Student / Supervisor ID</label>
+                        <label class="form-label">Student / Supervisor ID <span class="text-danger">*</span></label>
                         <input type="text" name="matrix_id" class="form-control @error('matrix_id') is-invalid @enderror" 
                                placeholder="e.g. 12345678" value="{{ old('matrix_id') }}" pattern="[0-9]+" title="Numbers only" required>
                         @error('matrix_id')
@@ -107,7 +107,7 @@
                         @enderror
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Email Address</label>
+                        <label class="form-label">Email Address <span class="text-danger">*</span></label>
                         <input type="email" name="email" class="form-control @error('email') is-invalid @enderror" 
                                placeholder="name@varsity.edu.my" value="{{ old('email') }}" required>
                         @error('email')
@@ -115,7 +115,7 @@
                         @enderror
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Phone Number</label>
+                        <label class="form-label">Phone Number <span class="text-danger">*</span></label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fas fa-phone"></i></span>
                             <input type="tel" name="phone" class="form-control @error('phone') is-invalid @enderror" 
@@ -126,7 +126,7 @@
                         @enderror
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Role</label>
+                        <label class="form-label">Role <span class="text-danger">*</span></label>
                         <select class="form-select" name="role" id="regRole">
                             <option value="student" {{ old('role') == 'student' ? 'selected' : '' }}>Student</option>
                             <option value="supervisor" {{ old('role') == 'supervisor' ? 'selected' : '' }}>Supervisor</option>

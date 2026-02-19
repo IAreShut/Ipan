@@ -62,7 +62,7 @@ class SupervisorController extends Controller
         
         $logs = LogEntry::whereIn('student_id', $students)
             ->where('status', 'pending')
-            ->with('student')
+            ->with(['student', 'attachments'])
             ->orderBy('entry_date', 'desc')
             ->paginate(10);
 

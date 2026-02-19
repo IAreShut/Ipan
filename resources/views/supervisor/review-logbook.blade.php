@@ -2,6 +2,10 @@
 
 @section('title', 'Review Logbook - LIMS')
 
+@push('styles')
+<link rel="stylesheet" href="{{ asset('css/student-log-entries.css') }}">
+@endpush
+
 @section('sidebar-menu')
 <a class="nav-link" href="{{ route('supervisor.dashboard') }}"><i class="fas fa-th-large"></i> Dashboard</a>
 <a class="nav-link active" href="{{ route('supervisor.review-logbook') }}"><i class="fas fa-check-circle"></i> Review Logbook</a>
@@ -28,6 +32,19 @@
         
         <div class="bg-light p-3 rounded mb-3">
             <p class="mb-0">{{ $log->task_description }}</p>
+            @if($log->attachments && $log->attachments->count() > 0)
+                <div class="sv-attachment-gallery">
+                    @foreach($log->attachments as $attachment)
+                        <img src="{{ asset('storage/' . $attachment->file_path) }}" 
+                             alt="{{ $attachment->file_name }}"
+                             data-bs-toggle="modal" 
+                             data-bs-target="#svImageModal"
+                             data-img-src="{{ asset('storage/' . $attachment->file_path) }}"
+                             data-img-name="{{ $attachment->file_name }}"
+                             title="{{ $attachment->file_name }}">
+                    @endforeach
+                </div>
+            @endif
         </div>
 
         <div class="d-flex gap-2">
@@ -75,4 +92,29 @@
 
     {{ $logs->links() }}
 </div>
+
+<!-- Image Lightbox Modal -->
+<div class="modal fade" id="svImageModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content bg-dark border-0">
+            <div class="modal-header border-0">
+                <h6 class="modal-title text-white" id="svImageModalLabel">Attachment</h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center p-0">
+                <img id="svModalImage" src="" alt="" class="img-fluid rounded-bottom" style="max-height:80vh; object-fit:contain;">
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
+
+@push('scripts')
+<script>
+    document.getElementById('svImageModal')?.addEventListener('show.bs.modal', function (event) {
+        const trigger = event.relatedTarget;
+        document.getElementById('svModalImage').src = trigger.dataset.imgSrc;
+        document.getElementById('svImageModalLabel').textContent = trigger.dataset.imgName;
+    });
+</script>
+@endpush

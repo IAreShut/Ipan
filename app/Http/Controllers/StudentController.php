@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\LogEntry;
+use App\Models\LogAttachment;
 use App\Models\Internship;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class StudentController extends Controller
 {
@@ -56,6 +58,7 @@ class StudentController extends Controller
         $user = Auth::user();
         $internship = Internship::where('student_id', $user->id)->first();
         $logs = LogEntry::where('student_id', $user->id)
+            ->with('attachments')
             ->orderBy('entry_date', 'desc')
             ->paginate(10);
 
@@ -71,22 +74,63 @@ class StudentController extends Controller
             'entry_date' => 'required|date',
             'week_number' => 'required|integer|min:1',
             'task_description' => 'required|string',
+            'attachments.*' => 'nullable|image|mimes:jpg,jpeg,png,gif,webp|max:5120',
         ]);
 
-        $user = Auth::user();
-        $internship = Internship::where('student_id', $user->id)->first();
+        try {
+            \DB::beginTransaction();
 
-        LogEntry::create([
-            'student_id' => $user->id,
-            'internship_id' => $internship ? $internship->id : 1,
-            'entry_date' => $request->entry_date,
-            'week_number' => $request->week_number,
-            'task_description' => $request->task_description,
-            'status' => $request->has('save_draft') ? 'draft' : 'pending',
-        ]);
+            $user = Auth::user();
 
-        return redirect()->route('student.log-entries')
-            ->with('success', 'Log entry submitted successfully!');
+            // Get or create internship with ALL required fields
+            $internship = Internship::where('student_id', $user->id)->first();
+            if (!$internship) {
+                $internship = Internship::create([
+                    'student_id' => $user->id,
+                    'company_name' => 'Not Set',
+                    'company_address' => '-',
+                    'start_date' => now(),
+                    'end_date' => now()->addWeeks(12),
+                    'total_weeks' => 12,
+                ]);
+            }
+
+            // Create the log entry
+            $logEntry = LogEntry::create([
+                'student_id' => $user->id,
+                'internship_id' => $internship->id,
+                'entry_date' => $request->entry_date,
+                'week_number' => $request->week_number,
+                'task_description' => $request->task_description,
+                'status' => $request->has('save_draft') ? 'draft' : 'pending',
+            ]);
+
+            // Handle file attachments
+            if ($request->hasFile('attachments')) {
+                foreach ($request->file('attachments') as $file) {
+                    $path = $file->store('log-attachments/' . $logEntry->id, 'public');
+
+                    LogAttachment::create([
+                        'log_entry_id' => $logEntry->id,
+                        'file_path' => $path,
+                        'file_name' => $file->getClientOriginalName(),
+                        'file_type' => $file->getClientMimeType(),
+                    ]);
+                }
+            }
+
+            \DB::commit();
+
+            return redirect()->route('student.log-entries')
+                ->with('success', 'Log entry submitted successfully!');
+
+        } catch (\Exception $e) {
+            \DB::rollBack();
+
+            return redirect()->route('student.log-entries')
+                ->with('error', 'Failed to submit log entry. Please try again.')
+                ->withInput();
+        }
     }
 
     /**
@@ -109,5 +153,26 @@ class StudentController extends Controller
         $logs = LogEntry::where('student_id', $user->id)->get();
         
         return view('student.progress', compact('user', 'internship', 'logs'));
+    }
+
+    /**
+     * Delete an attachment
+     */
+    public function deleteAttachment(LogAttachment $attachment)
+    {
+        $user = Auth::user();
+
+        // Ensure the attachment belongs to the current student
+        if ($attachment->logEntry->student_id !== $user->id) {
+            abort(403);
+        }
+
+        // Delete file from storage
+        Storage::disk('public')->delete($attachment->file_path);
+
+        // Delete DB record
+        $attachment->delete();
+
+        return back()->with('success', 'Attachment deleted successfully!');
     }
 }
