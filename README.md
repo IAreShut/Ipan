@@ -1,37 +1,88 @@
 # LIMS - Logbook Internship Management System
-
 Sistem pengurusan logbook latihan industri berasaskan Laravel.
 
 ## Requirements
 
-- PHP 8.1+
-- Composer
-- MySQL (XAMPP recommended)
-- Node.js (optional, untuk frontend build)
+### Backend (Server-Side)
+
+| Technology | Version | Role |
+|------------|---------|------|
+| **PHP** | 8.2+ | Main server-side programming language |
+| **Laravel** | 12.x | Core PHP framework — routing, MVC, Eloquent ORM, authentication, middleware, migrations |
+| **Composer** | Latest | Dependency manager for PHP packages |
+| **Laravel Tinker** | 2.10+ | Interactive REPL for debugging and testing Eloquent queries |
+| **Laravel Pail** | 1.2+ | Real-time log viewer for development |
+| **Laravel Pint** | 1.24+ | Code style fixer (PHP CS Fixer) for formatting PHP code |
+| **Laravel Sail** | 1.41+ | Docker-based development environment (optional) |
+
+### Database
+
+| Technology | Version | Role |
+|------------|---------|------|
+| **MySQL** | 5.7+ / 8.0 | Primary database for storing all system data |
+| **XAMPP** | Latest | Local development server bundle (Apache + MySQL + PHP) |
+| **Eloquent ORM** | (built-in Laravel) | Object-Relational Mapping — query the database using PHP classes & models |
+
+### Frontend (Client-Side)
+
+| Technology | Version | Role |
+|------------|---------|------|
+| **Blade** | (built-in Laravel) | Template engine — renders dynamic HTML from the server |
+| **Bootstrap** | 5.3.0 | Main CSS framework — grid system, UI components, responsive layout |
+| **Tailwind CSS** | 4.0 | Utility-first CSS framework (used via Vite build pipeline) |
+| **Font Awesome** | 6.4.0 | Icon library — all icons in sidebars, buttons, and forms |
+| **jQuery** | 3.7.0 | JavaScript library — DOM manipulation, event handling, AJAX calls |
+| **DataTables** | 1.13.7 | jQuery plugin — sorting, pagination, and search for HTML tables |
+| **SweetAlert2** | 11.x | Popup/dialog library — beautiful alerts for success, error, and confirmation |
+| **Animate.css** | 4.x | CSS animation library — transitions and animations for UI elements |
+
+### Build Tools & Dev Dependencies
+
+| Technology | Version | Role |
+|------------|---------|------|
+| **Node.js** | 18+ | JavaScript runtime — required for frontend build tools |
+| **NPM** | (with Node.js) | Package manager for frontend dependencies |
+| **Vite** | 7.x | Build tool & dev server — fast HMR, CSS/JS bundling |
+| **Laravel Vite Plugin** | 2.0 | Vite integration with Laravel — auto-refreshes Blade views on changes |
+| **Axios** | 1.11+ | HTTP client — handles AJAX requests from the frontend |
+| **Concurrently** | 9.x | Runs multiple commands simultaneously (artisan serve + vite dev) |
+
+### Testing (Development)
+
+| Technology | Version | Role |
+|------------|---------|------|
+| **PHPUnit** | 11.5+ | Unit & feature testing framework for PHP |
+| **Mockery** | 1.6+ | Mocking library for unit tests |
+| **Faker** | 1.23+ | Generates fake data for database seeding & testing |
+| **Collision** | 8.6+ | Beautiful error reporting for CLI and testing output |
+
+### External Services (CDN)
+
+| Technology | Role |
+|------------|------|
+| **jsDelivr CDN** | Hosts Bootstrap, SweetAlert2, Animate.css, and DataTables assets |
+| **cdnjs CDN** | Hosts Font Awesome icon assets |
+| **jQuery CDN** | Hosts jQuery library |
+| **UI Avatars API** | Generates avatar placeholders based on user names |
 
 ## Installation
-
 ### 1. Clone / Download Project
 ```bash
 cd C:\Users\User\FYP System\Ipan
 ```
-
 ### 2. Install Dependencies
 ```bash
 composer install
 ```
-
 ### 3. Setup Environment
 Copy file `.env.example` ke `.env` (jika belum ada):
 ```bash
 cp .env.example .env
 ```
-
 ### 4. Generate Application Key
 ```bash
 php artisan key:generate
 ```
-
 ### 5. Setup Database
 1. Buka **XAMPP Control Panel**
 2. Start **MySQL**
