@@ -28,6 +28,8 @@ Route::middleware(['auth'])->prefix('student')->name('student.')->group(function
     Route::get('/log-entries', [StudentController::class, 'logEntries'])->name('log-entries');
     Route::post('/log-entries', [StudentController::class, 'storeLogEntry'])->name('log-entries.store');
     Route::get('/log-entries/{logEntry}', [StudentController::class, 'showLogEntry'])->name('log-entries.show');
+    Route::get('/log-entries/{logEntry}/edit', [StudentController::class, 'editLogEntry'])->name('log-entries.edit');
+    Route::put('/log-entries/{logEntry}', [StudentController::class, 'updateLogEntry'])->name('log-entries.update');
     Route::delete('/log-attachments/{attachment}', [StudentController::class, 'deleteAttachment'])->name('log-attachments.destroy');
     Route::get('/profile', [StudentController::class, 'profile'])->name('profile');
     Route::get('/progress', [StudentController::class, 'progress'])->name('progress');

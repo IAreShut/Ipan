@@ -25,10 +25,11 @@ class StudentController extends Controller
         $pendingLogs = LogEntry::where('student_id', $user->id)->where('status', 'pending')->count();
         $rejectedLogs = LogEntry::where('student_id', $user->id)->where('status', 'rejected')->count();
         
-        // Get recent log entries
+        // Get recent log entries — drafts first so user can prioritize
         $recentLogs = LogEntry::where('student_id', $user->id)
+            ->orderByRaw("FIELD(status, 'draft') DESC")
             ->orderBy('entry_date', 'desc')
-            ->take(5)
+            ->take(10)
             ->get();
         
         // Calculate progress
@@ -121,8 +122,9 @@ class StudentController extends Controller
 
             \DB::commit();
 
+            $message = $request->has('save_draft') ? 'Draft saved successfully!' : 'Log entry submitted successfully!';
             return redirect()->route('student.log-entries')
-                ->with('success', 'Log entry submitted successfully!');
+                ->with('success', $message);
 
         } catch (\Exception $e) {
             \DB::rollBack();
@@ -152,6 +154,93 @@ class StudentController extends Controller
         $logEntry->load(['attachments', 'student']);
 
         return view('student.log-entry-show', compact('logEntry'));
+    }
+
+    /**
+     * Edit a draft log entry
+     */
+    public function editLogEntry(LogEntry $logEntry)
+    {
+        $user = Auth::user();
+
+        // Only the owner can edit, and only drafts
+        if ($logEntry->student_id !== $user->id) {
+            abort(403);
+        }
+        if ($logEntry->status !== 'draft') {
+            return redirect()->route('student.log-entries')
+                ->with('error', 'Only draft entries can be edited.');
+        }
+
+        $internship = Internship::where('student_id', $user->id)->first();
+        $logEntry->load('attachments');
+        $logs = LogEntry::where('student_id', $user->id)
+            ->with('attachments')
+            ->orderBy('entry_date', 'desc')
+            ->paginate(10);
+
+        return view('student.log-entries', compact('user', 'internship', 'logs', 'logEntry'));
+    }
+
+    /**
+     * Update a draft log entry
+     */
+    public function updateLogEntry(Request $request, LogEntry $logEntry)
+    {
+        $user = Auth::user();
+
+        if ($logEntry->student_id !== $user->id) {
+            abort(403);
+        }
+        if ($logEntry->status !== 'draft') {
+            return redirect()->route('student.log-entries')
+                ->with('error', 'Only draft entries can be updated.');
+        }
+
+        $request->validate([
+            'entry_date' => 'required|date',
+            'week_number' => 'required|integer|min:1',
+            'task_description' => 'required|string',
+            'attachments.*' => 'nullable|image|mimes:jpg,jpeg,png,gif,webp|max:5120',
+        ]);
+
+        try {
+            \DB::beginTransaction();
+
+            $logEntry->update([
+                'entry_date' => $request->entry_date,
+                'week_number' => $request->week_number,
+                'task_description' => $request->task_description,
+                'status' => $request->has('save_draft') ? 'draft' : 'pending',
+            ]);
+
+            // Handle new file attachments
+            if ($request->hasFile('attachments')) {
+                foreach ($request->file('attachments') as $file) {
+                    $path = $file->store('log-attachments/' . $logEntry->id, 'public');
+
+                    LogAttachment::create([
+                        'log_entry_id' => $logEntry->id,
+                        'file_path' => $path,
+                        'file_name' => $file->getClientOriginalName(),
+                        'file_type' => $file->getClientMimeType(),
+                    ]);
+                }
+            }
+
+            \DB::commit();
+
+            $message = $request->has('save_draft') ? 'Draft updated successfully!' : 'Log entry submitted successfully!';
+            return redirect()->route('student.log-entries')
+                ->with('success', $message);
+
+        } catch (\Exception $e) {
+            \DB::rollBack();
+
+            return redirect()->route('student.log-entries')
+                ->with('error', 'Failed to update log entry. Please try again.')
+                ->withInput();
+        }
     }
 
     /**

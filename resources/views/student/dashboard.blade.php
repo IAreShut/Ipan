@@ -110,6 +110,9 @@
                             </td>
                             <td>
                                 <a href="{{ route('student.log-entries.show', $log->id) }}" class="btn btn-sm btn-light text-primary"><i class="fas fa-eye"></i></a>
+                                @if($log->status === 'draft')
+                                <a href="{{ route('student.log-entries.edit', $log->id) }}" class="btn btn-sm btn-light text-warning" title="Edit Draft"><i class="fas fa-pen"></i></a>
+                                @endif
                             </td>
                         </tr>
                         @endforeach

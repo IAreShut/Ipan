@@ -13,6 +13,13 @@ document.addEventListener('DOMContentLoaded', function () {
     const overlay = document.getElementById('globalSpinnerOverlay');
 
     // ─── 1. FORM INTERCEPTION ────────────────────────────────────
+    // Track which submit button was actually clicked
+    let clickedBtn = null;
+    document.addEventListener('click', function (e) {
+        const btn = e.target.closest('button[type="submit"], input[type="submit"]');
+        if (btn) clickedBtn = btn;
+    });
+
     document.addEventListener('submit', function (e) {
         const form = e.target;
 
@@ -22,19 +29,30 @@ document.addEventListener('DOMContentLoaded', function () {
         // Show the spinner overlay
         if (overlay) overlay.classList.add('active');
 
-        // Find the button that was clicked (or first submit button)
-        const btn =
-            form.querySelector('button[type="submit"]:focus') ||
+        // Use the actually-clicked button, or fall back to the first one
+        const btn = clickedBtn || 
             form.querySelector('button[type="submit"]') ||
             form.querySelector('input[type="submit"]');
 
         if (btn) {
+            // IMPORTANT: If the button has a name (e.g. save_draft), inject a hidden
+            // input to preserve its value — disabled buttons are excluded from form data
+            if (btn.name) {
+                const hidden = document.createElement('input');
+                hidden.type = 'hidden';
+                hidden.name = btn.name;
+                hidden.value = btn.value || '';
+                form.appendChild(hidden);
+            }
+
             btn.disabled = true;
-            // Store original text so we could restore it if needed
             btn.dataset.originalText = btn.innerHTML;
             btn.innerHTML =
                 '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Processing…';
         }
+
+        // Reset for next submission
+        clickedBtn = null;
     });
 
     // ─── 2. SWEETALERT2 FLASH MESSAGES ───────────────────────────

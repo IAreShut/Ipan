@@ -20,13 +20,23 @@
 <div class="row justify-content-between">
     <div class="col-12">
         <div class="card card-custom p-4">
-            <form action="{{ route('student.log-entries.store') }}" method="POST" enctype="multipart/form-data">
+            @if(isset($logEntry))
+                <div class="alert alert-info d-flex align-items-center mb-3">
+                    <i class="fas fa-edit me-2"></i>
+                    <span>You are editing a draft entry from <strong>{{ $logEntry->entry_date->format('d M Y') }}</strong>.
+                    <a href="{{ route('student.log-entries') }}" class="ms-2">Cancel</a></span>
+                </div>
+            @endif
+            <form action="{{ isset($logEntry) ? route('student.log-entries.update', $logEntry->id) : route('student.log-entries.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
+                @if(isset($logEntry))
+                    @method('PUT')
+                @endif
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <label class="form-label fw-bold">Date</label>
                         <input type="date" name="entry_date" class="form-control @error('entry_date') is-invalid @enderror" 
-                               value="{{ old('entry_date', date('Y-m-d')) }}" required>
+                               value="{{ old('entry_date', isset($logEntry) ? $logEntry->entry_date->format('Y-m-d') : date('Y-m-d')) }}" required>
                         @error('entry_date')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -35,7 +45,7 @@
                         <label class="form-label fw-bold">Week</label>
                         <select class="form-select" name="week_number">
                             @for($i = 1; $i <= ($internship->total_weeks ?? 12); $i++)
-                                <option value="{{ $i }}" {{ old('week_number') == $i ? 'selected' : '' }}>Week {{ $i }}</option>
+                                <option value="{{ $i }}" {{ old('week_number', isset($logEntry) ? $logEntry->week_number : '') == $i ? 'selected' : '' }}>Week {{ $i }}</option>
                             @endfor
                         </select>
                     </div>
@@ -45,7 +55,7 @@
                     <label class="form-label fw-bold">Task Description</label>
                     <div class="position-relative">
                         <textarea name="task_description" class="form-control @error('task_description') is-invalid @enderror" 
-                                  rows="6" placeholder="Describe your daily activities..." required>{{ old('task_description') }}</textarea>
+                                  rows="6" placeholder="Describe your daily activities..." required>{{ old('task_description', isset($logEntry) ? $logEntry->task_description : '') }}</textarea>
                         <button type="button" class="btn btn-sm btn-outline-primary position-absolute bottom-0 end-0 m-2" title="AI Suggest Summary">
                             <i class="fas fa-magic me-1"></i> AI Helper
                         </button>
@@ -56,8 +66,30 @@
                     @enderror
                 </div>
 
+                {{-- Show existing attachments when editing --}}
+                @if(isset($logEntry) && $logEntry->attachments->count() > 0)
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Current Attachments</label>
+                    <div class="d-flex flex-wrap gap-2">
+                        @foreach($logEntry->attachments as $attachment)
+                            <div class="position-relative border rounded p-1" style="width:80px;">
+                                <img src="{{ asset('storage/' . $attachment->file_path) }}" alt="{{ $attachment->file_name }}" 
+                                     class="rounded" style="width:100%; height:60px; object-fit:cover;">
+                                <form action="{{ route('student.log-attachments.destroy', $attachment->id) }}" method="POST" 
+                                      class="position-absolute top-0 end-0" onsubmit="return confirm('Delete this attachment?')">
+                                    @csrf @method('DELETE')
+                                    <button type="submit" class="btn btn-danger btn-sm rounded-circle p-0" style="width:20px;height:20px;font-size:0.6rem;line-height:1;">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+                @endif
+
                 <div class="mb-4">
-                    <label class="form-label fw-bold">Attachments (Images)</label>
+                    <label class="form-label fw-bold">{{ isset($logEntry) ? 'Add More Attachments' : 'Attachments (Images)' }}</label>
                     <div class="upload-zone" id="uploadZone">
                         <i class="fas fa-cloud-upload-alt fa-2x text-muted mb-2"></i>
                         <p class="text-muted mb-2">Drag & drop files or <label for="attachments" class="text-primary fw-semibold" style="cursor:pointer">Browse</label></p>
@@ -73,7 +105,7 @@
 
                 <div class="d-flex justify-content-end gap-3">
                     <button type="submit" name="save_draft" value="1" class="btn btn-outline-secondary px-4">Save Draft</button>
-                    <button type="submit" class="btn btn-primary-custom px-4">Submit Log</button>
+                    <button type="submit" class="btn btn-primary-custom px-4">{{ isset($logEntry) ? 'Update & Submit' : 'Submit Log' }}</button>
                 </div>
             </form>
         </div>
@@ -146,6 +178,11 @@
                         <a href="{{ route('student.log-entries.show', $log->id) }}" class="btn btn-sm btn-light text-primary" title="View Details">
                             <i class="fas fa-eye"></i>
                         </a>
+                        @if($log->status === 'draft')
+                        <a href="{{ route('student.log-entries.edit', $log->id) }}" class="btn btn-sm btn-light text-warning" title="Edit Draft">
+                            <i class="fas fa-pen"></i>
+                        </a>
+                        @endif
                     </td>
                 </tr>
                 @endforeach
