@@ -112,7 +112,7 @@
 @section('page-title', 'Log Entry Details')
 
 @section('header-right')
-<a href="{{ url()->previous() }}" class="btn btn-outline-secondary">
+<a href="{{ url()->previous() }}" class="btn btn-primary-custom px-4">
     <i class="fas fa-arrow-left me-1"></i> Back
 </a>
 @endsection
