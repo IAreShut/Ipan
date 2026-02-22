@@ -109,7 +109,7 @@
                                 @endif
                             </td>
                             <td>
-                                <button class="btn btn-sm btn-light text-primary"><i class="fas fa-eye"></i></button>
+                                <a href="{{ route('student.log-entries.show', $log->id) }}" class="btn btn-sm btn-light text-primary"><i class="fas fa-eye"></i></a>
                             </td>
                         </tr>
                         @endforeach

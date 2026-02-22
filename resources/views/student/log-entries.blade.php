@@ -94,6 +94,7 @@
                     <th>Attachments</th>
                     <th>Status</th>
                     <th>Feedback</th>
+                    <th>Action</th>
                 </tr>
             </thead>
             <tbody>
@@ -141,6 +142,11 @@
                         @endif
                     </td>
                     <td>{{ $log->supervisor_comment ?? '-' }}</td>
+                    <td>
+                        <a href="{{ route('student.log-entries.show', $log->id) }}" class="btn btn-sm btn-light text-primary" title="View Details">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                    </td>
                 </tr>
                 @endforeach
             </tbody>

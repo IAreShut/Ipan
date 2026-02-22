@@ -134,6 +134,27 @@ class StudentController extends Controller
     }
 
     /**
+     * Show a single log entry detail
+     */
+    public function showLogEntry(LogEntry $logEntry)
+    {
+        $user = Auth::user();
+
+        // Security: only the owning student or their supervisor can view
+        $isOwner = $logEntry->student_id === $user->id;
+        $isSupervisor = $user->role === 'supervisor'
+            && $logEntry->student && $logEntry->student->supervisor_id === $user->id;
+
+        if (!$isOwner && !$isSupervisor) {
+            abort(403, 'Unauthorized access.');
+        }
+
+        $logEntry->load(['attachments', 'student']);
+
+        return view('student.log-entry-show', compact('logEntry'));
+    }
+
+    /**
      * Show profile page
      */
     public function profile()
