@@ -61,7 +61,7 @@ class StudentController extends Controller
         $logs = LogEntry::where('student_id', $user->id)
             ->with('attachments')
             ->orderBy('entry_date', 'desc')
-            ->paginate(10);
+            ->get();
 
         return view('student.log-entries', compact('user', 'internship', 'logs'));
     }
@@ -177,7 +177,7 @@ class StudentController extends Controller
         $logs = LogEntry::where('student_id', $user->id)
             ->with('attachments')
             ->orderBy('entry_date', 'desc')
-            ->paginate(10);
+            ->get();
 
         return view('student.log-entries', compact('user', 'internship', 'logs', 'logEntry'));
     }

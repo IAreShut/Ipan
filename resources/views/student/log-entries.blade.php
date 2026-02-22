@@ -139,23 +139,14 @@
                         @if($log->attachments->count() > 0)
                             <div class="attachment-thumbnails">
                                 @foreach($log->attachments as $attachment)
-                                    <div class="thumb-wrapper">
-                                        <img src="{{ asset('storage/' . $attachment->file_path) }}" 
-                                             alt="{{ $attachment->file_name }}"
-                                             class="attachment-thumb"
-                                             data-bs-toggle="modal" 
-                                             data-bs-target="#imageModal"
-                                             data-img-src="{{ asset('storage/' . $attachment->file_path) }}"
-                                             data-img-name="{{ $attachment->file_name }}"
-                                             title="Click to enlarge">
-                                        <form action="{{ route('student.log-attachments.destroy', $attachment->id) }}" method="POST" class="thumb-delete-form" onsubmit="return confirm('Delete this attachment?')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn-thumb-delete" title="Delete attachment">
-                                                <i class="fas fa-times"></i>
-                                            </button>
-                                        </form>
-                                    </div>
+                                    <img src="{{ asset('storage/' . $attachment->file_path) }}" 
+                                         alt="{{ $attachment->file_name }}"
+                                         class="attachment-thumb"
+                                         data-bs-toggle="modal" 
+                                         data-bs-target="#imageModal"
+                                         data-img-src="{{ asset('storage/' . $attachment->file_path) }}"
+                                         data-img-name="{{ $attachment->file_name }}"
+                                         title="Click to enlarge">
                                 @endforeach
                             </div>
                         @else
@@ -189,7 +180,6 @@
             </tbody>
         </table>
     </div>
-    {{ $logs->links() }}
 </div>
 @endif
 
@@ -210,15 +200,15 @@
 @endsection
 
 @push('scripts')
-<script src="https://code.jquery.com/jquery-3.7.0.js"></script>
-<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
 <script>
     $(document).ready(function() {
         $('#logEntriesTable').DataTable({
-            paging: false,
-            info: false,
-            searching: true
+            pageLength: 10,
+            order: [],
+            language: {
+                search: 'Search:',
+                paginate: { previous: '‹', next: '›' }
+            }
         });
     });
 
