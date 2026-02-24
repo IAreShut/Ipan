@@ -117,7 +117,7 @@
         <div class="feedback-box">
             <div class="feedback-empty">
                 <i class="fas fa-comment-slash d-block"></i>
-                <span class="small">No feedback yet.</span>
+                <span class="small">No feedback.</span>
             </div>
         </div>
     @endif

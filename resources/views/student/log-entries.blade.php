@@ -16,6 +16,12 @@
 
 @section('page-title', 'Daily Log Entry')
 
+@section('header-right')
+<a href="{{ url()->previous() }}" class="btn btn-primary-custom px-4">
+    <i class="fas fa-arrow-left me-2"></i> Back
+</a>
+@endsection
+
 @section('main-content')
 <div class="row justify-content-between">
     <div class="col-12">
@@ -24,7 +30,7 @@
                 <div class="alert alert-info d-flex align-items-center mb-3">
                     <i class="fas fa-edit me-2"></i>
                     <span>You are editing a draft entry from <strong>{{ $logEntry->entry_date->format('d M Y') }}</strong>.
-                    <a href="{{ route('student.log-entries') }}" class="ms-2">Cancel</a></span>
+                    <!-- <a href="{{ route('student.log-entries') }}" class="ms-2">Cancel</a></span> -->
                 </div>
             @endif
             <form action="{{ isset($logEntry) ? route('student.log-entries.update', $logEntry->id) : route('student.log-entries.store') }}" method="POST" enctype="multipart/form-data">
@@ -70,18 +76,18 @@
                 @if(isset($logEntry) && $logEntry->attachments->count() > 0)
                 <div class="mb-3">
                     <label class="form-label fw-bold">Current Attachments</label>
-                    <div class="d-flex flex-wrap gap-2">
+                    <div class="d-flex flex-wrap gap-2" id="currentAttachments">
                         @foreach($logEntry->attachments as $attachment)
-                            <div class="position-relative border rounded p-1" style="width:80px;">
+                            <div class="position-relative border rounded p-1" style="width:80px;" id="attachment-{{ $attachment->id }}">
                                 <img src="{{ asset('storage/' . $attachment->file_path) }}" alt="{{ $attachment->file_name }}" 
                                      class="rounded" style="width:100%; height:60px; object-fit:cover;">
-                                <form action="{{ route('student.log-attachments.destroy', $attachment->id) }}" method="POST" 
-                                      class="position-absolute top-0 end-0" onsubmit="return confirm('Delete this attachment?')">
-                                    @csrf @method('DELETE')
-                                    <button type="submit" class="btn btn-danger btn-sm rounded-circle p-0" style="width:20px;height:20px;font-size:0.6rem;line-height:1;">
-                                        <i class="fas fa-times"></i>
-                                    </button>
-                                </form>
+                                <button type="button" class="btn btn-danger btn-sm rounded-circle p-0 position-absolute top-0 end-0 delete-attachment-btn"
+                                        style="width:20px;height:20px;font-size:0.6rem;line-height:1;"
+                                        data-attachment-id="{{ $attachment->id }}"
+                                        data-delete-url="{{ route('student.log-attachments.destroy', $attachment->id) }}"
+                                        title="Delete attachment">
+                                    <i class="fas fa-times"></i>
+                                </button>
                             </div>
                         @endforeach
                     </div>
@@ -209,6 +215,34 @@
                 search: 'Search:',
                 paginate: { previous: '‹', next: '›' }
             }
+        });
+    });
+
+    // ===== DELETE ATTACHMENT VIA AJAX =====
+    document.querySelectorAll('.delete-attachment-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            if (!confirm('Delete this attachment?')) return;
+
+            const url = this.dataset.deleteUrl;
+            const attachmentId = this.dataset.attachmentId;
+            const token = document.querySelector('meta[name="csrf-token"]').content;
+
+            fetch(url, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': token,
+                    'Accept': 'application/json'
+                }
+            }).then(function(response) {
+                if (response.ok) {
+                    const el = document.getElementById('attachment-' + attachmentId);
+                    if (el) el.remove();
+                } else {
+                    alert('Failed to delete attachment.');
+                }
+            }).catch(function() {
+                alert('Network error. Please try again.');
+            });
         });
     });
 

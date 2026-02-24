@@ -123,7 +123,7 @@ class StudentController extends Controller
             \DB::commit();
 
             $message = $request->has('save_draft') ? 'Draft saved successfully!' : 'Log entry submitted successfully!';
-            return redirect()->route('student.log-entries')
+            return redirect()->route('student.log-entries.show', $logEntry->id)
                 ->with('success', $message);
 
         } catch (\Exception $e) {
@@ -231,7 +231,7 @@ class StudentController extends Controller
             \DB::commit();
 
             $message = $request->has('save_draft') ? 'Draft updated successfully!' : 'Log entry submitted successfully!';
-            return redirect()->route('student.log-entries')
+            return redirect()->route('student.log-entries.show', $logEntry->id)
                 ->with('success', $message);
 
         } catch (\Exception $e) {
@@ -282,6 +282,10 @@ class StudentController extends Controller
 
         // Delete DB record
         $attachment->delete();
+
+        if (request()->wantsJson()) {
+            return response()->json(['success' => true]);
+        }
 
         return back()->with('success', 'Attachment deleted successfully!');
     }
