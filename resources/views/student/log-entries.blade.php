@@ -60,13 +60,13 @@
                 <div class="mb-3">
                     <label class="form-label fw-bold">Task Description</label>
                     <div class="position-relative">
-                        <textarea name="task_description" class="form-control @error('task_description') is-invalid @enderror" 
+                        <textarea id="taskDescription" name="task_description" class="form-control @error('task_description') is-invalid @enderror" 
                                   rows="6" placeholder="Describe your daily activities..." required>{{ old('task_description', isset($logEntry) ? $logEntry->task_description : '') }}</textarea>
-                        <button type="button" class="btn btn-sm btn-outline-primary position-absolute bottom-0 end-0 m-2" title="AI Suggest Summary">
-                            <i class="fas fa-magic me-1"></i> AI Helper
+                        <button type="button" id="btnGenerateSummary" class="btn-ai-generate position-absolute bottom-0 end-0 m-3" title="Generate AI Summary">
+                            <i class="fas fa-wand-magic-sparkles"></i> <span>Generate Summary</span>
                         </button>
                     </div>
-                    <div class="form-text">Click the AI Helper button to generate a professional summary of your tasks.</div>
+                    <div class="form-text">Write your raw task notes, then click <strong>Generate Summary</strong> to create a professional version.</div>
                     @error('task_description')
                         <div class="text-danger small">{{ $message }}</div>
                     @enderror
@@ -245,6 +245,70 @@
             });
         });
     });
+
+    // ===== AI GENERATE SUMMARY =====
+    const btnGenerate = document.getElementById('btnGenerateSummary');
+    if (btnGenerate) {
+        btnGenerate.addEventListener('click', function() {
+            const textarea = document.getElementById('taskDescription');
+            const rawText = textarea.value.trim();
+
+            if (rawText.length < 5) {
+                Swal.fire({ icon: 'warning', title: 'Too Short', text: 'Please write at least a few words about your tasks before generating a summary.', confirmButtonColor: '#F59E0B' });
+                return;
+            }
+
+            // Build FormData with text + images
+            const formData = new FormData();
+            formData.append('task_description', rawText);
+
+            // Grab files from the attachment input
+            const fileInput = document.getElementById('attachments');
+            if (fileInput && fileInput.files.length > 0) {
+                for (let i = 0; i < fileInput.files.length; i++) {
+                    formData.append('images[]', fileInput.files[i]);
+                }
+            }
+
+            // Show loading state
+            const btnIcon = btnGenerate.querySelector('i');
+            const btnText = btnGenerate.querySelector('span');
+            const originalIcon = btnIcon.className;
+            const originalText = btnText.textContent;
+
+            btnIcon.className = 'fas fa-spinner fa-spin';
+            btnText.textContent = 'Generating...';
+            btnGenerate.disabled = true;
+            btnGenerate.style.opacity = '0.7';
+
+            fetch('{{ route("student.ai-generate-summary") }}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json'
+                },
+                body: formData
+            })
+            .then(response => response.json().then(data => ({ok: response.ok, data})))
+            .then(({ok, data}) => {
+                if (ok && data.summary) {
+                    textarea.value = data.summary;
+                    Swal.fire({ icon: 'success', title: 'Summary Generated!', text: 'The AI summary has been placed in the text box. You can edit it before saving.', confirmButtonColor: '#10B981', timer: 4000, timerProgressBar: true });
+                } else {
+                    Swal.fire({ icon: 'error', title: 'AI Error', text: data.error || 'Failed to generate summary.', confirmButtonColor: '#EF4444' });
+                }
+            })
+            .catch(() => {
+                Swal.fire({ icon: 'error', title: 'Network Error', text: 'Could not connect to the AI service. Please check your internet and try again.', confirmButtonColor: '#EF4444' });
+            })
+            .finally(() => {
+                btnIcon.className = originalIcon;
+                btnText.textContent = originalText;
+                btnGenerate.disabled = false;
+                btnGenerate.style.opacity = '1';
+            });
+        });
+    }
 
     // ===== FILE PREVIEW =====
     const fileInput = document.getElementById('attachments');

@@ -289,4 +289,74 @@ class StudentController extends Controller
 
         return back()->with('success', 'Attachment deleted successfully!');
     }
+
+    /**
+     * Generate AI summary using Google Gemini
+     */
+    public function generateAiSummary(Request $request)
+    {
+        $request->validate([
+            'task_description' => 'required|string|min:5',
+            'images.*' => 'nullable|image|max:10240',
+        ]);
+
+        $apiKey = config('services.gemini.key');
+
+        if (empty($apiKey)) {
+            return response()->json(['error' => 'AI service is not configured. Please contact your administrator.'], 500);
+        }
+
+        // Build the prompt
+        $systemPrompt = "Act as a professional internship supervisor. Based on the student's raw task description and any attached images of their work, generate a concise and formal daily summary (3-4 sentences). Use professional verbs like 'Assisted', 'Analyzed', 'Developed', 'Implemented', 'Configured', or 'Monitored'. Focus on the technical contribution. Do not include greetings or sign-offs. Output only the summary text.";
+
+        // Build content parts
+        $parts = [];
+        $parts[] = ['text' => $systemPrompt . "\n\nStudent's raw task description:\n" . $request->task_description];
+
+        // Add images as base64 inline data
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $image) {
+                $imageData = base64_encode(file_get_contents($image->getRealPath()));
+                $mimeType = $image->getMimeType();
+
+                $parts[] = [
+                    'inline_data' => [
+                        'mime_type' => $mimeType,
+                        'data' => $imageData,
+                    ],
+                ];
+            }
+        }
+
+        try {
+            $response = \Illuminate\Support\Facades\Http::timeout(30)
+                ->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={$apiKey}", [
+                    'contents' => [
+                        ['parts' => $parts],
+                    ],
+                    'generationConfig' => [
+                        'temperature' => 0.7,
+                        'maxOutputTokens' => 500,
+                    ],
+                ]);
+
+            if ($response->failed()) {
+                $errorBody = $response->json();
+                $errorMsg = $errorBody['error']['message'] ?? 'Unknown API error';
+                return response()->json(['error' => 'AI service error: ' . $errorMsg], 500);
+            }
+
+            $data = $response->json();
+            $summary = $data['candidates'][0]['content']['parts'][0]['text'] ?? null;
+
+            if (empty($summary)) {
+                return response()->json(['error' => 'AI did not return a valid summary. Please try again.'], 500);
+            }
+
+            return response()->json(['summary' => trim($summary)]);
+
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to connect to AI service. Please check your internet connection and try again.'], 500);
+        }
+    }
 }
