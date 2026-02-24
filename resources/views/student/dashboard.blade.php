@@ -156,9 +156,12 @@
 <script>
 $(document).ready(function() {
     $('#recentLogEntriesTable').DataTable({
-        paging: false,
-        searching: false,
-        info: false
+        pageLength: 10,
+        order: [],
+        language: {
+            search: 'Search:',
+            paginate: { previous: '‹', next: '›' }
+        }
     });
 });
 </script>
