@@ -283,6 +283,7 @@ class StudentController extends Controller
         // Delete DB record
         $attachment->delete();
 
+
         if (request()->wantsJson()) {
             return response()->json(['success' => true]);
         }
@@ -291,63 +292,46 @@ class StudentController extends Controller
     }
 
     /**
-     * Generate AI summary using Google Gemini
+     * Generate AI summary using google-gemini-php/laravel
      */
     public function generateAiSummary(Request $request)
     {
         $request->validate([
-            'task_description' => 'required|string|min:5',
+            'task_description' => 'required|string|min:10',
             'images.*' => 'nullable|image|max:10240',
         ]);
 
-        $apiKey = config('services.gemini.key');
-
-        if (empty($apiKey)) {
-            return response()->json(['error' => 'AI service is not configured. Please contact your administrator.'], 500);
-        }
-
-        // Build the prompt
-        $systemPrompt = "Act as a professional internship supervisor. Based on the student's raw task description and any attached images of their work, generate a concise and formal daily summary (3-4 sentences). Use professional verbs like 'Assisted', 'Analyzed', 'Developed', 'Implemented', 'Configured', or 'Monitored'. Focus on the technical contribution. Do not include greetings or sign-offs. Output only the summary text.";
-
-        // Build content parts
-        $parts = [];
-        $parts[] = ['text' => $systemPrompt . "\n\nStudent's raw task description:\n" . $request->task_description];
-
-        // Add images as base64 inline data
-        if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $image) {
-                $imageData = base64_encode(file_get_contents($image->getRealPath()));
-                $mimeType = $image->getMimeType();
-
-                $parts[] = [
-                    'inline_data' => [
-                        'mime_type' => $mimeType,
-                        'data' => $imageData,
-                    ],
-                ];
-            }
-        }
+        $systemPrompt = "Act as a professional internship student. Based on the student's raw task description and any attached images of their work, 
+        generate an informal daily summary 1 paragraph minimum 50 words depends on the task description, can use bullet point if needed. 
+        Use professional verbs like 'Assisted', 'Analyzed', 'Developed', 'Implemented', 'Configured', or 'Monitored'. Focus on the technical contribution. 
+        Do not include greetings or sign-offs. Output only the summary text. Write using malaysian basic english";
 
         try {
-            $response = \Illuminate\Support\Facades\Http::timeout(30)
-                ->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={$apiKey}", [
-                    'contents' => [
-                        ['parts' => $parts],
-                    ],
-                    'generationConfig' => [
-                        'temperature' => 0.7,
-                        'maxOutputTokens' => 500,
-                    ],
-                ]);
+            // Build the parts array for the Gemini SDK
+            $parts = [];
+            $parts[] = $systemPrompt . "\n\nStudent's raw task description:\n" . $request->task_description;
 
-            if ($response->failed()) {
-                $errorBody = $response->json();
-                $errorMsg = $errorBody['error']['message'] ?? 'Unknown API error';
-                return response()->json(['error' => 'AI service error: ' . $errorMsg], 500);
+            // Add images if present
+            if ($request->hasFile('images')) {
+                foreach ($request->file('images') as $image) {
+                    $mimeType = $image->getMimeType();
+                    $base64Data = base64_encode(file_get_contents($image->getRealPath()));
+                    
+                    // Map mime type to SDK enum, fallback to JPEG
+                    $sdkMime = \Gemini\Enums\MimeType::tryFrom($mimeType) ?? \Gemini\Enums\MimeType::IMAGE_JPEG;
+                    
+                    $parts[] = new \Gemini\Data\Blob(
+                        mimeType: $sdkMime,
+                        data: $base64Data
+                    );
+                }
             }
 
-            $data = $response->json();
-            $summary = $data['candidates'][0]['content']['parts'][0]['text'] ?? null;
+            // Use the correct facade method: generativeModel()
+            $result = \Gemini\Laravel\Facades\Gemini::generativeModel('models/gemini-2.5-flash-lite')
+                ->generateContent($parts);
+
+            $summary = $result->text();
 
             if (empty($summary)) {
                 return response()->json(['error' => 'AI did not return a valid summary. Please try again.'], 500);
@@ -356,7 +340,7 @@ class StudentController extends Controller
             return response()->json(['summary' => trim($summary)]);
 
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Failed to connect to AI service. Please check your internet connection and try again.'], 500);
+            return response()->json(['error' => 'AI Error: ' . $e->getMessage()], 500);
         }
     }
 }
