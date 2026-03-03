@@ -1,0 +1,53 @@
+/* FullCalendar customizations */
+.fc {
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+    padding: 20px;
+}
+.fc .fc-toolbar-title {
+    font-size: 1.25rem !important;
+    font-weight: 700 !important;
+    color: #1e293b;
+}
+.fc-button {
+    background-color: #f8fafc !important;
+    border-color: #e2e8f0 !important;
+    color: #475569 !important;
+    font-weight: 600 !important;
+    text-transform: capitalize !important;
+}
+.fc-button-active {
+    background-color: #e2e8f0 !important;
+    color: #1e293b !important;
+}
+.fc-button-primary:not(:disabled):active, .fc-button-primary:not(:disabled).fc-button-active {
+    background-color: #e2e8f0 !important;
+    border-color: #cbd5e1 !important;
+    color: #1e293b !important;
+}
+.fc .fc-col-header-cell-cushion {
+    font-weight: 600;
+    color: #64748b;
+    text-decoration: none;
+}
+.fc .fc-daygrid-day-number {
+    color: #475569;
+    font-weight: 500;
+    text-decoration: none;
+}
+.fc-event {
+    border: none !important;
+    border-radius: 4px !important;
+    padding: 2px 4px !important;
+    font-size: 0.75rem !important;
+    font-weight: 600;
+}
+.fc-event-sv {
+    background-color: #ef4444 !important; /* Red for SV milesontes */
+    color: white !important;
+}
+.fc-event-personal {
+    background-color: #3b82f6 !important; /* Blue for personal */
+    color: white !important;
+}

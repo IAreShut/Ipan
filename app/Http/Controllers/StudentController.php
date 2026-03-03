@@ -343,4 +343,59 @@ class StudentController extends Controller
             return response()->json(['error' => 'AI Error: ' . $e->getMessage()], 500);
         }
     }
+    /**
+     * Show notifications and reminders page
+     */
+    public function notifications()
+    {
+        $user = Auth::user();
+        $internship = Internship::where('student_id', $user->id)->first();
+        
+        $notifications = \App\Models\Notification::where('user_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+            
+        $milestones = \App\Models\Milestone::where('user_id', $user->id)
+            ->get();
+
+        return view('student.notifications', compact('user', 'internship', 'notifications', 'milestones'));
+    }
+
+    /**
+     * Store personal reminder
+     */
+    public function storeReminder(Request $request)
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'due_date' => 'required|date',
+            'due_time' => 'required|date_format:H:i',
+        ]);
+
+        $user = Auth::user();
+        // Fallback or exact parsing
+        $dueDateTime = \Carbon\Carbon::parse($request->due_date . ' ' . $request->due_time);
+
+        \App\Models\Milestone::create([
+            'user_id' => $user->id,
+            'created_by' => $user->id,
+            'title' => $request->title,
+            'due_date' => $dueDateTime,
+            'type' => 'personal_reminder',
+        ]);
+
+        return redirect()->route('student.notifications')
+            ->with('success', 'Reminder added successfully!');
+    }
+
+    /**
+     * Mark notification as read
+     */
+    public function markNotificationRead(\App\Models\Notification $notification)
+    {
+        if ($notification->user_id === Auth::id()) {
+            $notification->update(['is_read' => true]);
+        }
+        return back();
+    }
 }

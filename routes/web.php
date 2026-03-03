@@ -34,6 +34,9 @@ Route::middleware(['auth'])->prefix('student')->name('student.')->group(function
     Route::post('/ai-generate-summary', [StudentController::class, 'generateAiSummary'])->name('ai-generate-summary');
     Route::get('/profile', [StudentController::class, 'profile'])->name('profile');
     Route::get('/progress', [StudentController::class, 'progress'])->name('progress');
+    Route::get('/notifications', [StudentController::class, 'notifications'])->name('notifications');
+    Route::post('/reminders', [StudentController::class, 'storeReminder'])->name('reminders.store');
+    Route::post('/notifications/{notification}/read', [StudentController::class, 'markNotificationRead'])->name('notifications.read');
 });
 
 // Supervisor Routes (Protected)
@@ -43,6 +46,8 @@ Route::middleware(['auth'])->prefix('supervisor')->name('supervisor.')->group(fu
     Route::post('/approve/{id}', [SupervisorController::class, 'approveLog'])->name('approve');
     Route::post('/reject/{id}', [SupervisorController::class, 'rejectLog'])->name('reject');
     Route::get('/analytics', [SupervisorController::class, 'analytics'])->name('analytics');
+    Route::get('/milestones', [SupervisorController::class, 'milestones'])->name('milestones');
+    Route::post('/milestones', [SupervisorController::class, 'storeMilestone'])->name('milestones.store');
 });
 
 // Admin Routes (Protected) - placeholder for future
