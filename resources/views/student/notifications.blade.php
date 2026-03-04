@@ -21,7 +21,7 @@
 @section('main-content')
 <div class="row g-4">
     <!-- Left Column: Calendar & Add Reminder -->
-    <div class="col-lg-7">
+    <div class="col-lg-8">
         <div class="card card-custom p-4 mb-4">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h5 class="fw-bold m-0"><i class="fas fa-calendar-alt text-primary me-2"></i> My Calendar</h5>
@@ -35,7 +35,7 @@
     </div>
 
     <!-- Right Column: Notifications Feed -->
-    <div class="col-lg-5">
+    <div class="col-lg-4">
         
         <!-- Notifications List -->
         <div class="card card-custom p-0 h-100 overflow-hidden">
