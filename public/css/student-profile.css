@@ -172,6 +172,46 @@
     align-items: center;
 }
 
+/* Location dropdown */
+.location-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    margin-top: 0.35rem;
+    max-height: 220px;
+    overflow-y: auto;
+    z-index: 100;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+.location-dropdown-item {
+    padding: 0.65rem 1rem;
+    cursor: pointer;
+    font-size: 0.85rem;
+    color: #334155;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.4rem;
+    transition: background 0.15s;
+    border-bottom: 1px solid #f1f5f9;
+}
+.location-dropdown-item:last-child { border-bottom: none; }
+.location-dropdown-item:hover {
+    background-color: #f1f5f9;
+}
+.location-dropdown-item span {
+    line-height: 1.35;
+}
+.location-dropdown-empty {
+    padding: 0.75rem 1rem;
+    font-size: 0.82rem;
+    color: #94a3b8;
+    text-align: center;
+}
+
 @media (max-width: 991.98px) {
     .info-grid {
         grid-template-columns: 1fr;

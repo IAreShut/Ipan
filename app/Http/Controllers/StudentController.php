@@ -254,6 +254,53 @@ class StudentController extends Controller
     }
 
     /**
+     * Update profile information
+     */
+    public function updateProfile(Request $request)
+    {
+        $user = Auth::user();
+
+        $request->validate([
+            'phone' => 'nullable|string|max:20',
+            'faculty' => 'nullable|string|max:255',
+            'class' => 'nullable|string|max:255',
+            'programme_code' => 'nullable|string|max:100',
+            'location' => 'nullable|string|max:255',
+            'about' => 'nullable|string',
+            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+        ]);
+
+        $data = $request->only([
+            'phone', 'faculty', 'class', 'programme_code', 'location', 'about'
+        ]);
+
+        // If phone number has a +60 prefix, it might be submitted differently based on UI
+        // In the UI we render a +60 block next to the input. We'll prepend it if it doesn't have it.
+        if (!empty($data['phone']) && !str_starts_with($data['phone'], '+60')) {
+            // Check if it starts with 0
+            if (str_starts_with($data['phone'], '0')) {
+                $data['phone'] = '+60' . substr($data['phone'], 1);
+            } else {
+                $data['phone'] = '+60' . $data['phone'];
+            }
+        }
+
+        if ($request->hasFile('avatar')) {
+            // Delete old avatar if it exists
+            if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
+                Storage::disk('public')->delete($user->avatar);
+            }
+
+            $path = $request->file('avatar')->store('avatars', 'public');
+            $data['avatar'] = $path;
+        }
+
+        $user->update($data);
+
+        return redirect()->route('student.profile')->with('success', 'Profile updated successfully.');
+    }
+
+    /**
      * Show progress page
      */
     public function progress()

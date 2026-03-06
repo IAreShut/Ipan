@@ -1,1 +1,73 @@
 /* Student Progress Page Styles */
+.text-lims-navy { color: #1E3A8A !important; }
+.bg-lims-light  { background-color: #DBEAFE !important; }
+.rounded-2xl { border-radius: 1rem !important; }
+.shadow-soft { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important; }
+.week-card {
+    transition: all 0.3s ease-in-out;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transform: translateY(0);
+}
+.week-card:hover, .week-card.active-card {
+    transform: translateY(-5px);
+    border-color: #1E3A8A;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+}
+.progress-bar-thin {
+    height: 5px;
+    background-color: #E5E7EB;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    border-bottom-left-radius: 1rem;
+    border-bottom-right-radius: 1rem;
+    overflow: hidden;
+}
+.progress-bar-fill {
+    height: 100%;
+    background-color: #3B82F6;
+    transition: width 0.5s ease-in-out;
+}
+
+/* Vertical Timeline Styles */
+.timeline {
+    border-left: 2px solid #E5E7EB;
+    padding-left: 20px;
+    position: relative;
+    margin-left: 10px;
+}
+.timeline-item {
+    position: relative;
+    margin-bottom: 24px;
+}
+.timeline-item:last-child {
+    margin-bottom: 0;
+}
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    background: #3B82F6;
+    border-radius: 50%;
+    left: -28px;
+    top: 4px;
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 2px #3B82F6;
+}
+.drill-down-content {
+    display: none;
+    animation: fadeIn 0.4s ease-out;
+}
+.drill-down-content.show {
+    display: block;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Button Hover Style */
+.hover-primary-button:hover { background-color: #3B82F6 !important; color: white !important; }

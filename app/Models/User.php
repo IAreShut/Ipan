@@ -26,6 +26,12 @@ class User extends Authenticatable
         'supervisor_id',
         'matrix_id',
         'phone',
+        'faculty',
+        'class',
+        'programme_code',
+        'location',
+        'about',
+        'avatar',
     ];
 
     /**

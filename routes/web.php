@@ -33,6 +33,7 @@ Route::middleware(['auth'])->prefix('student')->name('student.')->group(function
     Route::delete('/log-attachments/{attachment}', [StudentController::class, 'deleteAttachment'])->name('log-attachments.destroy');
     Route::post('/ai-generate-summary', [StudentController::class, 'generateAiSummary'])->name('ai-generate-summary');
     Route::get('/profile', [StudentController::class, 'profile'])->name('profile');
+    Route::post('/profile', [StudentController::class, 'updateProfile'])->name('profile.update');
     Route::get('/progress', [StudentController::class, 'progress'])->name('progress');
     Route::get('/notifications', [StudentController::class, 'notifications'])->name('notifications');
     Route::post('/reminders', [StudentController::class, 'storeReminder'])->name('reminders.store');
