@@ -71,3 +71,31 @@
 
 /* Button Hover Style */
 .hover-primary-button:hover { background-color: #3B82F6 !important; color: white !important; }
+
+/* Progress Week Page Styles */
+.page-title-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: 1px solid #E5E7EB;
+    padding-bottom: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.btn-close-custom {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6B7280;
+    border: 1px solid #E5E7EB;
+    border-radius: 50%;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.btn-close-custom:hover {
+    background-color: #F3F4F6;
+    color: #1F2937;
+}
