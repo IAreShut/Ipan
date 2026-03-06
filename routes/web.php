@@ -35,6 +35,7 @@ Route::middleware(['auth'])->prefix('student')->name('student.')->group(function
     Route::get('/profile', [StudentController::class, 'profile'])->name('profile');
     Route::post('/profile', [StudentController::class, 'updateProfile'])->name('profile.update');
     Route::get('/progress', [StudentController::class, 'progress'])->name('progress');
+    Route::get('/progress/week/{week}', [StudentController::class, 'progressWeek'])->name('progress.week');
     Route::get('/notifications', [StudentController::class, 'notifications'])->name('notifications');
     Route::post('/reminders', [StudentController::class, 'storeReminder'])->name('reminders.store');
     Route::post('/notifications/{notification}/read', [StudentController::class, 'markNotificationRead'])->name('notifications.read');

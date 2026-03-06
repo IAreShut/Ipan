@@ -148,12 +148,12 @@ class StudentController extends Controller
             && $logEntry->student && $logEntry->student->supervisor_id === $user->id;
 
         if (!$isOwner && !$isSupervisor) {
-            abort(403, 'Unauthorized access.');
+            abort(403, 'Unauthorized access to log entry.');
         }
 
         $logEntry->load(['attachments', 'student']);
 
-        return view('student.log-entry-show', compact('logEntry'));
+        return view('student.log-entry-show', compact('logEntry', 'user'));
     }
 
     /**
@@ -310,6 +310,26 @@ class StudentController extends Controller
         $logs = LogEntry::where('student_id', $user->id)->get();
         
         return view('student.progress', compact('user', 'internship', 'logs'));
+    }
+
+    /**
+     * Show detailed weekly logs progress page
+     */
+    public function progressWeek($week)
+    {
+        $user = Auth::user();
+        $internship = Internship::where('student_id', $user->id)->first();
+
+        if (!$internship || $week < 1 || $week > $internship->total_weeks) {
+            return redirect()->route('student.progress')->with('error', 'Invalid week selected.');
+        }
+
+        $weekLogs = LogEntry::where('student_id', $user->id)
+            ->where('week_number', $week)
+            ->orderBy('entry_date', 'desc')
+            ->get();
+
+        return view('student.progress-week', compact('user', 'internship', 'week', 'weekLogs'));
     }
 
     /**
