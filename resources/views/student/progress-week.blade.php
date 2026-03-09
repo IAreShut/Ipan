@@ -16,12 +16,18 @@
 
 @section('page-title', 'Weekly Details')
 
+@section('header-right')
+<a href="{{ url()->previous() }}" class="btn btn-primary-custom px-4">
+    <i class="fas fa-arrow-left me-2"></i> Back
+</a>
+@endsection
+
 @section('main-content')
-<div class="mb-4">
-    <a href="{{ route('student.progress') }}" class="btn-back-nav">
-        <i class="fas fa-arrow-left"></i> Back to Weekly Grid
+<!-- <div class="mb-4">
+    <a href="{{ url()->previous() }}" class="btn btn-primary-custom px-4">
+        <i class="fas fa-arrow-left me-2"></i> Back
     </a>
-</div>
+</div> -->
 
 <div class="card card-custom p-4 p-md-5 shadow-sm position-relative mb-5" style="border-radius: 1.5rem; border: 1px solid #E5E7EB;">
     <div class="border-bottom pb-4 mb-4">
