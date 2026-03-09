@@ -143,6 +143,7 @@
                 right: 'dayGridMonth,timeGridWeek'
             },
             events: events,
+            displayEventTime: false,
             dateClick: function(info) {
                 // Pre-fill date when clicking on calendar
                 document.getElementById('reminder_date').value = info.dateStr;
