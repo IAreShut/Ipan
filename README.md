@@ -175,5 +175,52 @@ php artisan config:clear
 chmod -R 775 storage bootstrap/cache
 ```
 
+## Heroku Deployment
+
+App URL: **https://lims-fyp-8a6cb0f71eca.herokuapp.com/**
+
+### Setup (Sudah dilakukan)
+- **Dyno:** Eco ($5/bulan dari GitHub Student credits)
+- **Database:** JawsDB MySQL (kitefin)
+- **Buildpacks:** Node.js + PHP
+
+### Deploy / Update ke Heroku
+Setiap kali buat changes dan nak update Heroku:
+```bash
+git add .
+git commit -m "description of changes"
+git push heroku main
+```
+
+### Heroku Useful Commands
+
+| Command | Description |
+|---------|-------------|
+| `heroku logs --tail` | View live logs |
+| `heroku run "php artisan migrate --force"` | Run migrations on Heroku |
+| `heroku run "php artisan db:seed --force"` | Run seeders on Heroku |
+| `heroku config` | View all environment variables |
+| `heroku config:set KEY=value` | Set environment variable |
+| `heroku restart` | Restart the app |
+| `heroku open` | Open app in browser |
+
+### Heroku Troubleshooting
+
+**500 Error on Heroku:**
+```bash
+heroku logs --tail
+```
+
+**Database issues:**
+```bash
+heroku config:get JAWSDB_URL
+heroku run "php artisan migrate:status"
+```
+
+**Clear cache on Heroku:**
+```bash
+heroku run "php artisan config:clear && php artisan cache:clear && php artisan view:clear"
+```
+
 ---
-© 2024 LIMS - Faculty of Computing
+© 2026 LIMS - Faculty of Computing
