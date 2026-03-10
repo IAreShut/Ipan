@@ -216,4 +216,28 @@
     .info-grid {
         grid-template-columns: 1fr;
     }
+    .profile-card {
+        margin-bottom: 1rem;
+        padding: 1rem !important;
+        border-radius: 1rem !important;
+    }
+    .avatar-wrapper {
+        width: 90px;
+        height: 90px;
+        margin-bottom: 0.75rem;
+    }
+    .avatar-upload-btn {
+        width: 28px;
+        height: 28px;
+        border-width: 2px;
+    }
+    .avatar-upload-btn i {
+        font-size: 0.7rem !important;
+    }
+    .profile-card .mt-4 {
+        margin-top: 0.5rem !important;
+    }
+    .profile-card h4 {
+        font-size: 1.15rem;
+    }
 }
