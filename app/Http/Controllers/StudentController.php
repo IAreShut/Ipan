@@ -443,13 +443,25 @@ class StudentController extends Controller
         // Fallback or exact parsing
         $dueDateTime = \Carbon\Carbon::parse($request->due_date . ' ' . $request->due_time);
 
-        \App\Models\Milestone::create([
+        $milestone = \App\Models\Milestone::create([
             'user_id' => $user->id,
             'created_by' => $user->id,
             'title' => $request->title,
             'due_date' => $dueDateTime,
             'type' => 'personal_reminder',
         ]);
+
+        // Also insert into notifications so it appears in the Recent Alerts feed
+        \App\Models\Notification::create([
+            'user_id' => $user->id,
+            'title' => 'Reminder: ' . $request->title,
+            'message' => 'Due on ' . $dueDateTime->format('d M Y, h:i A') . '.',
+            'type' => 'warning',
+            'is_read' => false,
+        ]);
+
+        // Send email notification to the student
+        $user->notify(new \App\Notifications\PersonalReminderNotification($milestone));
 
         return redirect()->route('student.notifications')
             ->with('success', 'Reminder added successfully!');
