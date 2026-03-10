@@ -30,7 +30,7 @@
         @csrf
         
         <!-- Left Column: Information Sections -->
-        <div class="col-lg-8 pe-lg-4">
+        <div class="col-12 col-lg-8 pe-lg-4">
             <!-- Personal Info -->
             <div class="profile-card p-4">
                 <div class="profile-card-header">
@@ -145,7 +145,7 @@
         </div>
         
         <!-- Right Column: Profile Card -->
-        <div class="col-lg-4">
+        <div class="col-12 col-lg-4">
             <!-- Main Profile Avatar Card -->
             <div class="profile-card p-4 text-center pb-5" style="border-radius: 2rem;">
                 <!-- Hidden File Input -->
@@ -154,7 +154,7 @@
                 <div class="mt-4 mb-3">
                     <div class="avatar-wrapper">
                         @if($user->avatar)
-                            <img id="avatar_preview" src="{{ Storage::url($user->avatar) }}" alt="Profile avatar">
+                            <img id="avatar_preview" src="{{ str_starts_with($user->avatar, 'http') ? $user->avatar : asset('storage/' . $user->avatar) }}" alt="Profile avatar">
                         @else
                             <img id="avatar_preview" src="https://ui-avatars.com/api/?name={{ urlencode($user->name) }}&background=E0E7FF&color=4F46E5&size=150" alt="Profile avatar default">
                         @endif
