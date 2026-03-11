@@ -9,7 +9,8 @@
     </div>
     <div class="offcanvas-body d-flex flex-column p-3">
         <div class="d-flex align-items-center mb-4 p-2 bg-light rounded">
-            <img src="{{ Auth::user()->avatar ? Storage::url(Auth::user()->avatar) : 'https://ui-avatars.com/api/?name=' . urlencode(Auth::user()->name ?? 'User') . '&background=E0E7FF&color=4F46E5' }}" class="rounded-circle me-2" width="40" height="40" style="object-fit: cover;" alt="Avatar">
+            @php $authUser = Auth::user(); @endphp
+            <img src="{{ $authUser->avatar ? (str_starts_with($authUser->avatar, 'http') ? $authUser->avatar : asset('storage/' . $authUser->avatar)) : 'https://ui-avatars.com/api/?name=' . urlencode($authUser->name ?? 'User') . '&background=E0E7FF&color=4F46E5' }}" class="rounded-circle me-2" width="40" height="40" style="object-fit: cover;" alt="Avatar">
             <div>
                 <h6 class="mb-0 fw-bold">{{ Auth::user()->name ?? 'Guest' }}</h6>
                 <small class="text-muted text-capitalize">{{ Auth::user()->role ?? 'User' }}</small>
