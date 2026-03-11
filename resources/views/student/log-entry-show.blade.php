@@ -88,9 +88,9 @@
                 <div class="attachment-card" 
                      data-bs-toggle="modal" 
                      data-bs-target="#imageModal"
-                     data-img-src="{{ asset('storage/' . $attachment->file_path) }}"
+                     data-img-src="{{ str_starts_with($attachment->file_path, 'http') ? $attachment->file_path : asset('storage/' . $attachment->file_path) }}"
                      data-img-name="{{ $attachment->file_name }}">
-                    <img src="{{ asset('storage/' . $attachment->file_path) }}" alt="{{ $attachment->file_name }}">
+                    <img src="{{ str_starts_with($attachment->file_path, 'http') ? $attachment->file_path : asset('storage/' . $attachment->file_path) }}" alt="{{ $attachment->file_name }}">
                     <div class="file-name">
                         <i class="fas fa-image me-2"></i>{{ $attachment->file_name }}
                     </div>

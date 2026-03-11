@@ -80,7 +80,7 @@
                     <div class="d-flex flex-wrap gap-2" id="currentAttachments">
                         @foreach($logEntry->attachments as $attachment)
                             <div class="position-relative border rounded p-1" style="width:80px;" id="attachment-{{ $attachment->id }}">
-                                <img src="{{ asset('storage/' . $attachment->file_path) }}" alt="{{ $attachment->file_name }}" 
+                                <img src="{{ str_starts_with($attachment->file_path, 'http') ? $attachment->file_path : asset('storage/' . $attachment->file_path) }}" alt="{{ $attachment->file_name }}" 
                                      class="rounded" style="width:100%; height:60px; object-fit:cover;">
                                 <button type="button" class="btn btn-danger btn-sm rounded-circle p-0 position-absolute top-0 end-0 delete-attachment-btn"
                                         style="width:20px;height:20px;font-size:0.6rem;line-height:1;"
@@ -146,12 +146,12 @@
                         @if($log->attachments->count() > 0)
                             <div class="attachment-thumbnails">
                                 @foreach($log->attachments as $attachment)
-                                    <img src="{{ asset('storage/' . $attachment->file_path) }}" 
+                                    <img src="{{ str_starts_with($attachment->file_path, 'http') ? $attachment->file_path : asset('storage/' . $attachment->file_path) }}" 
                                          alt="{{ $attachment->file_name }}"
                                          class="attachment-thumb"
                                          data-bs-toggle="modal" 
                                          data-bs-target="#imageModal"
-                                         data-img-src="{{ asset('storage/' . $attachment->file_path) }}"
+                                         data-img-src="{{ str_starts_with($attachment->file_path, 'http') ? $attachment->file_path : asset('storage/' . $attachment->file_path) }}"
                                          data-img-name="{{ $attachment->file_name }}"
                                          title="Click to enlarge">
                                 @endforeach

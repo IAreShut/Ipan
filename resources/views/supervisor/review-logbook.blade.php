@@ -36,11 +36,11 @@
             @if($log->attachments && $log->attachments->count() > 0)
                 <div class="sv-attachment-gallery">
                     @foreach($log->attachments as $attachment)
-                        <img src="{{ asset('storage/' . $attachment->file_path) }}" 
+                        <img src="{{ str_starts_with($attachment->file_path, 'http') ? $attachment->file_path : asset('storage/' . $attachment->file_path) }}" 
                              alt="{{ $attachment->file_name }}"
                              data-bs-toggle="modal" 
                              data-bs-target="#svImageModal"
-                             data-img-src="{{ asset('storage/' . $attachment->file_path) }}"
+                             data-img-src="{{ str_starts_with($attachment->file_path, 'http') ? $attachment->file_path : asset('storage/' . $attachment->file_path) }}"
                              data-img-name="{{ $attachment->file_name }}"
                              title="{{ $attachment->file_name }}">
                     @endforeach

@@ -58,7 +58,7 @@
                                         });
                                         if($firstImage) {
                                             $hasImage = true;
-                                            $imageUrl = asset('storage/' . $firstImage->file_path);
+                                            $imageUrl = str_starts_with($firstImage->file_path, 'http') ? $firstImage->file_path : asset('storage/' . $firstImage->file_path);
                                         }
                                     }
                                 @endphp

@@ -109,7 +109,14 @@ class StudentController extends Controller
             // Handle file attachments
             if ($request->hasFile('attachments')) {
                 foreach ($request->file('attachments') as $file) {
-                    $path = $file->store('log-attachments/' . $logEntry->id, 'public');
+                    if (env('CLOUDINARY_URL')) {
+                        $uploaded = cloudinary()->upload($file->getRealPath(), [
+                            'folder' => 'lims/log-attachments/' . $logEntry->id,
+                        ]);
+                        $path = $uploaded->getSecurePath();
+                    } else {
+                        $path = asset('storage/' . $file->store('log-attachments/' . $logEntry->id, 'public'));
+                    }
 
                     LogAttachment::create([
                         'log_entry_id' => $logEntry->id,
@@ -217,7 +224,14 @@ class StudentController extends Controller
             // Handle new file attachments
             if ($request->hasFile('attachments')) {
                 foreach ($request->file('attachments') as $file) {
-                    $path = $file->store('log-attachments/' . $logEntry->id, 'public');
+                    if (env('CLOUDINARY_URL')) {
+                        $uploaded = cloudinary()->upload($file->getRealPath(), [
+                            'folder' => 'lims/log-attachments/' . $logEntry->id,
+                        ]);
+                        $path = $uploaded->getSecurePath();
+                    } else {
+                        $path = asset('storage/' . $file->store('log-attachments/' . $logEntry->id, 'public'));
+                    }
 
                     LogAttachment::create([
                         'log_entry_id' => $logEntry->id,
@@ -286,13 +300,22 @@ class StudentController extends Controller
         }
 
         if ($request->hasFile('avatar')) {
-            // Delete old avatar if it exists
-            if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
+            // Delete old avatar from Cloudinary if it's a Cloudinary URL
+            if ($user->avatar && str_contains($user->avatar, 'cloudinary')) {
+                $publicId = pathinfo(parse_url($user->avatar, PHP_URL_PATH), PATHINFO_FILENAME);
+                cloudinary()->destroy('lims/avatars/' . $publicId);
+            } elseif ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
                 Storage::disk('public')->delete($user->avatar);
             }
 
-            $path = $request->file('avatar')->store('avatars', 'public');
-            $data['avatar'] = $path;
+            if (env('CLOUDINARY_URL')) {
+                $uploaded = cloudinary()->upload($request->file('avatar')->getRealPath(), [
+                    'folder' => 'lims/avatars',
+                ]);
+                $data['avatar'] = $uploaded->getSecurePath();
+            } else {
+                $data['avatar'] = asset('storage/' . $request->file('avatar')->store('avatars', 'public'));
+            }
         }
 
         $user->update($data);
@@ -344,8 +367,13 @@ class StudentController extends Controller
             abort(403);
         }
 
-        // Delete file from storage
-        Storage::disk('public')->delete($attachment->file_path);
+        // Delete file from storage (Cloudinary or local)
+        if (str_contains($attachment->file_path, 'cloudinary')) {
+            $publicId = pathinfo(parse_url($attachment->file_path, PHP_URL_PATH), PATHINFO_FILENAME);
+            cloudinary()->destroy('lims/log-attachments/' . $attachment->log_entry_id . '/' . $publicId);
+        } else {
+            Storage::disk('public')->delete($attachment->file_path);
+        }
 
         // Delete DB record
         $attachment->delete();

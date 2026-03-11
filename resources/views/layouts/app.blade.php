@@ -2,11 +2,12 @@
 
 @section('content')
 <!-- Sidebar -->
-<div class="offcanvas-lg offcanvas-start sidebar" id="sidebarMenu">
-    <div class="sidebar-logo">
-        <h4><i class="fas fa-book-reader me-2"></i>LIMS</h4>
+<div class="offcanvas-lg offcanvas-start sidebar" id="sidebarMenu" aria-labelledby="sidebarMenuLabel">
+    <div class="offcanvas-header sidebar-logo d-flex justify-content-between align-items-center">
+        <h4 class="mb-0" id="sidebarMenuLabel"><i class="fas fa-book-reader me-2"></i>LIMS</h4>
+        <button type="button" class="btn-close d-lg-none" data-bs-dismiss="offcanvas" data-bs-target="#sidebarMenu" aria-label="Close"></button>
     </div>
-    <div class="d-flex flex-column p-3">
+    <div class="offcanvas-body d-flex flex-column p-3">
         <div class="d-flex align-items-center mb-4 p-2 bg-light rounded">
             <img src="{{ Auth::user()->avatar ? Storage::url(Auth::user()->avatar) : 'https://ui-avatars.com/api/?name=' . urlencode(Auth::user()->name ?? 'User') . '&background=E0E7FF&color=4F46E5' }}" class="rounded-circle me-2" width="40" height="40" style="object-fit: cover;" alt="Avatar">
             <div>
