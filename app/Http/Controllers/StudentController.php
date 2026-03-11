@@ -110,10 +110,10 @@ class StudentController extends Controller
             if ($request->hasFile('attachments')) {
                 foreach ($request->file('attachments') as $file) {
                     if (env('CLOUDINARY_URL')) {
-                        $uploaded = cloudinary()->upload($file->getRealPath(), [
+                        $uploaded = cloudinary()->uploadApi()->upload($file->getRealPath(), [
                             'folder' => 'lims/log-attachments/' . $logEntry->id,
                         ]);
-                        $path = $uploaded->getSecurePath();
+                        $path = $uploaded['secure_url'];
                     } else {
                         $path = asset('storage/' . $file->store('log-attachments/' . $logEntry->id, 'public'));
                     }
@@ -225,10 +225,10 @@ class StudentController extends Controller
             if ($request->hasFile('attachments')) {
                 foreach ($request->file('attachments') as $file) {
                     if (env('CLOUDINARY_URL')) {
-                        $uploaded = cloudinary()->upload($file->getRealPath(), [
+                        $uploaded = cloudinary()->uploadApi()->upload($file->getRealPath(), [
                             'folder' => 'lims/log-attachments/' . $logEntry->id,
                         ]);
-                        $path = $uploaded->getSecurePath();
+                        $path = $uploaded['secure_url'];
                     } else {
                         $path = asset('storage/' . $file->store('log-attachments/' . $logEntry->id, 'public'));
                     }
@@ -302,17 +302,19 @@ class StudentController extends Controller
         if ($request->hasFile('avatar')) {
             // Delete old avatar from Cloudinary if it's a Cloudinary URL
             if ($user->avatar && str_contains($user->avatar, 'cloudinary')) {
-                $publicId = pathinfo(parse_url($user->avatar, PHP_URL_PATH), PATHINFO_FILENAME);
-                cloudinary()->destroy('lims/avatars/' . $publicId);
+                try {
+                    $publicId = pathinfo(parse_url($user->avatar, PHP_URL_PATH), PATHINFO_FILENAME);
+                    cloudinary()->adminApi()->deleteAssets(['lims/avatars/' . $publicId]);
+                } catch (\Exception $e) { /* ignore delete errors */ }
             } elseif ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
                 Storage::disk('public')->delete($user->avatar);
             }
 
             if (env('CLOUDINARY_URL')) {
-                $uploaded = cloudinary()->upload($request->file('avatar')->getRealPath(), [
+                $uploaded = cloudinary()->uploadApi()->upload($request->file('avatar')->getRealPath(), [
                     'folder' => 'lims/avatars',
                 ]);
-                $data['avatar'] = $uploaded->getSecurePath();
+                $data['avatar'] = $uploaded['secure_url'];
             } else {
                 $data['avatar'] = asset('storage/' . $request->file('avatar')->store('avatars', 'public'));
             }
@@ -369,8 +371,10 @@ class StudentController extends Controller
 
         // Delete file from storage (Cloudinary or local)
         if (str_contains($attachment->file_path, 'cloudinary')) {
-            $publicId = pathinfo(parse_url($attachment->file_path, PHP_URL_PATH), PATHINFO_FILENAME);
-            cloudinary()->destroy('lims/log-attachments/' . $attachment->log_entry_id . '/' . $publicId);
+            try {
+                $publicId = pathinfo(parse_url($attachment->file_path, PHP_URL_PATH), PATHINFO_FILENAME);
+                cloudinary()->adminApi()->deleteAssets(['lims/log-attachments/' . $attachment->log_entry_id . '/' . $publicId]);
+            } catch (\Exception $e) { /* ignore delete errors */ }
         } else {
             Storage::disk('public')->delete($attachment->file_path);
         }
