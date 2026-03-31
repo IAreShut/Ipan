@@ -20,63 +20,75 @@
 
 @section('main-content')
 <div class="row g-4">
-    <!-- Left Column: Calendar & Add Reminder -->
-    <div class="col-lg-8">
+    <!-- Center Column: Calendar -->
+    <div class="col-lg-12">
         <div class="card card-custom p-4 mb-4">
-            <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
                 <h5 class="fw-bold m-0"><i class="fas fa-calendar-alt text-primary me-2"></i> My Calendar</h5>
-                <button type="button" class="btn btn-primary-custom btn-sm" data-bs-toggle="modal" data-bs-target="#addReminderModal">
-                    <i class="fas fa-plus me-1"></i> Add Reminder
-                </button>
+                
+                <div class="d-flex gap-2">
+                    <!-- Notification Bell Dropdown -->
+                    @php
+                        $unreadCount = $notifications->where('is_read', false)->count();
+                    @endphp
+                    <div class="dropdown">
+                        <button class="btn btn-light border position-relative" type="button" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="width: 40px; height: 40px; border-radius: 50%;">
+                            <i class="fas fa-bell"></i>
+                            @if($unreadCount > 0)
+                            <span class="position-absolute align-items-center justify-content-center translate-middle badge rounded-pill bg-danger" style="top: 5px; left: 85%; font-size: 0.65rem;">
+                                {{ $unreadCount }}
+                            </span>
+                            @endif
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-end shadow border-0 p-0" aria-labelledby="notificationDropdown" style="width: 320px; z-index: 1050;">
+                            <div class="p-3 border-bottom bg-light rounded-top">
+                                <h6 class="fw-bold m-0"><i class="fas fa-clock text-warning me-2"></i> Recent Alerts</h6>
+                            </div>
+                            <div class="list-group list-group-flush" style="max-height: 400px; overflow-y: auto;">
+                                @forelse($notifications as $notification)
+                                    <div class="list-group-item list-group-item-action p-3 {{ $notification->is_read ? 'bg-white' : 'bg-light' }}">
+                                        <div class="d-flex w-100 justify-content-between align-items-center mb-1">
+                                            <h6 class="mb-0 fw-bold d-flex align-items-center gap-1" style="font-size: 0.75rem;">
+                                                @if($notification->type == 'success')
+                                                    <span class="badge bg-success rounded-pill"><i class="fas fa-check"></i> Action</span>
+                                                @elseif($notification->type == 'danger')
+                                                    <span class="badge bg-danger rounded-pill"><i class="fas fa-exclamation-circle"></i> Alert</span>
+                                                @elseif($notification->type == 'warning')
+                                                    <span class="badge bg-warning text-dark rounded-pill"><i class="fas fa-exclamation-triangle"></i> Warning</span>
+                                                @else
+                                                    <span class="badge bg-primary rounded-pill"><i class="fas fa-info-circle"></i> Milestone</span>
+                                                @endif
+                                            </h6>
+                                            <small class="text-muted" style="font-size: 0.7rem;">{{ $notification->created_at->diffForHumans() }}</small>
+                                        </div>
+                                        <h6 class="fw-bold mt-2 mb-1" style="font-size: 0.9rem;">{{ $notification->title }}</h6>
+                                        <p class="mb-2 text-secondary" style="font-size: 0.8rem;">{{ $notification->message }}</p>
+                                        
+                                        @if(!$notification->is_read)
+                                            <form action="{{ route('student.notifications.read', $notification) }}" method="POST" class="d-inline">
+                                                @csrf
+                                                <button type="submit" class="btn btn-sm btn-link text-decoration-none p-0" style="font-size: 0.75rem;">Mark as read</button>
+                                            </form>
+                                        @endif
+                                    </div>
+                                @empty
+                                    <div class="p-4 text-center text-muted">
+                                        <i class="fas fa-check-circle fa-2x mb-2 text-light"></i>
+                                        <p class="mb-0" style="font-size: 0.85rem;">You're all caught up!</p>
+                                    </div>
+                                @endforelse
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Add Reminder Button -->
+                    <button type="button" class="btn btn-primary-custom btn-sm d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#addReminderModal" style="height: 40px;">
+                        <i class="fas fa-plus me-1"></i> Add Reminder
+                    </button>
+                </div>
             </div>
             <!-- FullCalendar Container -->
             <div id="calendar"></div>
-        </div>
-    </div>
-
-    <!-- Right Column: Notifications Feed -->
-    <div class="col-lg-4">
-        
-        <!-- Notifications List -->
-        <div class="card card-custom p-0 h-100 overflow-hidden">
-            <div class="p-4 border-bottom bg-light">
-                <h5 class="fw-bold m-0"><i class="fas fa-clock text-warning me-2"></i> Recent Alerts</h5>
-            </div>
-            
-            <div class="list-group list-group-flush" style="max-height: 500px; overflow-y: auto;">
-                @forelse($notifications as $notification)
-                    <div class="list-group-item list-group-item-action p-4 {{ $notification->is_read ? 'bg-white' : 'bg-light' }}">
-                        <div class="d-flex w-100 justify-content-between align-items-center mb-2">
-                            <h6 class="mb-0 fw-bold d-flex align-items-center gap-2">
-                                @if($notification->type == 'success')
-                                    <span class="badge bg-success rounded-pill"><i class="fas fa-check"></i> Action Feedback</span>
-                                @elseif($notification->type == 'danger')
-                                    <span class="badge bg-danger rounded-pill"><i class="fas fa-exclamation-circle"></i> System Alert</span>
-                                @elseif($notification->type == 'warning')
-                                    <span class="badge bg-warning text-dark rounded-pill"><i class="fas fa-exclamation-triangle"></i> Warning</span>
-                                @else
-                                    <span class="badge bg-primary rounded-pill"><i class="fas fa-info-circle"></i> SV Milestone</span>
-                                @endif
-                            </h6>
-                            <small class="text-muted">{{ $notification->created_at->diffForHumans() }}</small>
-                        </div>
-                        <h6 class="fw-bold mt-2">{{ $notification->title }}</h6>
-                        <p class="mb-2 text-secondary">{{ $notification->message }}</p>
-                        
-                        @if(!$notification->is_read)
-                            <form action="{{ route('student.notifications.read', $notification) }}" method="POST" class="d-inline">
-                                @csrf
-                                <button type="submit" class="btn btn-sm btn-link text-decoration-none p-0">Mark as read</button>
-                            </form>
-                        @endif
-                    </div>
-                @empty
-                    <div class="p-5 text-center text-muted">
-                        <i class="fas fa-check-circle fa-3x mb-3 text-light"></i>
-                        <p>You're all caught up! No new notifications.</p>
-                    </div>
-                @endforelse
-            </div>
         </div>
     </div>
 </div>
