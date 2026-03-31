@@ -63,7 +63,16 @@ class StudentController extends Controller
             ->orderBy('entry_date', 'desc')
             ->get();
 
-        return view('student.log-entries', compact('user', 'internship', 'logs'));
+        // Check if essential profile fields are filled (all except avatar)
+        $profileComplete = !empty($user->phone)
+            && !empty($user->faculty)
+            && !empty($user->class)
+            && !empty($user->programme_code)
+            && !empty($user->location)
+            && !empty($user->about)
+            && !empty($user->company);
+
+        return view('student.log-entries', compact('user', 'internship', 'logs', 'profileComplete'));
     }
 
     /**

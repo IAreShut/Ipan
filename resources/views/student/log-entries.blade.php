@@ -219,6 +219,36 @@
         });
     });
 
+    // ===== PROFILE COMPLETENESS CHECK =====
+    @if(!$profileComplete)
+    (function() {
+        const form = document.querySelector('form[action*="log-entries"]');
+        if (!form) return;
+
+        // Find the main submit button (not the draft button)
+        const submitBtn = form.querySelector('button[type="submit"]:not([name="save_draft"])');
+        if (submitBtn) {
+            submitBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Complete Your Profile First!',
+                    html: 'You need to complete your profile before submitting a log entry.<br><br>',
+                    confirmButtonText: '<i class="fas fa-user-edit me-1"></i> Go to Profile',
+                    confirmButtonColor: '#0f172a',
+                    showCancelButton: true,
+                    cancelButtonText: 'Cancel',
+                    cancelButtonColor: '#6c757d',
+                }).then(function(result) {
+                    if (result.isConfirmed) {
+                        window.location.href = '{{ route("student.profile") }}';
+                    }
+                });
+            });
+        }
+    })();
+    @endif
+
     // ===== DELETE ATTACHMENT VIA AJAX =====
     document.querySelectorAll('.delete-attachment-btn').forEach(function(btn) {
         btn.addEventListener('click', function() {
