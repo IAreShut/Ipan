@@ -160,9 +160,19 @@ Ipan/
 
 ## Troubleshooting
 
-### MySQL Connection Error
+### MySQL Connection Error / Shutdown Unexpectedly
 - Pastikan MySQL running dalam XAMPP
 - Check `.env` untuk database credentials
+
+**Fix untuk error "MySQL shutdown unexpectedly" (XAMPP):**
+Jika MySQL tiba-tiba crash dan tak boleh start:
+1. Pergi ke folder `C:\xampp\mysql\`.
+2. Rename folder `data` kepada `data_old`.
+3. Buat salinan (copy) folder `backup` di tempat yang sama, dan rename salinan tersebut kepada `data`.
+4. Buka folder `data_old`, **copy** folder database project anda sahaja (contoh: `lims_db`). *PENTING: Jangan copy folder `mysql`, `performance_schema`, atau `phpmyadmin`!*
+5. **Paste** folder tersebut ke dalam folder `data` baru.
+6. Dari folder `data_old`, copy file `ibdata1` dan replace file tersebut di dalam folder `data` baru.
+7. Start semula MySQL di XAMPP Control Panel.
 
 ### 500 Internal Server Error
 ```bash
