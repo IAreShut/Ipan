@@ -40,7 +40,7 @@
                             </span>
                             @endif
                         </button>
-                        <div class="dropdown-menu dropdown-menu-end shadow border-0 p-0" aria-labelledby="notificationDropdown" style="width: 320px; z-index: 1050;">
+                        <div class="dropdown-menu dropdown-menu-end shadow border-0 p-0" aria-labelledby="notificationDropdown" style="width: 350px; z-index: 1050;">
                             <div class="p-3 border-bottom bg-light rounded-top">
                                 <h6 class="fw-bold m-0"><i class="fas fa-clock text-warning me-2"></i> Recent Alerts</h6>
                             </div>
