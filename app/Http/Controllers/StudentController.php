@@ -283,30 +283,29 @@ class StudentController extends Controller
     {
         $user = Auth::user();
 
+        // Normalize phone: strip leading 0, prepend +60 before validation
+        if ($request->filled('phone')) {
+            $rawPhone = preg_replace('/[^0-9]/', '', $request->phone); // digits only
+            $rawPhone = ltrim($rawPhone, '0');
+            $request->merge(['phone' => '+60' . $rawPhone]);
+        }
+
         $request->validate([
-            'phone' => 'nullable|string|max:20',
+            'phone' => 'nullable|regex:/^\+60[0-9]{8,12}$/|unique:users,phone,' . $user->id,
             'faculty' => 'nullable|string|max:255',
             'class' => 'nullable|string|max:255',
             'programme_code' => 'nullable|string|max:100',
             'location' => 'nullable|string|max:255',
             'about' => 'nullable|string',
             'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+        ], [
+            'phone.regex' => 'Please enter a valid Malaysian phone number (digits only, 8-12 digits).',
+            'phone.unique' => 'This phone number is already registered by another user.',
         ]);
 
         $data = $request->only([
             'phone', 'faculty', 'class', 'programme_code', 'location', 'about'
         ]);
-
-        // If phone number has a +60 prefix, it might be submitted differently based on UI
-        // In the UI we render a +60 block next to the input. We'll prepend it if it doesn't have it.
-        if (!empty($data['phone']) && !str_starts_with($data['phone'], '+60')) {
-            // Check if it starts with 0
-            if (str_starts_with($data['phone'], '0')) {
-                $data['phone'] = '+60' . substr($data['phone'], 1);
-            } else {
-                $data['phone'] = '+60' . $data['phone'];
-            }
-        }
 
         if ($request->hasFile('avatar')) {
             // Delete old avatar from Cloudinary if it's a Cloudinary URL

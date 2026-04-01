@@ -56,8 +56,15 @@
                         <label class="form-label-custom">Phone Number</label>
                         <div class="phone-input-group">
                             <div class="phone-prefix">+60</div>
-                            <input type="text" name="phone" id="phone_input" class="form-control-custom" value="{{ str_replace('+60', '', $user->phone ?? '') }}" placeholder="123456789">
+                            <input type="text" name="phone" id="phone_input" 
+                                   class="form-control-custom @error('phone') is-invalid @enderror" 
+                                   value="{{ ltrim(str_replace('+60', '', $user->phone ?? ''), '0') }}" 
+                                   placeholder="123456789" inputmode="numeric"
+                                   oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                         </div>
+                        @error('phone')
+                            <div class="text-danger small mt-1">{{ $message }}</div>
+                        @enderror
                     </div>
                     <div class="col-md-6 mb-3">
                         <label class="form-label-custom">Student ID</label>
