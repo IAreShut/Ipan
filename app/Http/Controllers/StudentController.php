@@ -491,16 +491,7 @@ class StudentController extends Controller
             'type' => 'personal_reminder',
         ]);
 
-        // Also insert into notifications so it appears in the Recent Alerts feed
-        \App\Models\Notification::create([
-            'user_id' => $user->id,
-            'title' => 'Reminder: ' . $request->title,
-            'message' => 'Due on ' . $dueDateTime->format('d M Y, h:i A') . '.',
-            'type' => 'warning',
-            'is_read' => false,
-        ]);
-
-        // Send email notification to the student
+        // Send notification (saves to DB via LimsDatabaseChannel + sends email)
         $user->notify(new \App\Notifications\PersonalReminderNotification($milestone));
 
         return redirect()->route('student.notifications')
@@ -516,5 +507,22 @@ class StudentController extends Controller
             $notification->update(['is_read' => true]);
         }
         return back();
+    }
+
+    /**
+     * AJAX: Get unread notifications for real-time SweetAlert2 polling
+     */
+    public function unreadNotifications()
+    {
+        $user = Auth::user();
+        $unread = \App\Models\Notification::where('user_id', $user->id)
+            ->where('is_read', false)
+            ->orderBy('created_at', 'desc')
+            ->get(['id', 'title', 'message', 'type', 'created_at']);
+
+        return response()->json([
+            'count' => $unread->count(),
+            'notifications' => $unread,
+        ]);
     }
 }

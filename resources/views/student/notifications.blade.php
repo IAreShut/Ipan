@@ -34,11 +34,9 @@
                     <div class="dropdown">
                         <button class="btn btn-light border position-relative" type="button" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="width: 40px; height: 40px; border-radius: 50%;">
                             <i class="fas fa-bell"></i>
-                            @if($unreadCount > 0)
-                            <span class="position-absolute align-items-center justify-content-center translate-middle badge rounded-pill bg-danger" style="top: 5px; left: 85%; font-size: 0.65rem;">
+                            <span id="notificationBadge" class="position-absolute align-items-center justify-content-center translate-middle badge rounded-pill bg-danger" style="top: 5px; left: 85%; font-size: 0.65rem; display: {{ $unreadCount > 0 ? 'flex' : 'none' }}">
                                 {{ $unreadCount }}
                             </span>
-                            @endif
                         </button>
                         <div class="dropdown-menu dropdown-menu-end shadow border-0 p-0" aria-labelledby="notificationDropdown" style="width: 350px; z-index: 1050;">
                             <div class="p-3 border-bottom bg-light rounded-top">

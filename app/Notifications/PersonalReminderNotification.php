@@ -6,6 +6,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use App\Models\Milestone;
+use App\Channels\LimsDatabaseChannel;
 
 class PersonalReminderNotification extends Notification
 {
@@ -20,7 +21,7 @@ class PersonalReminderNotification extends Notification
 
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return [LimsDatabaseChannel::class, 'mail'];
     }
 
     public function toMail(object $notifiable): MailMessage
@@ -33,5 +34,14 @@ class PersonalReminderNotification extends Notification
             ->line('**Due Date:** ' . $this->milestone->due_date->format('d M Y, h:i A'))
             ->action('View Notifications', url('/student/notifications'))
             ->line('Make sure to complete it before the deadline!');
+    }
+
+    public function toLimsDatabase(object $notifiable): array
+    {
+        return [
+            'title' => 'Reminder: ' . $this->milestone->title,
+            'message' => 'Due on ' . $this->milestone->due_date->format('d M Y, h:i A') . '.',
+            'type' => 'warning',
+        ];
     }
 }

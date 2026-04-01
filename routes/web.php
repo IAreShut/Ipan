@@ -39,6 +39,7 @@ Route::middleware(['auth'])->prefix('student')->name('student.')->group(function
     Route::get('/notifications', [StudentController::class, 'notifications'])->name('notifications');
     Route::post('/reminders', [StudentController::class, 'storeReminder'])->name('reminders.store');
     Route::post('/notifications/{notification}/read', [StudentController::class, 'markNotificationRead'])->name('notifications.read');
+    Route::get('/notifications/unread', [StudentController::class, 'unreadNotifications'])->name('notifications.unread');
 });
 
 // Supervisor Routes (Protected)

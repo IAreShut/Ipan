@@ -115,7 +115,7 @@
 .activity-card:hover {
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025);
     border-color: #1E3A8A;
-    background: #a1bee6;
+    background: #d0d7df;
     transform: translateY(-2px);
 }
 

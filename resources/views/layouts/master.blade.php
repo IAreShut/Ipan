@@ -50,6 +50,77 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- UX Helpers (spinner + flash alerts) -->
     <script src="{{ asset('js/ux-helpers.js') }}"></script>
+
+    <!-- Real-time Notification Polling (SweetAlert2) -->
+    @auth
+    @if(Auth::user()->role === 'student')
+    <script>
+    (function() {
+        let lastKnownCount = -1; // -1 means first load, skip popup
+
+        function pollNotifications() {
+            fetch('{{ route("student.notifications.unread") }}', {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(r => r.json())
+            .then(data => {
+                // First load: just store the count, don't popup
+                if (lastKnownCount === -1) {
+                    lastKnownCount = data.count;
+                    return;
+                }
+
+                // Update badge if exists on current page (e.g. notifications page)
+                const badge = document.getElementById('notificationBadge');
+                if (badge) {
+                    badge.innerText = data.count;
+                    badge.style.display = data.count > 0 ? 'flex' : 'none';
+                }
+
+                // New notifications arrived -> Show popup
+                if (data.count > lastKnownCount && data.notifications.length > 0) {
+                    const latest = data.notifications[0];
+
+                    // Map type to SweetAlert icon
+                    let icon = 'info';
+                    if (latest.type === 'danger') icon = 'error';
+                    else if (latest.type === 'warning') icon = 'warning';
+                    else if (latest.type === 'success') icon = 'success';
+
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: icon,
+                        title: latest.title,
+                        text: latest.message,
+                        showConfirmButton: true,
+                        confirmButtonText: 'View',
+                        showCancelButton: true,
+                        cancelButtonText: 'Dismiss',
+                        timer: 10000,
+                        timerProgressBar: true,
+                        customClass: { popup: 'animate__animated animate__fadeInRight' }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = '{{ route("student.notifications") }}';
+                        }
+                    });
+                }
+
+                lastKnownCount = data.count;
+            })
+            .catch(() => {}); // Silently fail on network errors
+        }
+
+        // Poll every 30 seconds
+        setInterval(pollNotifications, 30000);
+        // Initial check on page load
+        pollNotifications();
+    })();
+    </script>
+    @endif
+    @endauth
+
     @stack('scripts')
 </body>
 </html>
