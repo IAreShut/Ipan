@@ -82,7 +82,7 @@
             <div class="col-xl-3 col-lg-4 col-md-4 col-sm-6">
                 <a href="{{ route('student.progress.week', $week) }}" class="text-decoration-none">
                     <div class="card week-card shadow-soft rounded-2xl h-100 {{ $isActive ? 'bg-lims-light' : 'bg-white' }}">
-                        <div class="card-body p-4 position-relative z-1">
+                        <div class="card-body p-4 pb-2 position-relative z-1">
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <h5 class="text-lims-navy fw-bold mb-0">Week {{ $week }}</h5>
                                 <i class="{{ $statusIcon }} fs-5" title="{{ $statusStr }}"></i>
