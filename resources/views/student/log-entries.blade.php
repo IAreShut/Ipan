@@ -42,19 +42,25 @@
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <label class="form-label fw-bold">Date</label>
-                        <input type="date" name="entry_date" class="form-control @error('entry_date') is-invalid @enderror" 
-                               value="{{ old('entry_date', isset($logEntry) ? $logEntry->entry_date->format('Y-m-d') : date('Y-m-d')) }}" required>
+                        <input type="date" id="entryDate" name="entry_date" class="form-control @error('entry_date') is-invalid @enderror" 
+                               value="{{ old('entry_date', isset($logEntry) ? $logEntry->entry_date->format('Y-m-d') : date('Y-m-d')) }}"
+                               @if($internship && $internship->start_date && $internship->end_date)
+                                   min="{{ $internship->start_date->format('Y-m-d') }}"
+                                   max="{{ $internship->end_date->format('Y-m-d') }}"
+                               @endif
+                               required>
                         @error('entry_date')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
                     <div class="col-md-6">
                         <label class="form-label fw-bold">Week</label>
-                        <select class="form-select" name="week_number">
+                        <select id="weekSelect" class="form-select" name="week_number" style="pointer-events: none; background-color: #e9ecef;">
                             @for($i = 1; $i <= ($internship->total_weeks ?? 12); $i++)
                                 <option value="{{ $i }}" {{ old('week_number', isset($logEntry) ? $logEntry->week_number : '') == $i ? 'selected' : '' }}>Week {{ $i }}</option>
                             @endfor
                         </select>
+                        <small class="text-muted d-block mt-1"><i class="fas fa-info-circle"></i> Week is auto-calculated based on Date.</small>
                     </div>
                 </div>
 
@@ -217,6 +223,46 @@
                 paginate: { previous: '‹', next: '›' }
             }
         });
+
+        // Auto-calculate week based on date
+        const entryDateInput = document.getElementById('entryDate');
+        const weekSelect = document.getElementById('weekSelect');
+        @if($internship && $internship->start_date)
+        const internshipStartDate = new Date("{{ $internship->start_date->format('Y-m-d') }}");
+        
+        function calculateWeek() {
+            if (!entryDateInput || !entryDateInput.value) return;
+            const selectedDate = new Date(entryDateInput.value);
+            
+            // Set time to 00:00:00 to avoid timezone calculation issues
+            selectedDate.setHours(0,0,0,0);
+            const startDate = new Date(internshipStartDate);
+            startDate.setHours(0,0,0,0);
+            
+            // Calculate difference in days
+            const diffTime = selectedDate.getTime() - startDate.getTime();
+            const diffDays = Math.floor(diffTime / (1000 * 3600 * 24));
+            
+            // Calculate week number (1-based)
+            let weekNum = Math.floor(diffDays / 7) + 1;
+            
+            // Ensure week number doesn't go below 1 or above total weeks
+            const maxWeeks = {{ $internship->total_weeks ?? 12 }};
+            if (weekNum < 1) weekNum = 1;
+            if (weekNum > maxWeeks) weekNum = maxWeeks;
+            
+            // Update select dropdown
+            if (weekSelect) {
+                weekSelect.value = weekNum;
+            }
+        }
+
+        // Calculate on load and on change
+        calculateWeek();
+        if (entryDateInput) {
+            entryDateInput.addEventListener('change', calculateWeek);
+        }
+        @endif
     });
 
     // ===== PROFILE COMPLETENESS CHECK =====

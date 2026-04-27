@@ -75,9 +75,12 @@ class StudentController extends Controller
             && !empty($user->faculty)
             && !empty($user->class)
             && !empty($user->programme_code)
-            && !empty($user->location)
-            && !empty($user->about)
-            && !empty($user->company);
+            // && !empty($user->location)
+            // && !empty($user->about)
+            && !empty($user->company)
+            && $internship
+            && !empty($internship->start_date)
+            && !empty($internship->end_date);
 
         return view('student.log-entries', compact('user', 'internship', 'logs', 'profileComplete'));
     }
@@ -305,9 +308,12 @@ class StudentController extends Controller
             'location' => 'nullable|string|max:255',
             'about' => 'nullable|string',
             'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
         ], [
             'phone.regex' => 'Please enter a valid Malaysian phone number (digits only, 8-12 digits).',
             'phone.unique' => 'This phone number is already registered by another user.',
+            'end_date.after_or_equal' => 'End date must be after or equal to the start date.',
         ]);
 
         $data = $request->only([
@@ -336,6 +342,24 @@ class StudentController extends Controller
         }
 
         $user->update($data);
+
+        // Update or create Internship dates
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $startDate = \Carbon\Carbon::parse($request->start_date);
+            $endDate = \Carbon\Carbon::parse($request->end_date);
+            $totalWeeks = ceil($startDate->diffInDays($endDate) / 7);
+            
+            Internship::updateOrCreate(
+                ['student_id' => $user->id],
+                [
+                    'start_date' => $startDate,
+                    'end_date' => $endDate,
+                    'total_weeks' => $totalWeeks,
+                    'company_name' => $user->company ?? 'Not Set',
+                    'company_address' => $request->location ?? '-',
+                ]
+            );
+        }
 
         return redirect()->route('student.profile')->with('success', 'Profile updated successfully.');
     }

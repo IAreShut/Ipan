@@ -124,30 +124,24 @@
                     <input type="text" class="form-control-custom" value="{{ $user->company ?? 'Not specified' }}" readonly disabled>
                 </div>
                 
-                @if($internship)
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label class="form-label-custom">Internship Start Date</label>
-                        <div class="position-relative">
-                            <select class="form-control-custom appearance-none" style="appearance: none; -webkit-appearance: none; -moz-appearance: none; background-color: #f8fafc; opacity: 1;" disabled>
-                                <option selected>{{ $internship->start_date->format('M d, Y') }}</option>
-                            </select>
-                        </div>
+                        <input type="date" name="start_date" class="form-control-custom @error('start_date') is-invalid @enderror" 
+                               value="{{ old('start_date', $internship ? $internship->start_date->format('Y-m-d') : '') }}">
+                        @error('start_date')
+                            <div class="text-danger small mt-1">{{ $message }}</div>
+                        @enderror
                     </div>
                     <div class="col-md-6 mb-3">
                         <label class="form-label-custom">Internship End Date</label>
-                        <div class="position-relative">
-                            <select class="form-control-custom appearance-none" style="appearance: none; -webkit-appearance: none; -moz-appearance: none; background-color: #f8fafc; opacity: 1;" disabled>
-                                <option selected>{{ $internship->end_date->format('M d, Y') }}</option>
-                            </select>
-                        </div>
+                        <input type="date" name="end_date" class="form-control-custom @error('end_date') is-invalid @enderror" 
+                               value="{{ old('end_date', $internship ? $internship->end_date->format('Y-m-d') : '') }}">
+                        @error('end_date')
+                            <div class="text-danger small mt-1">{{ $message }}</div>
+                        @enderror
                     </div>
                 </div>
-                @else
-                <div class="alert alert-info py-2" style="border-radius: 0.75rem; font-size: 0.9rem;">
-                    Internship duration details not available.
-                </div>
-                @endif
             </div>
         </div>
         
