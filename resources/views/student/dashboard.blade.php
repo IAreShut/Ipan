@@ -154,36 +154,59 @@
         </div>
     </div>
 
-    <!-- Progress & Quick Actions -->
+    <!-- Progress & Alerts -->
     <div class="col-lg-4">
         <!-- Internship Progress -->
-        <div class="premium-card p-4 mb-4">
-            <h5 class="fw-bold mb-1 text-dark">Internship Progress</h5>
-            <p class="text-muted small mb-4">Track your overall journey</p>
-            
-            <div class="d-flex justify-content-between align-items-end mb-2">
-                <span class="text-dark fw-bold fs-3 lh-1">{{ round($progress) }}%</span>
-                <span class="text-muted small fw-semibold">Completed</span>
+        <a href="{{ route('student.progress') }}" class="text-decoration-none">
+            <div class="premium-card p-4 mb-4" style="cursor: pointer;">
+                <h5 class="fw-bold mb-1 text-dark">Internship Progress</h5>
+                <p class="text-muted small mb-4">Track your overall journey</p>
+                
+                <div class="d-flex justify-content-between align-items-end mb-2">
+                    <span class="text-dark fw-bold fs-3 lh-1">{{ round($progress) }}%</span>
+                    <span class="text-muted small fw-semibold">Completed</span>
+                </div>
+                <div class="custom-progress-bg mb-3">
+                    <div class="custom-progress-bar h-100" role="progressbar" style="width: {{ $progress }}%;" aria-valuenow="{{ $progress }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <div class="d-flex align-items-center text-muted small">
+                    <i class="fas fa-flag-checkered me-2"></i>
+                    <span>Started: <span class="text-dark fw-semibold">{{ $internship ? $internship->start_date->format('M d, Y') : 'Not set' }}</span></span>
+                </div>
             </div>
-            <div class="custom-progress-bg mb-3">
-                <div class="custom-progress-bar h-100" role="progressbar" style="width: {{ $progress }}%;" aria-valuenow="{{ $progress }}" aria-valuemin="0" aria-valuemax="100"></div>
-            </div>
-            <div class="d-flex align-items-center text-muted small">
-                <i class="fas fa-flag-checkered me-2"></i>
-                <span>Started: <span class="text-dark fw-semibold">{{ $internship ? $internship->start_date->format('M d, Y') : 'Not set' }}</span></span>
-            </div>
-        </div>
+        </a>
 
-        <!-- Quick Actions -->
+        <!-- Recent Alerts -->
         <div class="premium-card p-4">
-            <h5 class="fw-bold mb-4 text-dark">Quick Actions</h5>
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="fw-bold mb-0 text-dark">Recent Alerts</h5>
+                <a href="{{ route('student.notifications') }}" class="btn btn-sm btn-outline-success rounded-pill px-3 fw-semibold" style="font-size: 0.8rem; border-color: #10b981; color: #10b981;">View All</a>
+            </div>
+            
             <div class="d-flex flex-column gap-3">
-                <a href="{{ route('student.log-entries') }}" class="btn btn-premium btn-premium-primary w-100">
-                    <i class="fas fa-plus"></i> Add New Log Entry
-                </a>
-                <a href="{{ route('student.progress') }}" class="btn btn-premium btn-premium-outline w-100">
-                    <i class="fas fa-chart-line"></i> View Full Progress
-                </a>
+                @forelse($recentAlerts as $alert)
+                <div class="p-3" style="background-color: #f8fafc; border-radius: 1rem; border: 1px solid #e2e8f0;">
+                    <div class="d-flex justify-content-between align-items-start mb-1">
+                        <span class="fw-bold text-dark" style="font-size: 0.9rem;">{{ Str::limit($alert->title, 35) }}</span>
+                        <i class="fas fa-ellipsis-h text-muted" style="font-size: 0.8rem; cursor: pointer;"></i>
+                    </div>
+                    <div class="d-flex align-items-center text-muted mb-2" style="font-size: 0.8rem;">
+                        <i class="far fa-calendar-alt me-2"></i>
+                        <span>{{ $alert->created_at->format('h:i a - d M Y') }}</span>
+                    </div>
+                    <div class="d-flex align-items-center mt-2">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center text-white shadow-sm" style="width: 24px; height: 24px; font-size: 0.7rem; margin-right: 8px; background-color: {{ strtolower($alert->type) === 'warning' ? '#ef4444' : ($alert->type === 'reminder' ? '#f59e0b' : ($alert->type === 'milestone' ? '#3b82f6' : '#10b981')) }};">
+                            <i class="fas {{ strtolower($alert->type) === 'warning' ? 'fa-exclamation-triangle' : ($alert->type === 'reminder' ? 'fa-clock' : ($alert->type === 'milestone' ? 'fa-flag' : 'fa-bell')) }}"></i>
+                        </div>
+                        <span style="font-size: 0.85rem; color: #475569; font-weight: 500;">{{ ucfirst(str_replace('_', ' ', $alert->type)) }}</span>
+                    </div>
+                </div>
+                @empty
+                <div class="text-center text-muted py-4" style="background-color: #f8fafc; border-radius: 1rem; border: 1px dashed #cbd5e1;">
+                    <i class="fas fa-bell-slash fs-4 mb-2 opacity-50"></i>
+                    <p class="mb-0 small">No recent alerts</p>
+                </div>
+                @endforelse
             </div>
         </div>
     </div>

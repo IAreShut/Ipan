@@ -39,6 +39,12 @@ class StudentController extends Controller
             $progress = min(100, ($currentWeek / $internship->total_weeks) * 100);
         }
 
+        // Get recent alerts (notifications)
+        $recentAlerts = \App\Models\Notification::where('user_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->take(4)
+            ->get();
+
         return view('student.dashboard', compact(
             'user', 
             'internship', 
@@ -47,7 +53,8 @@ class StudentController extends Controller
             'pendingLogs', 
             'rejectedLogs',
             'recentLogs',
-            'progress'
+            'progress',
+            'recentAlerts'
         ));
     }
 
