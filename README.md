@@ -65,6 +65,13 @@ Sistem pengurusan logbook latihan industri berasaskan Laravel.
 | **jQuery CDN** | Hosts jQuery library |
 | **UI Avatars API** | Generates avatar placeholders based on user names |
 
+### External APIs & Integrations
+
+| Technology | Package | Role |
+|------------|---------|------|
+| **Gemini API** | `google-gemini-php/laravel` | Generate AI summaries for supervisor reviews and feedback |
+| **Cloudinary** | `cloudinary-labs/cloudinary-laravel` | Cloud storage for persistent image uploads (log attachments & avatars) on Heroku |
+
 ## Installation
 ### 1. Clone / Download Project
 ```bash
