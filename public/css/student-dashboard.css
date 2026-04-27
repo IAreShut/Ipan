@@ -1,1 +1,275 @@
-/* Student Dashboard Styles */
+/* Student Dashboard Premium Styles */
+:root {
+    --navy-primary: #1e3a8a;
+    --navy-light: #eff6ff;
+    --success-soft: #ecfdf5;
+    --success-text: #10b981;
+    --warning-soft: #fffbeb;
+    --warning-text: #f59e0b;
+    --danger-soft: #fef2f2;
+    --danger-text: #ef4444;
+    --card-shadow: 0 10px 25px rgba(0, 0, 0, 0.03);
+    --border-soft: #f1f5f9;
+}
+
+/* Base Layout & Cards */
+body {
+    background-color: #f8fafc;
+}
+
+.premium-card {
+    background: #ffffff;
+    border-radius: 1.5rem;
+    border: 1px solid #cbd5e1; /* More visible outline border */
+    box-shadow: var(--card-shadow);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    overflow: hidden;
+}
+
+.premium-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05);
+    border-color: var(--navy-primary); /* Outline changes color on hover */
+}
+
+/* Stat Cards specific */
+.stat-card {
+    padding: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.stat-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.5rem;
+}
+
+.stat-value {
+    font-size: 2.25rem;
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 1;
+    margin: 0;
+}
+
+.stat-icon-wrapper {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.stat-icon-wrapper i {
+    font-size: 1.5rem;
+}
+
+/* Icon Variations */
+.icon-primary {
+    background-color: var(--navy-light);
+    color: var(--navy-primary);
+}
+
+.icon-success {
+    background-color: var(--success-soft);
+    color: var(--success-text);
+}
+
+.icon-warning {
+    background-color: var(--warning-soft);
+    color: var(--warning-text);
+}
+
+.icon-danger {
+    background-color: var(--danger-soft);
+    color: var(--danger-text);
+}
+
+/* Progress Section */
+.custom-progress-bg {
+    background-color: #e2e8f0;
+    border-radius: 1rem;
+    height: 12px;
+    overflow: hidden;
+}
+
+.custom-progress-bar {
+    background-color: var(--navy-primary);
+    border-radius: 1rem;
+}
+
+/* Quick Actions */
+.btn-premium {
+    padding: 0.75rem 1.5rem;
+    border-radius: 1rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.btn-premium-primary {
+    background-color: var(--navy-primary);
+    color: white;
+    border: none;
+}
+
+.btn-premium-primary:hover {
+    background-color: #172554;
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(30, 58, 138, 0.2);
+}
+
+.btn-premium-outline {
+    background-color: white;
+    color: var(--navy-primary);
+    border: 1px solid var(--navy-primary);
+}
+
+.btn-premium-outline:hover {
+    background-color: var(--navy-light);
+    color: var(--navy-primary);
+    transform: translateY(-1px);
+}
+
+/* DataTables Overhaul */
+.table-premium {
+    margin-top: 1rem !important;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.table-premium thead th {
+    background-color: white;
+    color: #64748b;
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid var(--border-soft);
+    padding: 1rem;
+}
+
+.table-premium tbody td {
+    padding: 1rem;
+    vertical-align: middle;
+    border-bottom: 1px solid var(--border-soft);
+    color: #334155;
+    font-size: 0.95rem;
+}
+
+.table-premium tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.table-premium tbody tr:hover td {
+    background-color: #f8fafc;
+}
+
+/* DataTable specific styling overrides */
+.dataTables_wrapper .dataTables_filter input {
+    border: 1px solid #cbd5e1;
+    border-radius: 2rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.dataTables_wrapper .dataTables_filter input:focus {
+    border-color: var(--navy-primary);
+    box-shadow: 0 0 0 3px var(--navy-light);
+}
+
+.dataTables_wrapper .dataTables_length select {
+    border: 1px solid #cbd5e1;
+    border-radius: 0.5rem;
+    padding: 0.25rem 1.75rem 0.25rem 0.75rem;
+    margin: 0 0.25rem;
+    background-position: right 0.5rem center;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+    border-radius: 0.5rem !important;
+    border: none !important;
+    padding: 0.4em 0.8em !important;
+    margin: 0 2px;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.current, 
+.dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+    background: var(--navy-light) !important;
+    color: var(--navy-primary) !important;
+    font-weight: 600;
+    border: none !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+    background: #f1f5f9 !important;
+    color: #0f172a !important;
+    border: none !important;
+}
+
+/* Action Buttons in Table */
+.btn-action-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f1f5f9;
+    color: #64748b;
+    transition: all 0.2s;
+    border: none;
+}
+
+.btn-action-icon:hover {
+    background-color: var(--navy-light);
+    color: var(--navy-primary);
+}
+
+/* Status Badges */
+.badge-status {
+    padding: 0.4rem 0.8rem;
+    border-radius: 2rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+}
+
+.badge-status.approved { background-color: var(--success-soft); color: var(--success-text); }
+.badge-status.rejected { background-color: var(--danger-soft); color: var(--danger-text); }
+.badge-status.pending { background-color: var(--warning-soft); color: var(--warning-text); }
+.badge-status.draft { background-color: #f1f5f9; color: #64748b; }
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .stat-card {
+        padding: 1rem;
+    }
+    .stat-value {
+        font-size: 1.8rem;
+    }
+    .stat-icon-wrapper {
+        width: 48px;
+        height: 48px;
+    }
+    .stat-icon-wrapper i {
+        font-size: 1.25rem;
+    }
+}
