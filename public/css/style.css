@@ -37,26 +37,109 @@ h1, h2, h3, h4, h5, h6 {
     color: white;
 }
 
-/* Card Styling */
-.card-custom {
-    border: none;
-    border-radius: 0.75rem;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    background: white;
-    transition: all 0.3s ease-in-out;
-}
-.card-custom:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 0 0 2px #1E3A8A, 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+/* Global Card Styling (Premium Aesthetic) */
+.card, .card-custom, .profile-card, .detail-card, .auth-card {
+    background: #ffffff;
+    border-radius: 1.5rem;
+    border: 1px solid #cbd5e1;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.03);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    overflow: hidden;
+    margin-bottom: 1.5rem;
 }
 
-/* Global Card Hover Effect for other card types */
-.card, .profile-card, .detail-card, .auth-card {
-    transition: all 0.3s ease-in-out;
+.card:hover, .card-custom:hover, .profile-card:hover, .detail-card:hover, .auth-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05);
+    border-color: var(--primary-color, #1E40AF);
 }
-.card:hover, .profile-card:hover, .detail-card:hover, .auth-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 0 0 2px #1E3A8A, 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+
+.card-header, .card-footer {
+    background-color: transparent;
+    border-bottom: 1px solid #e2e8f0;
+}
+.card-footer {
+    border-bottom: none;
+    border-top: 1px solid #e2e8f0;
+}
+
+/* Global Table Styling (Premium Aesthetic) */
+.table {
+    margin-top: 1rem !important;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.table thead th {
+    background-color: white;
+    color: #64748b;
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid #f1f5f9;
+    padding: 1rem;
+    border-top: none;
+}
+
+.table tbody td {
+    padding: 1rem;
+    vertical-align: middle;
+    border-bottom: 1px solid #f1f5f9;
+    color: #334155;
+    font-size: 0.95rem;
+}
+
+.table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.table tbody tr:hover td {
+    background-color: #f8fafc;
+}
+
+/* DataTables Global Overrides */
+.dataTables_wrapper .dataTables_filter input {
+    border: 1px solid #cbd5e1;
+    border-radius: 2rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.dataTables_wrapper .dataTables_filter input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+}
+
+.dataTables_wrapper .dataTables_length select {
+    border: 1px solid #cbd5e1;
+    border-radius: 0.5rem;
+    padding: 0.25rem 1.75rem 0.25rem 0.75rem;
+    margin: 0 0.25rem;
+    background-position: right 0.5rem center;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+    border-radius: 0.5rem !important;
+    border: none !important;
+    padding: 0.4em 0.8em !important;
+    margin: 0 2px;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.current, 
+.dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+    background: #EFF6FF !important;
+    color: var(--primary-color) !important;
+    font-weight: 600;
+    border: none !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+    background: #f1f5f9 !important;
+    color: #0f172a !important;
+    border: none !important;
 }
 
 /* Sidebar Styling */

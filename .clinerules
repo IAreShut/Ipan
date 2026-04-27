@@ -249,7 +249,16 @@ if (str_contains($path, 'cloudinary')) {
 
 ---
 
-## 7. AI Integration (Gemini API)
+## 7. UI Design Conventions
+
+### Global Aesthetic (Premium Design)
+- **Cards**: All cards must use the `.card` class which is globally styled in `public/css/style.css` to have a `1.5rem` border-radius, soft shadow (`0 10px 25px rgba(0, 0, 0, 0.03)`), and a subtle `1px solid #cbd5e1` outline that turns primary blue on hover. **Do NOT add custom borders or shadows inline unless explicitly requested.**
+- **Tables**: All tables must use the `.table` class. It has been globally overridden to remove vertical borders, use uppercase light-grey headers, and rounded pagination buttons for DataTables. Avoid inline table styles.
+- **Buttons**: Use rounded-pill or `1rem` radius buttons (`.btn-premium`) with icons to maintain the modern SaaS aesthetic.
+
+---
+
+## 8. AI Integration (Gemini API)
 
 ### Endpoint
 `POST /student/ai-generate-summary` (AJAX, returns JSON)
