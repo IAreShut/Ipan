@@ -131,14 +131,7 @@
 <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js'></script>
 <script>
     window.LIMS = window.LIMS || {};
-    window.LIMS.calendarEvents = @json($milestones->map(function($milestone) {
-        return [
-            'title' => $milestone->title,
-            'start' => $milestone->due_date->format('Y-m-d\TH:i:s'),
-            'className' => $milestone->type === 'sv_milestone' ? 'fc-event-sv' : 'fc-event-personal',
-            'allDay' => false,
-        ];
-    })->values());
+    window.LIMS.calendarEvents = @json($calendarEvents);
 </script>
 <script src="{{ asset('js/student/notifications.js') }}"></script>
 @endpush

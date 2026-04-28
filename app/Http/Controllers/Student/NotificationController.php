@@ -24,7 +24,17 @@ class NotificationController extends Controller
         $milestones = \App\Models\Milestone::where('user_id', $user->id)
             ->get();
 
-        return view('student.notifications', compact('user', 'internship', 'notifications', 'milestones'));
+        // Pre-format calendar events for JS (avoids Blade closure parsing issues)
+        $calendarEvents = $milestones->map(function ($milestone) {
+            return [
+                'title' => $milestone->title,
+                'start' => $milestone->due_date->format('Y-m-d\TH:i:s'),
+                'className' => $milestone->type === 'sv_milestone' ? 'fc-event-sv' : 'fc-event-personal',
+                'allDay' => false,
+            ];
+        })->values();
+
+        return view('student.notifications', compact('user', 'internship', 'notifications', 'milestones', 'calendarEvents'));
     }
 
     /**
