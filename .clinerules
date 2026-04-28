@@ -470,3 +470,26 @@ Ipan/
 7. ❌ **Do NOT create new models without migrations** — Always use `php artisan make:model Name -m`.
 
 8. ❌ **Do NOT delete or rename existing routes** without updating all Blade references (`route('...')` calls).
+
+---
+
+## 14. Agent Operational Guidelines
+
+### Efficiency & Token Saving
+- **Partial Updates:** Only provide the code snippets that need changes. Do not output unchanged parts of a file.
+- **Short Summaries:** Provide a brief 1-sentence summary of what you did after every task.
+
+### Refactoring Standard (Laravel 12)
+- Follow **DRY (Don't Repeat Yourself)** principles.
+- Use **Form Requests** for complex validation logic to keep Controllers thin.
+- Utilize **Laravel Collections** for data manipulation instead of manual loops.
+
+### Security Protocol
+- **Input Sanitization:** Always validate and sanitize user inputs.
+- **XSS Prevention:** Ensure all data displayed in Blade uses `{{ }}` escaping.
+- **API Security:** Use CSRF protection for all forms and AJAX requests (Axios).
+- **Sensitive Data:** Never hardcode API keys (Gemini/Cloudinary). Always refer to `.env` variables.
+
+### Database Integrity
+- Strictly use **MySQL** syntax.
+- All table changes must be done via **Migrations**, never manual SQL execution.
