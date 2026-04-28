@@ -50,6 +50,7 @@
 <!-- Stats Row -->
 <div class="row g-4 mb-4">
     <div class="col-xl-3 col-sm-6">
+        <a href="{{ route('student.progress') }}" class="text-decoration-none">
         <div class="premium-card stat-card">
             <div class="stat-info">
                 <span class="stat-label">Total Logs</span>
@@ -59,6 +60,7 @@
                 <i class="fas fa-file-alt"></i>
             </div>
         </div>
+        </a>
     </div>
     <div class="col-xl-3 col-sm-6">
         <div class="premium-card stat-card">
