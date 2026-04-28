@@ -113,11 +113,5 @@
 @endsection
 
 @push('scripts')
-<script>
-    document.getElementById('svImageModal')?.addEventListener('show.bs.modal', function (event) {
-        const trigger = event.relatedTarget;
-        document.getElementById('svModalImage').src = trigger.dataset.imgSrc;
-        document.getElementById('svImageModalLabel').textContent = trigger.dataset.imgName;
-    });
-</script>
+<script src="{{ asset('js/supervisor/review-logbook.js') }}"></script>
 @endpush

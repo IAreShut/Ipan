@@ -134,17 +134,5 @@
 @push('scripts')
 <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
-<script>
-    $(document).ready(function() {
-        $('#milestonesTable').DataTable({
-            pageLength: 10,
-            order: [[ 2, "asc" ]], // Sort by due date ascending
-            language: {
-                search: 'Search Table:',
-                paginate: { previous: '‹', next: '›' },
-                emptyTable: "No milestones have been assigned yet."
-            }
-        });
-    });
-</script>
+<script src="{{ asset('js/supervisor/milestones.js') }}"></script>
 @endpush

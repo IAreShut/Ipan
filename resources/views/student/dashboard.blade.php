@@ -216,36 +216,5 @@
 @endsection
 
 @push('scripts')
-<script>
-$(document).ready(function() {
-    $('#recentLogEntriesTable').DataTable({
-        pageLength: 10,
-        order: [],
-        language: {
-            search: 'Search:',
-            paginate: { previous: '‹', next: '›' }
-        }
-    });
-
-    // Live Date Time functionality
-    function updateDateTime() {
-        const now = new Date();
-        const options = { 
-            weekday: 'short', 
-            year: 'numeric', 
-            month: 'short', 
-            day: 'numeric', 
-            hour: '2-digit', 
-            minute: '2-digit', 
-            second: '2-digit' 
-        };
-        const dateTimeStr = now.toLocaleDateString('en-MY', options);
-        $('#liveDateTime').text(dateTimeStr);
-    }
-    
-    // Initial call and set interval
-    updateDateTime();
-    setInterval(updateDateTime, 1000);
-});
-</script>
+<script src="{{ asset('js/student/dashboard.js') }}"></script>
 @endpush

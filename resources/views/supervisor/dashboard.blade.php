@@ -115,9 +115,5 @@
 @endsection
 
 @push('scripts')
-<script>
-$(document).ready(function() {
-    $('#supervisorStudentTable').DataTable();
-});
-</script>
+<script src="{{ asset('js/supervisor/dashboard.js') }}"></script>
 @endpush

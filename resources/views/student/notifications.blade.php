@@ -130,49 +130,15 @@
 @push('scripts')
 <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js'></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        var calendarEl = document.getElementById('calendar');
-        
-        // Prepare events data from PHP
-        var events = [
-            @foreach($milestones as $milestone)
-            {
-                title: '{{ addslashes($milestone->title) }}',
-                start: '{{ $milestone->due_date->format('Y-m-d\TH:i:s') }}',
-                className: '{{ $milestone->type === 'sv_milestone' ? 'fc-event-sv' : 'fc-event-personal' }}',
-                allDay: false
-            },
-            @endforeach
+    window.LIMS = window.LIMS || {};
+    window.LIMS.calendarEvents = @json($milestones->map(function($milestone) {
+        return [
+            'title' => $milestone->title,
+            'start' => $milestone->due_date->format('Y-m-d\TH:i:s'),
+            'className' => $milestone->type === 'sv_milestone' ? 'fc-event-sv' : 'fc-event-personal',
+            'allDay' => false,
         ];
-
-        var calendar = new FullCalendar.Calendar(calendarEl, {
-            initialView: 'dayGridMonth',
-            headerToolbar: {
-                left: 'prev,next today',
-                center: 'title',
-                right: 'dayGridMonth,timeGridWeek'
-            },
-            events: events,
-            displayEventTime: false,
-            dateClick: function(info) {
-                // Pre-fill date when clicking on calendar
-                document.getElementById('reminder_date').value = info.dateStr;
-                var modal = new bootstrap.Modal(document.getElementById('addReminderModal'));
-                modal.show();
-            },
-            eventClick: function(info) {
-                // Show event details (rudimentary using standard alert, or SweetAlert)
-                Swal.fire({
-                    title: info.event.title,
-                    text: 'Due: ' + info.event.start.toLocaleString(),
-                    icon: 'info',
-                    confirmButtonColor: '#3b82f6'
-                });
-            },
-            height: 600
-        });
-        
-        calendar.render();
-    });
+    })->values());
 </script>
+<script src="{{ asset('js/student/notifications.js') }}"></script>
 @endpush

@@ -2,8 +2,19 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\StudentController;
-use App\Http\Controllers\SupervisorController;
+
+// Student Controllers
+use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
+use App\Http\Controllers\Student\LogEntryController;
+use App\Http\Controllers\Student\ProfileController as StudentProfileController;
+use App\Http\Controllers\Student\ProgressController;
+use App\Http\Controllers\Student\NotificationController as StudentNotificationController;
+
+// Supervisor Controllers
+use App\Http\Controllers\Supervisor\DashboardController as SupervisorDashboardController;
+use App\Http\Controllers\Supervisor\ReviewController;
+use App\Http\Controllers\Supervisor\MilestoneController;
+use App\Http\Controllers\Supervisor\AnalyticsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -24,33 +35,33 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // Student Routes (Protected)
 Route::middleware(['auth'])->prefix('student')->name('student.')->group(function () {
-    Route::get('/dashboard', [StudentController::class, 'dashboard'])->name('dashboard');
-    Route::get('/log-entries', [StudentController::class, 'logEntries'])->name('log-entries');
-    Route::post('/log-entries', [StudentController::class, 'storeLogEntry'])->name('log-entries.store');
-    Route::get('/log-entries/{logEntry}', [StudentController::class, 'showLogEntry'])->name('log-entries.show');
-    Route::get('/log-entries/{logEntry}/edit', [StudentController::class, 'editLogEntry'])->name('log-entries.edit');
-    Route::put('/log-entries/{logEntry}', [StudentController::class, 'updateLogEntry'])->name('log-entries.update');
-    Route::delete('/log-attachments/{attachment}', [StudentController::class, 'deleteAttachment'])->name('log-attachments.destroy');
-    Route::post('/ai-generate-summary', [StudentController::class, 'generateAiSummary'])->name('ai-generate-summary');
-    Route::get('/profile', [StudentController::class, 'profile'])->name('profile');
-    Route::post('/profile', [StudentController::class, 'updateProfile'])->name('profile.update');
-    Route::get('/progress', [StudentController::class, 'progress'])->name('progress');
-    Route::get('/progress/week/{week}', [StudentController::class, 'progressWeek'])->name('progress.week');
-    Route::get('/notifications', [StudentController::class, 'notifications'])->name('notifications');
-    Route::post('/reminders', [StudentController::class, 'storeReminder'])->name('reminders.store');
-    Route::post('/notifications/{notification}/read', [StudentController::class, 'markNotificationRead'])->name('notifications.read');
-    Route::get('/notifications/unread', [StudentController::class, 'unreadNotifications'])->name('notifications.unread');
+    Route::get('/dashboard', [StudentDashboardController::class, 'dashboard'])->name('dashboard');
+    Route::get('/log-entries', [LogEntryController::class, 'index'])->name('log-entries');
+    Route::post('/log-entries', [LogEntryController::class, 'store'])->name('log-entries.store');
+    Route::get('/log-entries/{logEntry}', [LogEntryController::class, 'show'])->name('log-entries.show');
+    Route::get('/log-entries/{logEntry}/edit', [LogEntryController::class, 'edit'])->name('log-entries.edit');
+    Route::put('/log-entries/{logEntry}', [LogEntryController::class, 'update'])->name('log-entries.update');
+    Route::delete('/log-attachments/{attachment}', [LogEntryController::class, 'deleteAttachment'])->name('log-attachments.destroy');
+    Route::post('/ai-generate-summary', [LogEntryController::class, 'generateAiSummary'])->name('ai-generate-summary');
+    Route::get('/profile', [StudentProfileController::class, 'show'])->name('profile');
+    Route::post('/profile', [StudentProfileController::class, 'update'])->name('profile.update');
+    Route::get('/progress', [ProgressController::class, 'index'])->name('progress');
+    Route::get('/progress/week/{week}', [ProgressController::class, 'week'])->name('progress.week');
+    Route::get('/notifications', [StudentNotificationController::class, 'index'])->name('notifications');
+    Route::post('/reminders', [StudentNotificationController::class, 'storeReminder'])->name('reminders.store');
+    Route::post('/notifications/{notification}/read', [StudentNotificationController::class, 'markRead'])->name('notifications.read');
+    Route::get('/notifications/unread', [StudentNotificationController::class, 'unread'])->name('notifications.unread');
 });
 
 // Supervisor Routes (Protected)
 Route::middleware(['auth'])->prefix('supervisor')->name('supervisor.')->group(function () {
-    Route::get('/dashboard', [SupervisorController::class, 'dashboard'])->name('dashboard');
-    Route::get('/review-logbook', [SupervisorController::class, 'reviewLogbook'])->name('review-logbook');
-    Route::post('/approve/{id}', [SupervisorController::class, 'approveLog'])->name('approve');
-    Route::post('/reject/{id}', [SupervisorController::class, 'rejectLog'])->name('reject');
-    Route::get('/analytics', [SupervisorController::class, 'analytics'])->name('analytics');
-    Route::get('/milestones', [SupervisorController::class, 'milestones'])->name('milestones');
-    Route::post('/milestones', [SupervisorController::class, 'storeMilestone'])->name('milestones.store');
+    Route::get('/dashboard', [SupervisorDashboardController::class, 'dashboard'])->name('dashboard');
+    Route::get('/review-logbook', [ReviewController::class, 'index'])->name('review-logbook');
+    Route::post('/approve/{id}', [ReviewController::class, 'approve'])->name('approve');
+    Route::post('/reject/{id}', [ReviewController::class, 'reject'])->name('reject');
+    Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics');
+    Route::get('/milestones', [MilestoneController::class, 'index'])->name('milestones');
+    Route::post('/milestones', [MilestoneController::class, 'store'])->name('milestones.store');
 });
 
 // Admin Routes (Protected) - placeholder for future

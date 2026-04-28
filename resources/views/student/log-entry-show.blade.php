@@ -141,11 +141,5 @@
 @endsection
 
 @push('scripts')
-<script>
-    document.getElementById('imageModal')?.addEventListener('show.bs.modal', function (event) {
-        const trigger = event.relatedTarget;
-        document.getElementById('modalImage').src = trigger.dataset.imgSrc;
-        document.getElementById('imageModalLabel').textContent = trigger.dataset.imgName;
-    });
-</script>
+<script src="{{ asset('js/student/log-entry-show.js') }}"></script>
 @endpush
