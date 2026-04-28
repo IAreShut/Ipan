@@ -215,7 +215,7 @@
             </div>
 
             <div class="d-grid mt-4">
-                <button type="submit" class="btn btn-primary" style="border-radius: 1rem; padding: 0.8rem; font-weight: 500; background: #0f172a; border: none;">Save Profile Changes</button>
+                <button type="submit" class="btn btn-primary-custom px-4" style="border-radius: 1rem; padding: 0.8rem; font-weight: 500;">Save Profile Changes</button>
             </div>
         </div>
     </form>
