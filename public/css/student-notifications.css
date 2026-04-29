@@ -38,16 +38,46 @@
 }
 .fc-event {
     border: none !important;
-    border-radius: 4px !important;
-    padding: 2px 4px !important;
+    border-radius: 6px !important;
+    padding: 4px 8px !important;
     font-size: 0.75rem !important;
-    font-weight: 600;
+    font-weight: 600 !important;
+    margin-bottom: 4px !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+    cursor: pointer !important;
+    border-left: 4px solid transparent !important;
+    overflow: hidden;
 }
+
+.fc-event:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1) !important;
+}
+
+/* Ensure the title text truncates elegantly instead of cramming */
+.fc-event-title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding: 2px 0;
+}
+
+/* SV Milestone: Modern subtle red/rose styling */
 .fc-event-sv {
-    background-color: #ef4444 !important; /* Red for SV milesontes */
-    color: white !important;
+    background-color: #fee2e2 !important; /* light red */
+    color: #b91c1c !important; /* deeper red for text */
+    border-left-color: #ef4444 !important; 
 }
+
+/* Personal Reminder: Modern subtle blue styling */
 .fc-event-personal {
-    background-color: #3b82f6 !important; /* Blue for personal */
-    color: white !important;
+    background-color: #e0f2fe !important; /* light blue */
+    color: #0369a1 !important; /* deeper blue for text */
+    border-left-color: #0ea5e9 !important;
+}
+
+/* Fix for week view to look better */
+.fc-timegrid-event .fc-event-main {
+    padding: 4px !important;
 }
