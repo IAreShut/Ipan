@@ -127,11 +127,18 @@
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label class="form-label-custom">Internship Start Date</label>
-                        <input type="date" name="start_date" class="form-control-custom @error('start_date') is-invalid @enderror" 
-                               value="{{ old('start_date', $internship ? $internship->start_date->format('Y-m-d') : '') }}">
-                        @error('start_date')
-                            <div class="text-danger small mt-1">{{ $message }}</div>
-                        @enderror
+                        @if($internship && $internship->start_date)
+                            {{-- Start date already set — lock it to prevent progress calculation issues --}}
+                            <input type="hidden" name="start_date" value="{{ $internship->start_date->format('Y-m-d') }}">
+                            <input type="date" class="form-control-custom" value="{{ $internship->start_date->format('Y-m-d') }}" disabled style="opacity: 0.7; cursor: not-allowed;">
+                            <small class="text-muted mt-1 d-block"><i class="fas fa-lock me-1"></i>Start date is locked after being set.</small>
+                        @else
+                            <input type="date" name="start_date" class="form-control-custom @error('start_date') is-invalid @enderror" 
+                                   value="{{ old('start_date', '') }}">
+                            @error('start_date')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
+                        @endif
                     </div>
                     <div class="col-md-6 mb-3">
                         <label class="form-label-custom">Internship End Date</label>
