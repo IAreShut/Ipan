@@ -29,8 +29,8 @@
     <form method="POST" action="{{ route('student.profile.update') }}" enctype="multipart/form-data" class="col-12 w-100 d-flex flex-wrap" id="profile-form">
         @csrf
         
-        <!-- Left Column: Information Sections -->
-        <div class="col-12 col-lg-8 pe-lg-4">
+        <!-- Right Column: Information Sections (Swapped) -->
+        <div class="col-12 col-lg-8 ps-lg-4 order-2 order-lg-2">
             <!-- Personal Info -->
             <div class="profile-card p-4">
                 <div class="profile-card-header">
@@ -152,8 +152,8 @@
             </div>
         </div>
         
-        <!-- Right Column: Profile Card -->
-        <div class="col-12 col-lg-4">
+        <!-- Left Column: Profile Card (Swapped) -->
+        <div class="col-12 col-lg-4 order-1 order-lg-1 mb-4 mb-lg-0">
             <!-- Main Profile Avatar Card -->
             <div class="profile-card p-4 text-center pb-5" style="border-radius: 2rem;">
                 <!-- Hidden File Input -->
