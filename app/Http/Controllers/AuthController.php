@@ -15,8 +15,36 @@ class AuthController extends Controller
      */
     public function showLoginForm()
     {
-        $supervisors = User::where('role', 'supervisor')->get();
-        return view('auth.login', compact('supervisors'));
+        $supervisors = User::where('role', 'supervisor')
+            ->whereNotNull('faculty')
+            ->whereNotNull('class')
+            ->whereNotNull('programme_code')
+            ->get();
+
+        // Build distinct values for cascading dropdowns
+        $faculties = $supervisors->pluck('faculty')->filter()->unique()->sort()->values();
+        
+        $classes = $supervisors->flatMap(function ($sv) {
+            return $sv->classes;
+        })->filter()->unique()->sort()->values();
+
+        // Build programme codes (flatten JSON arrays)
+        $programmeCodes = $supervisors->flatMap(function ($sv) {
+            return $sv->programme_codes;
+        })->filter()->unique()->sort()->values();
+
+        // Pass full supervisor criteria as JSON for JS cascading filter
+        $supervisorCriteria = $supervisors->map(function ($sv) {
+            return [
+                'id' => $sv->id,
+                'name' => $sv->name,
+                'faculty' => $sv->faculty,
+                'classes' => $sv->classes,
+                'programme_codes' => $sv->programme_codes,
+            ];
+        })->values();
+
+        return view('auth.login', compact('supervisors', 'faculties', 'classes', 'programmeCodes', 'supervisorCriteria'));
     }
 
     /**
@@ -54,23 +82,60 @@ class AuthController extends Controller
      */
     public function register(Request $request)
     {
-        $request->validate([
+        $rules = [
             'name' => 'required|string|max:255',
             'matrix_id' => 'required|numeric|unique:users',
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users', 'regex:/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/'],
             'phone' => ['required', 'regex:/^01[0-9]{8,9}$/', 'unique:users'],
             'password' => ['required', 'confirmed', Password::min(8)],
             'role' => 'required|in:student,supervisor',
-            'company' => $request->role === 'student' ? 'required|string|max:255' : 'nullable|string|max:255',
-            'supervisor_id' => $request->role === 'student' ? 'required|exists:users,id' : 'nullable|exists:users,id',
-        ], [
+        ];
+
+        $messages = [
             'phone.regex' => 'Please enter a valid Malaysian phone number (e.g., 0123456789).',
             'phone.unique' => 'This phone number is already registered.',
             'matrix_id.numeric' => 'Student / Supervisor ID must contain numbers only.',
             'matrix_id.unique' => 'This ID is already registered.',
-            'supervisor_id.required' => 'Please select a supervisor.',
             'email.regex' => 'Please enter a valid email address (e.g., name@example.com).',
-        ]);
+        ];
+
+        // Student-specific fields
+        if ($request->role === 'student') {
+            $rules['company'] = 'required|string|max:255';
+            $rules['reg_faculty'] = 'required|string|max:255';
+            $rules['reg_class'] = 'required|string|max:255';
+            $rules['reg_programme_code'] = 'required|string|max:100';
+            $messages['reg_faculty.required'] = 'Please select a faculty.';
+            $messages['reg_class.required'] = 'Please select a class.';
+            $messages['reg_programme_code.required'] = 'Please select a programme code.';
+        } else {
+            $rules['company'] = 'nullable|string|max:255';
+        }
+
+        $request->validate($rules, $messages);
+
+        // Auto-assign supervisor for students
+        $supervisorId = null;
+        if ($request->role === 'student') {
+            $supervisor = User::where('role', 'supervisor')
+                ->where('faculty', $request->reg_faculty)
+                ->get()
+                ->first(function ($sv) use ($request) {
+                    return $sv->matchesCriteria(
+                        $request->reg_faculty,
+                        $request->reg_class,
+                        $request->reg_programme_code
+                    );
+                });
+
+            if (!$supervisor) {
+                return back()->withErrors([
+                    'reg_faculty' => 'No supervisor is assigned for your Faculty / Class / Programme Code combination. Please contact your faculty administrator.',
+                ])->withInput();
+            }
+
+            $supervisorId = $supervisor->id;
+        }
 
         $user = User::create([
             'name' => $request->name,
@@ -80,7 +145,10 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
             'role' => $request->role,
             'company' => $request->company,
-            'supervisor_id' => $request->role === 'student' ? $request->supervisor_id : null,
+            'supervisor_id' => $supervisorId,
+            'faculty' => $request->role === 'student' ? $request->reg_faculty : null,
+            'class' => $request->role === 'student' ? $request->reg_class : null,
+            'programme_code' => $request->role === 'student' ? $request->reg_programme_code : null,
         ]);
 
         return redirect()->route('login')->with('success', 'Registration successful! Please login to continue.');

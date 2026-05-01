@@ -25,6 +25,7 @@ class User extends Authenticatable
         'company',
         'supervisor_id',
         'matrix_id',
+        'employee_id',
         'phone',
         'faculty',
         'class',
@@ -87,5 +88,51 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Get class as array (handles both JSON array and plain string)
+     */
+    public function getClassesAttribute(): array
+    {
+        if (empty($this->class)) {
+            return [];
+        }
+
+        $decoded = json_decode($this->class, true);
+        return is_array($decoded) ? $decoded : [$this->class];
+    }
+
+    /**
+     * Get programme_code as array (handles both JSON array and plain string)
+     */
+    public function getProgrammeCodesAttribute(): array
+    {
+        if (empty($this->programme_code)) {
+            return [];
+        }
+
+        $decoded = json_decode($this->programme_code, true);
+        return is_array($decoded) ? $decoded : [$this->programme_code];
+    }
+
+    /**
+     * Check if this supervisor matches the given student criteria
+     */
+    public function matchesCriteria(?string $faculty, ?string $class, ?string $programmeCode): bool
+    {
+        if ($this->role !== 'supervisor') {
+            return false;
+        }
+
+        return strtolower(trim($this->faculty ?? '')) === strtolower(trim($faculty ?? ''))
+            && in_array(
+                strtolower(trim($class ?? '')),
+                array_map('strtolower', array_map('trim', $this->classes))
+            )
+            && in_array(
+                strtolower(trim($programmeCode ?? '')),
+                array_map('strtolower', array_map('trim', $this->programme_codes))
+            );
     }
 }

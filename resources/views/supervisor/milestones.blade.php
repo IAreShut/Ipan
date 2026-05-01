@@ -12,6 +12,7 @@
 <a class="nav-link" href="{{ route('supervisor.review-logbook') }}"><i class="fas fa-tasks"></i> Review Logbooks</a>
 <a class="nav-link active" href="{{ route('supervisor.milestones') }}"><i class="fas fa-flag-checkered"></i> Milestones</a>
 <a class="nav-link" href="{{ route('supervisor.analytics') }}"><i class="fas fa-chart-pie"></i> Analytics</a>
+<a class="nav-link" href="{{ route('supervisor.profile') }}"><i class="fas fa-user-cog"></i> Profile</a>
 @endsection
 
 @section('page-title', 'Milestone Manager')

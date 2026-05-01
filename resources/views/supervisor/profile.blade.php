@@ -3,18 +3,18 @@
 @section('title', 'Profile - LIMS')
 
 @section('sidebar-menu')
-<a class="nav-link" href="{{ route('student.dashboard') }}"><i class="fas fa-th-large"></i> Dashboard</a>
-<a class="nav-link" href="{{ route('student.log-entries') }}"><i class="fas fa-pen-fancy"></i> Log Entries</a>
-<a class="nav-link" href="{{ route('student.progress') }}"><i class="fas fa-chart-bar"></i> View Progress</a>
-<a class="nav-link" href="{{ route('student.notifications') }}"><i class="fas fa-bell"></i> Notifications</a>
-<a class="nav-link active" href="{{ route('student.profile') }}"><i class="fas fa-user-cog"></i> Profile</a>
+<a class="nav-link" href="{{ route('supervisor.dashboard') }}"><i class="fas fa-th-large"></i> Dashboard</a>
+<a class="nav-link" href="{{ route('supervisor.review-logbook') }}"><i class="fas fa-check-circle"></i> Review Logbook</a>
+<a class="nav-link" href="{{ route('supervisor.milestones') }}"><i class="fas fa-flag-checkered"></i> Milestones</a>
+<a class="nav-link" href="{{ route('supervisor.analytics') }}"><i class="fas fa-chart-line"></i> Analytics</a>
+<a class="nav-link active" href="{{ route('supervisor.profile') }}"><i class="fas fa-user-cog"></i> Profile</a>
 @endsection
 
 @section('page-title', 'My Profile')
 
 @section('main-content')
 @push('styles')
-    <link rel="stylesheet" href="{{ asset('css/student-profile.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/supervisor-profile.css') }}">
 @endpush
 
 <div class="row">
@@ -26,7 +26,7 @@
     </div>
     @endif
 
-    <form method="POST" action="{{ route('student.profile.update') }}" enctype="multipart/form-data" class="col-12 w-100 d-flex flex-wrap" id="profile-form">
+    <form method="POST" action="{{ route('supervisor.profile.update') }}" enctype="multipart/form-data" class="col-12 w-100 d-flex flex-wrap" id="profile-form">
         @csrf
         
         <!-- Left Column: Information Sections -->
@@ -67,18 +67,23 @@
                         @enderror
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label class="form-label-custom">Student ID</label>
-                        <div class="position-relative">
-                            <input type="text" class="form-control-custom" value="{{ $user->matrix_id ?? 'Not specified' }}" readonly disabled>
-                        </div>
+                        <label class="form-label-custom">Employee / Staff ID</label>
+                        <input type="text" name="employee_id" class="form-control-custom @error('employee_id') is-invalid @enderror" 
+                               value="{{ old('employee_id', $user->employee_id) }}" placeholder="e.g. EMP12345">
+                        @error('employee_id')
+                            <div class="text-danger small mt-1">{{ $message }}</div>
+                        @enderror
                     </div>
                 </div>
             </div>
 
-            <!-- Student Info -->
+            <!-- Supervision Criteria -->
             <div class="profile-card p-4">
                 <div class="profile-card-header mb-4">
-                    <h5 class="profile-card-title">Student info</h5>
+                    <div>
+                        <h5 class="profile-card-title">Supervision Criteria</h5>
+                        <p class="profile-card-subtitle mb-0">Students with matching Faculty, Class, and Programme Code will be automatically assigned to you.</p>
+                    </div>
                 </div>
                 
                 <div class="info-grid">
@@ -86,69 +91,86 @@
                         <i class="fas fa-building info-icon"></i>
                         <div class="info-content w-100">
                             <div class="label">Faculty</div>
-                            <input type="text" name="faculty" class="form-control-custom py-1 px-2 mt-1" value="{{ $user->faculty }}" placeholder="e.g. Faculty of Technology">
+                            <input type="text" name="faculty" class="form-control-custom py-1 px-2 mt-1" value="{{ $user->faculty }}" placeholder="e.g. Faculty of Computing">
                         </div>
                     </div>
-                    <div class="info-item">
-                        <i class="fas fa-users info-icon"></i>
-                        <div class="info-content w-100">
-                            <div class="label">Class</div>
-                            <input type="text" name="class" class="form-control-custom py-1 px-2 mt-1" value="{{ $user->class }}" placeholder="e.g. CS240">
-                        </div>
-                    </div>
-                    <div class="info-item">
+                    <div class="info-item full-width">
                         <i class="fas fa-id-badge info-icon"></i>
                         <div class="info-content w-100">
-                            <div class="label">Programme Code</div>
-                            <input type="text" name="programme_code" class="form-control-custom py-1 px-2 mt-1" value="{{ $user->programme_code }}" placeholder="e.g. BEng SE">
+                            <div class="label">Programme Code(s)</div>
+                            <div class="tags-input-wrapper mt-1" id="programme_tags_wrapper">
+                                <div class="tags-container" id="tags_container">
+                                    @foreach($user->programme_codes as $code)
+                                        <span class="tag-item">
+                                            {{ $code }}
+                                            <input type="hidden" name="programme_code[]" value="{{ $code }}">
+                                            <button type="button" class="tag-remove" onclick="removeTag(this)">&times;</button>
+                                        </span>
+                                    @endforeach
+                                    <input type="text" class="tag-input" id="programme_tag_input" placeholder="Type code & press Enter" onkeydown="handleTagInput(event, 'programme_code')">
+                                </div>
+                            </div>
+                            <small class="text-muted mt-1 d-block"><i class="fas fa-info-circle me-1"></i>Press Enter to add, click × to remove</small>
                         </div>
                     </div>
-                    <div class="info-item">
-                        <i class="fas fa-user-tie info-icon"></i>
-                        <div class="info-content w-100" style="padding-top: 5px;">
-                            <div class="label">Supervisor Name</div>
-                            <div class="value">{{ $user->supervisor->name ?? 'Not assigned' }}</div>
+                    <div class="info-item full-width">
+                        <i class="fas fa-users info-icon"></i>
+                        <div class="info-content w-100">
+                            <div class="label">Class(es)</div>
+                            <div class="tags-input-wrapper mt-1" id="class_tags_wrapper">
+                                <div class="tags-container" id="class_tags_container">
+                                    @foreach($user->classes as $c)
+                                        <span class="tag-item">
+                                            {{ $c }}
+                                            <input type="hidden" name="class[]" value="{{ $c }}">
+                                            <button type="button" class="tag-remove" onclick="removeTag(this)">&times;</button>
+                                        </span>
+                                    @endforeach
+                                    <input type="text" class="tag-input" id="class_tag_input" placeholder="Type class & press Enter" onkeydown="handleTagInput(event, 'class')">
+                                </div>
+                            </div>
+                            <small class="text-muted mt-1 d-block"><i class="fas fa-info-circle me-1"></i>Press Enter to add, click × to remove</small>
                         </div>
                     </div>
                 </div>
             </div>
-            
-            <!-- Internship Info -->
+
+            <!-- Assigned Students -->
             <div class="profile-card p-4 mb-lg-0">
                 <div class="profile-card-header mb-4">
-                    <h5 class="profile-card-title">Internship info</h5>
+                    <div>
+                        <h5 class="profile-card-title">Assigned Students</h5>
+                        <p class="profile-card-subtitle mb-0">Students currently under your supervision</p>
+                    </div>
+                    <span class="student-count-badge">{{ $students->count() }}</span>
                 </div>
                 
-                <div class="mb-4">
-                    <label class="form-label-custom">Company / Internship Place</label>
-                    <input type="text" class="form-control-custom" value="{{ $user->company ?? 'Not specified' }}" readonly disabled>
-                </div>
-                
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label-custom">Internship Start Date</label>
-                        @if($internship && $internship->start_date)
-                            {{-- Start date already set — lock it to prevent progress calculation issues --}}
-                            <input type="hidden" name="start_date" value="{{ $internship->start_date->format('Y-m-d') }}">
-                            <input type="date" class="form-control-custom" value="{{ $internship->start_date->format('Y-m-d') }}" disabled style="opacity: 0.7; cursor: not-allowed;">
-                            <small class="text-muted mt-1 d-block"><i class="fas fa-lock me-1"></i>Start date is locked after being set.</small>
-                        @else
-                            <input type="date" name="start_date" class="form-control-custom @error('start_date') is-invalid @enderror" 
-                                   value="{{ old('start_date', '') }}">
-                            @error('start_date')
-                                <div class="text-danger small mt-1">{{ $message }}</div>
-                            @enderror
-                        @endif
+                @if($students->count() > 0)
+                <div class="student-list">
+                    @foreach($students as $student)
+                    <div class="student-list-item">
+                        <div class="d-flex align-items-center gap-3">
+                            <img src="{{ $student->avatar ? (str_starts_with($student->avatar, 'http') ? $student->avatar : asset('storage/' . $student->avatar)) : 'https://ui-avatars.com/api/?name=' . urlencode($student->name) . '&background=E0E7FF&color=4F46E5&size=40' }}" 
+                                 class="student-avatar" alt="{{ $student->name }}">
+                            <div>
+                                <div class="student-name">{{ $student->name }}</div>
+                                <div class="student-email">{{ $student->email }}</div>
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <div class="student-company">{{ $student->company ?? 'N/A' }}</div>
+                            <div class="student-code">{{ $student->programme_code ?? '—' }}</div>
+                        </div>
                     </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label-custom">Internship End Date</label>
-                        <input type="date" name="end_date" class="form-control-custom @error('end_date') is-invalid @enderror" 
-                               value="{{ old('end_date', $internship ? $internship->end_date->format('Y-m-d') : '') }}">
-                        @error('end_date')
-                            <div class="text-danger small mt-1">{{ $message }}</div>
-                        @enderror
-                    </div>
+                    @endforeach
                 </div>
+                @else
+                <div class="text-center py-4">
+                    <i class="fas fa-users" style="font-size: 2rem; color: #cbd5e1;"></i>
+                    <p class="text-muted mt-2 mb-0">No students assigned yet.</p>
+                    <small class="text-muted">Students will appear here when they register with matching criteria.</small>
+                </div>
+                @endif
             </div>
         </div>
         
@@ -176,12 +198,8 @@
                 
                 <div class="d-flex justify-content-center flex-wrap">
                     <span class="tag-badge text-capitalize">{{ $user->role }}</span>
-                    @if($user->company)
-                    <span class="tag-badge position-relative">
-                        Intern
-                        <!-- small purple dot indicator -->
-                        <span class="position-absolute" style="width: 14px; height: 14px; background: #6366f1; color: white; border-radius: 50%; font-size: 0.5rem; display: flex; align-items: center; justify-content: center; top: -5px; right: -5px; border: 2px solid white;">&times;</span>
-                    </span>
+                    @if($user->faculty)
+                    <span class="tag-badge">{{ $user->faculty }}</span>
                     @endif
                 </div>
             </div>
@@ -196,11 +214,11 @@
                 </div>
                 
                 <!-- Hidden real input that stores the selected value -->
-                <input type="hidden" name="location" id="location_value" value="{{ old('location', $user->location) ?? $internship->company_address ?? '' }}">
+                <input type="hidden" name="location" id="location_value" value="{{ old('location', $user->location) }}">
                 
                 <div class="position-relative" id="location_wrapper">
                     <input type="text" id="location_search" class="form-control-custom border" autocomplete="off"
-                           value="{{ old('location', $user->location) ?? $internship->company_address ?? '' }}"
+                           value="{{ old('location', $user->location) }}"
                            placeholder="Search for a location..." oninput="searchLocation(this.value)" onfocus="showDropdown()">
                     <i class="fas fa-search position-absolute" style="right: 15px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 0.8rem; pointer-events: none;"></i>
                     
@@ -218,7 +236,7 @@
                     <span style="font-size: 0.75rem; color: #64748b; font-weight: 500;" id="word_count">0/120 words</span>
                 </div>
                 
-                <textarea name="about" id="about_text" class="form-control-custom border" rows="5" style="resize: none;" oninput="updateWordCount(this)" placeholder="A dedicated student looking forward to gaining practical experience.">{{ old('about', $user->about) }}</textarea>
+                <textarea name="about" id="about_text" class="form-control-custom border" rows="5" style="resize: none;" oninput="updateWordCount(this)" placeholder="A dedicated supervisor overseeing internship activities.">{{ old('about', $user->about) }}</textarea>
             </div>
 
             <div class="d-grid mt-4">
@@ -228,6 +246,5 @@
     </form>
 </div>
 
-<script src="{{ asset('js/student/profile.js') }}"></script>
+<script src="{{ asset('js/supervisor/profile.js') }}"></script>
 @endsection
-
