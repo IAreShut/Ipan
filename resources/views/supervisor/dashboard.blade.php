@@ -2,6 +2,10 @@
 
 @section('title', 'Supervisor Dashboard - LIMS')
 
+@push('styles')
+<link rel="stylesheet" href="{{ asset('css/student-dashboard.css') }}">
+@endpush
+
 @section('sidebar-menu')
 <a class="nav-link active" href="{{ route('supervisor.dashboard') }}"><i class="fas fa-th-large"></i> Dashboard</a>
 <a class="nav-link" href="{{ route('supervisor.review-logbook') }}"><i class="fas fa-check-circle"></i> Review Logbook</a>
@@ -20,21 +24,36 @@
         <!-- Stats Row -->
         <div class="row g-4 mb-4">
             <div class="col-md-4">
-                <div class="card card-custom p-3 border-start border-4 border-primary h-100">
-                    <small class="text-muted fw-bold">TOTAL STUDENTS</small>
-                    <h3 class="fw-bold mb-0">{{ $totalStudents }}</h3>
+                <div class="premium-card stat-card h-100">
+                    <div class="stat-info">
+                        <span class="stat-label">Total Students</span>
+                        <h3 class="stat-value">{{ $totalStudents }}</h3>
+                    </div>
+                    <div class="stat-icon-wrapper icon-primary">
+                        <i class="fas fa-users"></i>
+                    </div>
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="card card-custom p-3 border-start border-4 border-warning h-100">
-                    <small class="text-muted fw-bold">PENDING REVIEW</small>
-                    <h3 class="fw-bold mb-0">{{ $pendingReviews }}</h3>
+                <div class="premium-card stat-card h-100">
+                    <div class="stat-info">
+                        <span class="stat-label">Pending Review</span>
+                        <h3 class="stat-value">{{ $pendingReviews }}</h3>
+                    </div>
+                    <div class="stat-icon-wrapper icon-warning">
+                        <i class="fas fa-clock"></i>
+                    </div>
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="card card-custom p-3 border-start border-4 border-danger h-100">
-                    <small class="text-muted fw-bold">FLAGS / ALERTS</small>
-                    <h3 class="fw-bold mb-0">{{ $alerts }}</h3>
+                <div class="premium-card stat-card h-100">
+                    <div class="stat-info">
+                        <span class="stat-label">Flags / Alerts</span>
+                        <h3 class="stat-value">{{ $alerts }}</h3>
+                    </div>
+                    <div class="stat-icon-wrapper icon-danger">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
                 </div>
             </div>
         </div>

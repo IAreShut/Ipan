@@ -22,9 +22,9 @@
 <div class="row g-4">
     <!-- Milestone Form Column -->
     <div class="col-lg-4">
-        <div class="card card-custom p-4 h-100">
+        <div class="card card-custom p-4">
             <h5 class="fw-bold mb-4"><i class="fas fa-calendar-plus text-primary me-2"></i> Set New Milestone</h5>
-            
+                
             <form action="{{ route('supervisor.milestones.store') }}" method="POST">
                 @csrf
                 
@@ -107,17 +107,17 @@
                                 </td>
                                 <td>{{ $milestone->title }}</td>
                                 <td>
-                                    <span class="{{ $isOverdue ? 'text-danger fw-bold' : ($isToday ? 'text-warning fw-bold' : '') }}">
+                                    <span class="{{ $isOverdue ? 'text-secondary' : ($isToday ? 'text-warning fw-bold' : '') }}">
                                         {{ $milestone->due_date->format('d M Y, h:i A') }}
                                     </span>
                                 </td>
                                 <td>
                                     @if($isOverdue)
-                                        <span class="badge bg-danger rounded-pill px-3">Overdue</span>
+                                        <span class="badge bg-secondary rounded-pill px-3">Past</span>
                                     @elseif($isToday)
-                                        <span class="badge bg-warning text-dark rounded-pill px-3">Due Today</span>
+                                        <span class="badge bg-warning text-dark rounded-pill px-3">Today</span>
                                     @else
-                                        <span class="badge bg-info rounded-pill px-3">Upcoming</span>
+                                        <span class="badge bg-success rounded-pill px-3">Upcoming</span>
                                     @endif
                                 </td>
                             </tr>
