@@ -23,13 +23,19 @@
     <!-- Milestones Overview Table -->
     <div class="col-lg-12">
         <div class="card card-custom p-4">
-            <h5 class="fw-bold mb-4"><i class="fas fa-table text-success me-2"></i> Overview Table</h5>
+            <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center mb-4 gap-3">
+                <h5 class="fw-bold mb-0"><i class="fas fa-table text-success me-2"></i> Overview Table</h5>
+                <button type="button" class="btn btn-primary-custom px-4 py-2 rounded-pill shadow-sm" data-bs-toggle="modal" data-bs-target="#addMilestoneModal">
+                    <i class="fas fa-plus me-2"></i>Add New Milestone
+                </button>
+            </div>
             
             <div class="table-responsive">
                 <table id="milestonesTable" class="table table-hover align-middle">
                     <thead class="table-light">
                         <tr>
                             <th>Student Name</th>
+                            <th>Group</th>
                             <th>Milestone</th>
                             <th>Due Date</th>
                             <th>Status</th>
@@ -47,6 +53,9 @@
                                         <img src="https://ui-avatars.com/api/?name={{ urlencode($milestone->user->name) }}&background=random&size=32" class="rounded-circle me-2" alt="">
                                         <span class="fw-medium">{{ $milestone->user->name }}</span>
                                     </div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-light text-dark border">{{ $milestone->user->programme_code ?? 'N/A' }}-{{ $milestone->user->class ?? 'N/A' }}</span>
                                 </td>
                                 <td>{{ $milestone->title }}</td>
                                 <td>
@@ -86,20 +95,20 @@
                 @csrf
                 <div class="modal-body p-4">
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Select Programme</label>
-                        @if(count($programmeOptions) > 0)
+                        <label class="form-label fw-bold">Select Group (Programme Code - Class)</label>
+                        @if(count($groupOptions) > 0)
                             <div class="d-flex flex-wrap gap-2">
-                                @foreach($programmeOptions as $code)
+                                @foreach($groupOptions as $group)
                                     <div>
-                                        <input type="checkbox" class="btn-check" name="programme_code[]" value="{{ $code }}" id="prog_{{ $loop->index }}" autocomplete="off">
-                                        <label class="btn btn-outline-primary btn-sm rounded-pill px-3" for="prog_{{ $loop->index }}">{{ $code }}</label>
+                                        <input type="checkbox" class="btn-check" name="groups[]" value="{{ $group }}" id="group_{{ $loop->index }}" autocomplete="off">
+                                        <label class="btn btn-outline-primary btn-sm rounded-pill px-3" for="group_{{ $loop->index }}">{{ $group }}</label>
                                     </div>
                                 @endforeach
                             </div>
                         @else
-                            <p class="text-muted mb-0"><i class="fas fa-exclamation-circle me-1"></i> No programme codes set. Please update your <a href="{{ route('supervisor.profile') }}">profile</a>.</p>
+                            <p class="text-muted mb-0"><i class="fas fa-exclamation-circle me-1"></i> No groups set. Please update your <a href="{{ route('supervisor.profile') }}">profile</a>.</p>
                         @endif
-                        @error('programme_code')
+                        @error('groups')
                             <div class="text-danger mt-1" style="font-size: 0.875rem;">{{ $message }}</div>
                         @enderror
                     </div>
@@ -124,9 +133,6 @@
                             <label class="form-label fw-bold">Time (Optional)</label>
                             <input type="time" class="form-control" name="due_time" value="{{ old('due_time', '23:59') }}">
                         </div>
-                    </div>
-                    
-                    <div class="mt-2 p-3 bg-light rounded-3 border">
                         <small class="text-muted d-block"><i class="fas fa-info-circle me-1"></i> This will notify all students in the selected programme(s) via app notification and email.</small>
                     </div>
                 </div>

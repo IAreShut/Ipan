@@ -7,7 +7,7 @@
  * - Browser Geolocation API
  */
 
-// ======== Tag Input for Programme Codes and Classes ========
+// ======== Tag Input for Assigned Groups ========
 function handleTagInput(event, type) {
     if (event.key === 'Enter') {
         event.preventDefault();
@@ -16,8 +16,13 @@ function handleTagInput(event, type) {
         
         if (!value) return;
 
-        var containerId = type === 'class' ? 'class_tags_container' : 'tags_container';
-        var inputName = type === 'class' ? 'class[]' : 'programme_code[]';
+        // Normalize separators: convert spaces, +, /, _, ,, or . to a hyphen
+        if (type === 'groups') {
+            value = value.replace(/[\s\+\/\_\,\.]+/g, '-');
+        }
+
+        var containerId = type + '_tags_container';
+        var inputName = type + '[]';
 
         // Prevent duplicate
         var existing = document.querySelectorAll('#' + containerId + ' input[name="' + inputName + '"]');
@@ -54,17 +59,10 @@ function removeTag(btn) {
 
 // Click wrapper to focus input
 document.addEventListener('DOMContentLoaded', function() {
-    var progWrapper = document.getElementById('programme_tags_wrapper');
-    if (progWrapper) {
-        progWrapper.addEventListener('click', function() {
-            document.getElementById('programme_tag_input').focus();
-        });
-    }
-
-    var classWrapper = document.getElementById('class_tags_wrapper');
-    if (classWrapper) {
-        classWrapper.addEventListener('click', function() {
-            document.getElementById('class_tag_input').focus();
+    var groupsWrapper = document.getElementById('groups_tags_wrapper');
+    if (groupsWrapper) {
+        groupsWrapper.addEventListener('click', function() {
+            document.getElementById('groups_tag_input').focus();
         });
     }
     

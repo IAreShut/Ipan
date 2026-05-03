@@ -142,21 +142,21 @@
                             <div class="text-danger small mt-1">{{ $message }}</div>
                         @enderror
                     </div>
-                    <div class="mb-3" id="classField" style="{{ old('role') == 'supervisor' ? 'display: none;' : '' }}">
-                        <label class="form-label">Class <span class="text-danger">*</span></label>
-                        <select class="form-select @error('reg_class') is-invalid @enderror" name="reg_class" id="regClass" {{ old('role') != 'supervisor' ? 'required' : '' }} disabled>
-                            <option value="">-- Select Class --</option>
-                        </select>
-                        @error('reg_class')
-                            <div class="text-danger small mt-1">{{ $message }}</div>
-                        @enderror
-                    </div>
                     <div class="mb-3" id="programmeField" style="{{ old('role') == 'supervisor' ? 'display: none;' : '' }}">
                         <label class="form-label">Programme Code <span class="text-danger">*</span></label>
                         <select class="form-select @error('reg_programme_code') is-invalid @enderror" name="reg_programme_code" id="regProgramme" {{ old('role') != 'supervisor' ? 'required' : '' }} disabled>
                             <option value="">-- Select Programme Code --</option>
                         </select>
                         @error('reg_programme_code')
+                            <div class="text-danger small mt-1">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <div class="mb-3" id="classField" style="{{ old('role') == 'supervisor' ? 'display: none;' : '' }}">
+                        <label class="form-label">Class <span class="text-danger">*</span></label>
+                        <select class="form-select @error('reg_class') is-invalid @enderror" name="reg_class" id="regClass" {{ old('role') != 'supervisor' ? 'required' : '' }} disabled>
+                            <option value="">-- Select Class --</option>
+                        </select>
+                        @error('reg_class')
                             <div class="text-danger small mt-1">{{ $message }}</div>
                         @enderror
                     </div>
@@ -256,58 +256,29 @@ document.getElementById('regRole').addEventListener('change', function() {
         facultySelect.appendChild(opt);
     });
 
-    // Faculty change → filter classes
+    // Faculty change → filter programme codes
     facultySelect.addEventListener('change', function() {
         var selectedFaculty = this.value;
-        classSelect.innerHTML = '<option value="">-- Select Class --</option>';
         programmeSelect.innerHTML = '<option value="">-- Select Programme Code --</option>';
-        programmeSelect.disabled = true;
+        classSelect.innerHTML = '<option value="">-- Select Class --</option>';
+        classSelect.disabled = true;
         document.getElementById('svMatchResult').style.display = 'none';
 
         if (!selectedFaculty) {
-            classSelect.disabled = true;
-            return;
-        }
-
-        var classes = [];
-        svCriteria.forEach(function(sv) {
-            if (sv.faculty === selectedFaculty && sv.classes) {
-                sv.classes.forEach(function(c) {
-                    if (classes.indexOf(c) === -1) {
-                        classes.push(c);
-                    }
-                });
-            }
-        });
-        classes.sort();
-        classes.forEach(function(c) {
-            var opt = document.createElement('option');
-            opt.value = c;
-            opt.textContent = c;
-            if ('{{ old("reg_class") }}' === c) opt.selected = true;
-            classSelect.appendChild(opt);
-        });
-        classSelect.disabled = false;
-    });
-
-    // Class change → filter programme codes
-    classSelect.addEventListener('change', function() {
-        var selectedFaculty = facultySelect.value;
-        var selectedClass = this.value;
-        programmeSelect.innerHTML = '<option value="">-- Select Programme Code --</option>';
-        document.getElementById('svMatchResult').style.display = 'none';
-
-        if (!selectedClass) {
             programmeSelect.disabled = true;
             return;
         }
 
         var codes = [];
         svCriteria.forEach(function(sv) {
-            if (sv.faculty === selectedFaculty && sv.classes && sv.classes.indexOf(selectedClass) !== -1 && sv.programme_codes) {
-                sv.programme_codes.forEach(function(code) {
-                    if (codes.indexOf(code) === -1) {
-                        codes.push(code);
+            if (sv.faculty === selectedFaculty && sv.groups) {
+                sv.groups.forEach(function(group) {
+                    var parts = group.split('-');
+                    if (parts.length > 0) {
+                        var code = parts[0].trim();
+                        if (codes.indexOf(code) === -1) {
+                            codes.push(code);
+                        }
                     }
                 });
             }
@@ -323,27 +294,68 @@ document.getElementById('regRole').addEventListener('change', function() {
         programmeSelect.disabled = false;
     });
 
-    // Programme Code change → find matching SV
+    // Programme Code change → filter classes
     programmeSelect.addEventListener('change', function() {
         var selectedFaculty = facultySelect.value;
-        var selectedClass = classSelect.value;
-        var selectedCode = this.value;
+        var selectedProgramme = this.value;
+        classSelect.innerHTML = '<option value="">-- Select Class --</option>';
+        document.getElementById('svMatchResult').style.display = 'none';
+
+        if (!selectedProgramme) {
+            classSelect.disabled = true;
+            return;
+        }
+
+        var classes = [];
+        svCriteria.forEach(function(sv) {
+            if (sv.faculty === selectedFaculty && sv.groups) {
+                sv.groups.forEach(function(group) {
+                    var parts = group.split('-');
+                    if (parts.length === 2) {
+                        var code = parts[0].trim().toUpperCase();
+                        var cls = parts[1].trim();
+                        if (code === selectedProgramme.toUpperCase() && classes.indexOf(cls) === -1) {
+                            classes.push(cls);
+                        }
+                    }
+                });
+            }
+        });
+        classes.sort();
+        classes.forEach(function(c) {
+            var opt = document.createElement('option');
+            opt.value = c;
+            opt.textContent = c;
+            if ('{{ old("reg_class") }}' === c) opt.selected = true;
+            classSelect.appendChild(opt);
+        });
+        classSelect.disabled = false;
+    });
+
+    // Class change → find matching SV
+    classSelect.addEventListener('change', function() {
+        var selectedFaculty = facultySelect.value;
+        var selectedProgramme = programmeSelect.value;
+        var selectedClass = this.value;
         var matchResult = document.getElementById('svMatchResult');
         var matchAlert = document.getElementById('svMatchAlert');
         var matchText = document.getElementById('svMatchText');
 
-        if (!selectedCode) {
+        if (!selectedClass || !selectedProgramme) {
             matchResult.style.display = 'none';
             return;
         }
+
+        var searchGroup = (selectedProgramme + '-' + selectedClass).replace(/\s+/g, '').toLowerCase();
 
         // Find matching supervisor
         var matched = null;
         for (var i = 0; i < svCriteria.length; i++) {
             var sv = svCriteria[i];
-            if (sv.faculty === selectedFaculty && sv.classes && sv.classes.indexOf(selectedClass) !== -1 && sv.programme_codes) {
-                for (var j = 0; j < sv.programme_codes.length; j++) {
-                    if (sv.programme_codes[j].toUpperCase() === selectedCode.toUpperCase()) {
+            if (sv.faculty === selectedFaculty && sv.groups) {
+                for (var j = 0; j < sv.groups.length; j++) {
+                    var g = sv.groups[j].replace(/\s+/g, '').toLowerCase();
+                    if (g === searchGroup) {
                         matched = sv;
                         break;
                     }
@@ -367,13 +379,13 @@ document.getElementById('regRole').addEventListener('change', function() {
     if ('{{ old("reg_faculty") }}') {
         facultySelect.dispatchEvent(new Event('change'));
         setTimeout(function() {
-            if ('{{ old("reg_class") }}') {
-                classSelect.value = '{{ old("reg_class") }}';
-                classSelect.dispatchEvent(new Event('change'));
+            if ('{{ old("reg_programme_code") }}') {
+                programmeSelect.value = '{{ old("reg_programme_code") }}';
+                programmeSelect.dispatchEvent(new Event('change'));
                 setTimeout(function() {
-                    if ('{{ old("reg_programme_code") }}') {
-                        programmeSelect.value = '{{ old("reg_programme_code") }}';
-                        programmeSelect.dispatchEvent(new Event('change'));
+                    if ('{{ old("reg_class") }}') {
+                        classSelect.value = '{{ old("reg_class") }}';
+                        classSelect.dispatchEvent(new Event('change'));
                     }
                 }, 50);
             }

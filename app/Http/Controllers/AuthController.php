@@ -17,21 +17,11 @@ class AuthController extends Controller
     {
         $supervisors = User::where('role', 'supervisor')
             ->whereNotNull('faculty')
-            ->whereNotNull('class')
-            ->whereNotNull('programme_code')
+            ->whereNotNull('groups')
             ->get();
 
         // Build distinct values for cascading dropdowns
         $faculties = $supervisors->pluck('faculty')->filter()->unique()->sort()->values();
-        
-        $classes = $supervisors->flatMap(function ($sv) {
-            return $sv->classes;
-        })->filter()->unique()->sort()->values();
-
-        // Build programme codes (flatten JSON arrays)
-        $programmeCodes = $supervisors->flatMap(function ($sv) {
-            return $sv->programme_codes;
-        })->filter()->unique()->sort()->values();
 
         // Pass full supervisor criteria as JSON for JS cascading filter
         $supervisorCriteria = $supervisors->map(function ($sv) {
@@ -39,12 +29,11 @@ class AuthController extends Controller
                 'id' => $sv->id,
                 'name' => $sv->name,
                 'faculty' => $sv->faculty,
-                'classes' => $sv->classes,
-                'programme_codes' => $sv->programme_codes,
+                'groups' => $sv->groups,
             ];
         })->values();
 
-        return view('auth.login', compact('supervisors', 'faculties', 'classes', 'programmeCodes', 'supervisorCriteria'));
+        return view('auth.login', compact('supervisors', 'faculties', 'supervisorCriteria'));
     }
 
     /**

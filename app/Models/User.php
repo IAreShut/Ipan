@@ -30,6 +30,7 @@ class User extends Authenticatable
         'faculty',
         'class',
         'programme_code',
+        'groups',
         'location',
         'about',
         'avatar',
@@ -117,6 +118,19 @@ class User extends Authenticatable
     }
 
     /**
+     * Get combined groups as array for Supervisors (handles both JSON array and plain string)
+     */
+    public function getGroupsAttribute(): array
+    {
+        if (empty($this->attributes['groups'])) {
+            return [];
+        }
+
+        $decoded = json_decode($this->attributes['groups'], true);
+        return is_array($decoded) ? $decoded : [$this->attributes['groups']];
+    }
+
+    /**
      * Check if this supervisor matches the given student criteria
      */
     public function matchesCriteria(?string $faculty, ?string $class, ?string $programmeCode): bool
@@ -125,14 +139,15 @@ class User extends Authenticatable
             return false;
         }
 
+        // Student's combined group format: "CS266-5C"
+        // Remove spaces for robust matching
+        $studentGroup = strtolower(str_replace(' ', '', ($programmeCode ?? '') . '-' . ($class ?? '')));
+        
+        $supervisorGroups = array_map(function($g) {
+            return strtolower(str_replace(' ', '', $g));
+        }, $this->groups);
+
         return strtolower(trim($this->faculty ?? '')) === strtolower(trim($faculty ?? ''))
-            && in_array(
-                strtolower(trim($class ?? '')),
-                array_map('strtolower', array_map('trim', $this->classes))
-            )
-            && in_array(
-                strtolower(trim($programmeCode ?? '')),
-                array_map('strtolower', array_map('trim', $this->programme_codes))
-            );
+            && in_array($studentGroup, $supervisorGroups);
     }
 }

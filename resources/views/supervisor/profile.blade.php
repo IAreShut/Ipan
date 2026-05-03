@@ -87,7 +87,7 @@
                 </div>
                 
                 <div class="info-grid">
-                    <div class="info-item">
+                    <div class="info-item full-width">
                         <i class="fas fa-building info-icon"></i>
                         <div class="info-content w-100">
                             <div class="label">Faculty</div>
@@ -95,40 +95,24 @@
                         </div>
                     </div>
                     <div class="info-item full-width">
-                        <i class="fas fa-id-badge info-icon"></i>
+                        <i class="fas fa-users-class info-icon"></i>
                         <div class="info-content w-100">
-                            <div class="label">Programme Code(s)</div>
-                            <div class="tags-input-wrapper mt-1" id="programme_tags_wrapper">
-                                <div class="tags-container" id="tags_container">
-                                    @foreach($user->programme_codes as $code)
+                            <div class="label">Assigned Groups (Programme Code - Class)</div>
+                            <div class="tags-input-wrapper mt-1 @error('groups') border border-danger @enderror" id="groups_tags_wrapper">
+                                <div class="tags-container" id="groups_tags_container">
+                                    @foreach($user->groups as $group)
                                         <span class="tag-item">
-                                            {{ $code }}
-                                            <input type="hidden" name="programme_code[]" value="{{ $code }}">
+                                            {{ $group }}
+                                            <input type="hidden" name="groups[]" value="{{ $group }}">
                                             <button type="button" class="tag-remove" onclick="removeTag(this)">&times;</button>
                                         </span>
                                     @endforeach
-                                    <input type="text" class="tag-input" id="programme_tag_input" placeholder="Type code & press Enter" onkeydown="handleTagInput(event, 'programme_code')">
+                                    <input type="text" class="tag-input" id="groups_tag_input" placeholder="e.g. CS266-5C & press Enter" onkeydown="handleTagInput(event, 'groups')">
                                 </div>
                             </div>
-                            <small class="text-muted mt-1 d-block"><i class="fas fa-info-circle me-1"></i>Press Enter to add, click × to remove</small>
-                        </div>
-                    </div>
-                    <div class="info-item full-width">
-                        <i class="fas fa-users info-icon"></i>
-                        <div class="info-content w-100">
-                            <div class="label">Class(es)</div>
-                            <div class="tags-input-wrapper mt-1" id="class_tags_wrapper">
-                                <div class="tags-container" id="class_tags_container">
-                                    @foreach($user->classes as $c)
-                                        <span class="tag-item">
-                                            {{ $c }}
-                                            <input type="hidden" name="class[]" value="{{ $c }}">
-                                            <button type="button" class="tag-remove" onclick="removeTag(this)">&times;</button>
-                                        </span>
-                                    @endforeach
-                                    <input type="text" class="tag-input" id="class_tag_input" placeholder="Type class & press Enter" onkeydown="handleTagInput(event, 'class')">
-                                </div>
-                            </div>
+                            @error('groups')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
                             <small class="text-muted mt-1 d-block"><i class="fas fa-info-circle me-1"></i>Press Enter to add, click × to remove</small>
                         </div>
                     </div>

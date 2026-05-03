@@ -37,10 +37,8 @@ class ProfileController extends Controller
             'phone' => 'nullable|regex:/^\+60[0-9]{8,12}$/|unique:users,phone,' . $user->id,
             'employee_id' => 'nullable|string|max:50',
             'faculty' => 'nullable|string|max:255',
-            'class' => 'nullable|array',
-            'class.*' => 'string|max:255',
-            'programme_code' => 'nullable|array',
-            'programme_code.*' => 'string|max:50',
+            'groups' => 'nullable|array',
+            'groups.*' => 'string|max:100',
             'location' => 'nullable|string|max:255',
             'about' => 'nullable|string',
             'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
@@ -53,21 +51,47 @@ class ProfileController extends Controller
             'phone', 'employee_id', 'faculty', 'location', 'about'
         ]);
 
-        // Store class as JSON array
-        if ($request->has('class')) {
-            $classes = array_filter(array_map('trim', $request->class));
-            $data['class'] = empty($classes) ? null : json_encode(array_values($classes));
-        } else {
-            $data['class'] = null;
-        }
+        // Validate unique groups across all supervisors
+        if ($request->has('groups') && !empty($request->groups)) {
+            // Reindex array with array_values to ensure sequential keys
+            $groups = array_values(array_filter(array_map('trim', $request->groups)));
+            
+            // Normalize groups (remove spaces, replace non-alphanumeric with hyphen) to ensure matching
+            $normalizedGroups = array_map(function($g) {
+                return strtoupper(preg_replace('/[\s\+\/\_\,\.]+/', '-', $g));
+            }, $groups);
 
-        // Store programme_code as JSON array
-        if ($request->has('programme_code')) {
-            $codes = array_filter(array_map('trim', $request->programme_code));
-            $data['programme_code'] = empty($codes) ? null : json_encode(array_values($codes));
+            $otherSupervisors = \App\Models\User::where('role', 'supervisor')
+                                ->where('id', '!=', $user->id)
+                                ->whereNotNull('groups')
+                                ->get();
+                                
+            foreach ($otherSupervisors as $sv) {
+                if (!empty($sv->groups)) {
+                    $svGroups = array_map(function($g) {
+                        return strtoupper(preg_replace('/[\s\+\/\_\,\.]+/', '-', $g));
+                    }, $sv->groups);
+                    
+                    $intersect = array_intersect($normalizedGroups, $svGroups);
+                    if (!empty($intersect)) {
+                        $duplicateIndex = key($intersect);
+                        $originalInput = $groups[$duplicateIndex];
+                        
+                        return back()->withErrors([
+                            'groups' => "The group '{$originalInput}' is already assigned to another supervisor ({$sv->name}). Please change to other groups."
+                        ])->withInput();
+                    }
+                }
+            }
+            
+            $data['groups'] = json_encode($groups);
         } else {
-            $data['programme_code'] = null;
+            $data['groups'] = null;
         }
+        
+        // Nullify legacy individual fields for supervisor since they use groups
+        $data['class'] = null;
+        $data['programme_code'] = null;
 
         // Handle avatar upload (dual-path: Cloudinary / Local)
         if ($request->hasFile('avatar')) {
