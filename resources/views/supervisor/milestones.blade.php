@@ -20,66 +20,9 @@
 
 @section('main-content')
 <div class="row g-4">
-    <!-- Milestone Form Column -->
-    <div class="col-lg-4">
-        <div class="card card-custom p-4">
-            <h5 class="fw-bold mb-4"><i class="fas fa-calendar-plus text-primary me-2"></i> Set New Milestone</h5>
-                
-            <form action="{{ route('supervisor.milestones.store') }}" method="POST">
-                @csrf
-                
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Select Student</label>
-                    <select class="form-select @error('student_id') is-invalid @enderror" name="student_id" required>
-                        <option value="">-- Choose a student --</option>
-                        @foreach($students as $student)
-                            <option value="{{ $student->id }}" {{ old('student_id') == $student->id ? 'selected' : '' }}>
-                                {{ $student->name }} ({{ $student->matrix_id }})
-                            </option>
-                        @endforeach
-                    </select>
-                    @error('student_id')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-                
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Milestone Title</label>
-                    <input type="text" class="form-control @error('title') is-invalid @enderror" name="title" value="{{ old('title') }}" placeholder="e.g. Final Submission, Presentation Date" required>
-                    @error('title')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-                
-                <div class="mb-4">
-                    <div class="row">
-                        <div class="col-6">
-                            <label class="form-label fw-bold">Due Date</label>
-                            <input type="date" class="form-control @error('due_date') is-invalid @enderror" name="due_date" value="{{ old('due_date') }}" required>
-                            @error('due_date')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        <div class="col-6">
-                            <label class="form-label fw-bold">Time (Optional)</label>
-                            <input type="time" class="form-control" name="due_time" value="{{ old('due_time', '23:59') }}">
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="d-grid mt-auto">
-                    <button type="submit" class="btn btn-primary-custom">
-                        <i class="fas fa-paper-plane me-2"></i> Assign Milestone & Notify
-                    </button>
-                    <small class="text-muted text-center mt-2 d-block"><i class="fas fa-info-circle"></i> This triggers an app notification and email instantly.</small>
-                </div>
-            </form>
-        </div>
-    </div>
-
     <!-- Milestones Overview Table -->
-    <div class="col-lg-8">
-        <div class="card card-custom p-4 h-100">
+    <div class="col-lg-12">
+        <div class="card card-custom p-4">
             <h5 class="fw-bold mb-4"><i class="fas fa-table text-success me-2"></i> Overview Table</h5>
             
             <div class="table-responsive">
@@ -127,6 +70,69 @@
                     </tbody>
                 </table>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Milestone Modal -->
+<div class="modal fade" id="addMilestoneModal" tabindex="-1" aria-labelledby="addMilestoneModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-primary-custom text-white border-bottom-0">
+                <h5 class="modal-title" id="addMilestoneModalLabel"><i class="fas fa-calendar-plus me-2"></i> Set New Milestone</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ route('supervisor.milestones.store') }}" method="POST">
+                @csrf
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Select Student</label>
+                        <select class="form-select @error('student_id') is-invalid @enderror" name="student_id" required>
+                            <option value="">-- Choose a student --</option>
+                            @foreach($students as $student)
+                                <option value="{{ $student->id }}" {{ old('student_id') == $student->id ? 'selected' : '' }}>
+                                    {{ $student->name }} ({{ $student->matrix_id }})
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('student_id')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Milestone Title</label>
+                        <input type="text" class="form-control @error('title') is-invalid @enderror" name="title" value="{{ old('title') }}" placeholder="e.g. Final Submission, Presentation Date" required>
+                        @error('title')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Due Date</label>
+                            <input type="date" class="form-control @error('due_date') is-invalid @enderror" name="due_date" value="{{ old('due_date', date('Y-m-d')) }}" required>
+                            @error('due_date')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Time (Optional)</label>
+                            <input type="time" class="form-control" name="due_time" value="{{ old('due_time', '23:59') }}">
+                        </div>
+                    </div>
+                    
+                    <div class="mt-2 p-3 bg-light rounded-3 border">
+                        <small class="text-muted d-block"><i class="fas fa-info-circle me-1"></i> This triggers an app notification and email instantly to the selected student.</small>
+                    </div>
+                </div>
+                <div class="modal-footer border-top-0 bg-light">
+                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary-custom rounded-pill px-4">
+                        <i class="fas fa-paper-plane me-2"></i> Assign Milestone
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
