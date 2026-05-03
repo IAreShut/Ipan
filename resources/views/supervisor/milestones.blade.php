@@ -9,9 +9,9 @@
 
 @section('sidebar-menu')
 <a class="nav-link" href="{{ route('supervisor.dashboard') }}"><i class="fas fa-th-large"></i> Dashboard</a>
-<a class="nav-link" href="{{ route('supervisor.review-logbook') }}"><i class="fas fa-tasks"></i> Review Logbooks</a>
+<a class="nav-link" href="{{ route('supervisor.review-logbook') }}"><i class="fas fa-check-circle"></i> Review Logbook</a>
 <a class="nav-link active" href="{{ route('supervisor.milestones') }}"><i class="fas fa-flag-checkered"></i> Milestones</a>
-<a class="nav-link" href="{{ route('supervisor.analytics') }}"><i class="fas fa-chart-pie"></i> Analytics</a>
+<a class="nav-link" href="{{ route('supervisor.analytics') }}"><i class="fas fa-chart-line"></i> Analytics</a>
 <a class="nav-link" href="{{ route('supervisor.profile') }}"><i class="fas fa-user-cog"></i> Profile</a>
 @endsection
 
@@ -86,17 +86,21 @@
                 @csrf
                 <div class="modal-body p-4">
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Select Student</label>
-                        <select class="form-select @error('student_id') is-invalid @enderror" name="student_id" required>
-                            <option value="">-- Choose a student --</option>
-                            @foreach($students as $student)
-                                <option value="{{ $student->id }}" {{ old('student_id') == $student->id ? 'selected' : '' }}>
-                                    {{ $student->name }} ({{ $student->matrix_id }})
-                                </option>
-                            @endforeach
-                        </select>
-                        @error('student_id')
-                            <div class="invalid-feedback">{{ $message }}</div>
+                        <label class="form-label fw-bold">Select Programme</label>
+                        @if(count($programmeOptions) > 0)
+                            <div class="d-flex flex-wrap gap-2">
+                                @foreach($programmeOptions as $code)
+                                    <div>
+                                        <input type="checkbox" class="btn-check" name="programme_code[]" value="{{ $code }}" id="prog_{{ $loop->index }}" autocomplete="off">
+                                        <label class="btn btn-outline-primary btn-sm rounded-pill px-3" for="prog_{{ $loop->index }}">{{ $code }}</label>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @else
+                            <p class="text-muted mb-0"><i class="fas fa-exclamation-circle me-1"></i> No programme codes set. Please update your <a href="{{ route('supervisor.profile') }}">profile</a>.</p>
+                        @endif
+                        @error('programme_code')
+                            <div class="text-danger mt-1" style="font-size: 0.875rem;">{{ $message }}</div>
                         @enderror
                     </div>
                     
@@ -123,7 +127,7 @@
                     </div>
                     
                     <div class="mt-2 p-3 bg-light rounded-3 border">
-                        <small class="text-muted d-block"><i class="fas fa-info-circle me-1"></i> This triggers an app notification and email instantly to the selected student.</small>
+                        <small class="text-muted d-block"><i class="fas fa-info-circle me-1"></i> This will notify all students in the selected programme(s) via app notification and email.</small>
                     </div>
                 </div>
                 <div class="modal-footer border-top-0 bg-light">
