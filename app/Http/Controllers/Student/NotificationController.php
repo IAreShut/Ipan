@@ -21,20 +21,20 @@ class NotificationController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
             
-        $milestones = \App\Models\Milestone::where('user_id', $user->id)
+        $tasks = \App\Models\Task::where('user_id', $user->id)
             ->get();
 
         // Pre-format calendar events for JS (avoids Blade closure parsing issues)
-        $calendarEvents = $milestones->map(function ($milestone) {
+        $calendarEvents = $tasks->map(function ($task) {
             return [
-                'title' => $milestone->title,
-                'start' => $milestone->due_date->format('Y-m-d\TH:i:s'),
-                'className' => $milestone->type === 'sv_milestone' ? 'fc-event-sv' : 'fc-event-personal',
+                'title' => $task->title,
+                'start' => $task->due_date->format('Y-m-d\TH:i:s'),
+                'className' => $task->type === 'sv_task' ? 'fc-event-sv' : 'fc-event-personal',
                 'allDay' => false,
             ];
         })->values();
 
-        return view('student.notifications', compact('user', 'internship', 'notifications', 'milestones', 'calendarEvents'));
+        return view('student.notifications', compact('user', 'internship', 'notifications', 'tasks', 'calendarEvents'));
     }
 
     /**
@@ -52,7 +52,7 @@ class NotificationController extends Controller
         // Fallback or exact parsing
         $dueDateTime = \Carbon\Carbon::parse($request->due_date . ' ' . $request->due_time);
 
-        $milestone = \App\Models\Milestone::create([
+        $task = \App\Models\Task::create([
             'user_id' => $user->id,
             'created_by' => $user->id,
             'title' => $request->title,
@@ -61,7 +61,7 @@ class NotificationController extends Controller
         ]);
 
         // Send notification (saves to DB via LimsDatabaseChannel + sends email)
-        $user->notify(new \App\Notifications\PersonalReminderNotification($milestone));
+        $user->notify(new \App\Notifications\PersonalReminderNotification($task));
 
         return redirect()->route('student.notifications')
             ->with('success', 'Reminder added successfully!');

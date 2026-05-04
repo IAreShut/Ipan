@@ -13,7 +13,7 @@ use App\Http\Controllers\Student\NotificationController as StudentNotificationCo
 // Supervisor Controllers
 use App\Http\Controllers\Supervisor\DashboardController as SupervisorDashboardController;
 use App\Http\Controllers\Supervisor\ReviewController;
-use App\Http\Controllers\Supervisor\MilestoneController;
+use App\Http\Controllers\Supervisor\TaskController;
 use App\Http\Controllers\Supervisor\AnalyticsController;
 use App\Http\Controllers\Supervisor\ProfileController as SupervisorProfileController;
 
@@ -61,8 +61,8 @@ Route::middleware(['auth'])->prefix('supervisor')->name('supervisor.')->group(fu
     Route::post('/approve/{id}', [ReviewController::class, 'approve'])->name('approve');
     Route::post('/reject/{id}', [ReviewController::class, 'reject'])->name('reject');
     Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics');
-    Route::get('/milestones', [MilestoneController::class, 'index'])->name('milestones');
-    Route::post('/milestones', [MilestoneController::class, 'store'])->name('milestones.store');
+    Route::get('/tasks', [TaskController::class, 'index'])->name('tasks');
+    Route::post('/tasks', [TaskController::class, 'store'])->name('tasks.store');
     Route::get('/profile', [SupervisorProfileController::class, 'show'])->name('profile');
     Route::post('/profile', [SupervisorProfileController::class, 'update'])->name('profile.update');
 });

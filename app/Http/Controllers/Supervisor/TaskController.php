@@ -4,13 +4,14 @@ namespace App\Http\Controllers\Supervisor;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\Task;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class MilestoneController extends Controller
+class TaskController extends Controller
 {
     /**
-     * Show milestones management page
+     * Show task management page
      */
     public function index()
     {
@@ -20,9 +21,9 @@ class MilestoneController extends Controller
             ->where('role', 'student')
             ->get();
             
-        // Get all milestones assigned by this supervisor
-        $milestones = \App\Models\Milestone::where('created_by', $supervisor->id)
-            ->where('type', 'sv_milestone')
+        // Get all tasks assigned by this supervisor
+        $tasks = Task::where('created_by', $supervisor->id)
+            ->where('type', 'sv_task')
             ->with('user')
             ->orderBy('due_date', 'asc')
             ->get();
@@ -30,13 +31,13 @@ class MilestoneController extends Controller
         // Get supervisor's groups for the modal checkboxes
         $groupOptions = $supervisor->groups;
             
-        return view('supervisor.milestones', compact(
-            'supervisor', 'students', 'milestones', 'groupOptions'
+        return view('supervisor.tasks', compact(
+            'supervisor', 'students', 'tasks', 'groupOptions'
         ));
     }
 
     /**
-     * Store milestone(s) for all students matching selected groups
+     * Store task(s) for all students matching selected groups
      */
     public function store(Request $request)
     {
@@ -64,7 +65,7 @@ class MilestoneController extends Controller
             });
 
         if ($students->isEmpty()) {
-            return redirect()->route('supervisor.milestones')
+            return redirect()->route('supervisor.tasks')
                 ->with('error', 'No students found matching the selected groups.');
         }
 
@@ -74,22 +75,22 @@ class MilestoneController extends Controller
         \DB::beginTransaction();
         try {
             foreach ($students as $student) {
-                \App\Models\Milestone::create([
+                Task::create([
                     'user_id' => $student->id,
                     'created_by' => $supervisor->id,
                     'title' => $request->title,
                     'due_date' => $dueDateTime,
-                    'type' => 'sv_milestone',
+                    'type' => 'sv_task',
                 ]);
             }
             \DB::commit();
         } catch (\Exception $e) {
             \DB::rollBack();
-            return redirect()->route('supervisor.milestones')
-                ->with('error', 'Failed to assign milestones. Please try again.');
+            return redirect()->route('supervisor.tasks')
+                ->with('error', 'Failed to assign tasks. Please try again.');
         }
 
-        $createdMilestones = \App\Models\Milestone::where('created_by', $supervisor->id)
+        $createdTasks = Task::where('created_by', $supervisor->id)
             ->where('title', $request->title)
             ->where('due_date', $dueDateTime)
             ->whereIn('user_id', $students->pluck('id'))
@@ -98,19 +99,19 @@ class MilestoneController extends Controller
 
         foreach ($students as $student) {
             try {
-                $milestone = $createdMilestones->get($student->id);
-                if ($milestone) {
-                    $student->notify(new \App\Notifications\MilestoneSetNotification($milestone));
+                $task = $createdTasks->get($student->id);
+                if ($task) {
+                    $student->notify(new \App\Notifications\TaskSetNotification($task));
                 }
             } catch (\Exception $e) {
-                \Log::warning('MilestoneController@store notify failed for user ' . $student->id . ': ' . $e->getMessage());
+                \Log::warning('TaskController@store notify failed for user ' . $student->id . ': ' . $e->getMessage());
                 // Continue — don't stop if one notification fails
             }
         }
 
         $groupNames = implode(', ', $request->groups);
 
-        return redirect()->route('supervisor.milestones')
-            ->with('success', 'Milestone assigned to students in ' . $groupNames . ' and notifications sent!');
+        return redirect()->route('supervisor.tasks')
+            ->with('success', 'Task assigned to students in ' . $groupNames . ' and notifications sent!');
     }
 }

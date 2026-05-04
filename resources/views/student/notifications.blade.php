@@ -54,7 +54,7 @@
                                                 @elseif($notification->type == 'warning')
                                                     <span class="badge bg-warning text-dark rounded-pill"><i class="fas fa-exclamation-triangle"></i> Warning</span>
                                                 @else
-                                                    <span class="badge bg-primary rounded-pill"><i class="fas fa-info-circle"></i> Milestone</span>
+                                                    <span class="badge bg-primary rounded-pill"><i class="fas fa-info-circle"></i> Task</span>
                                                 @endif
                                             </h6>
                                             <small class="text-muted" style="font-size: 0.7rem;">{{ $notification->created_at->diffForHumans() }}</small>
