@@ -21,10 +21,18 @@
 @php
     $currentWeek = 1;
     $totalWeeks = 12;
-    if ($internship) {
+    if ($internship && $internship->start_date) {
         $totalWeeks = $internship->total_weeks ?? 12;
-        $diff = now()->diffInWeeks($internship->start_date, false);
-        $currentWeek = $diff >= 0 ? floor($diff) + 1 : 0;
+        if (now()->lt($internship->start_date)) {
+            // Internship hasn't started yet
+            $currentWeek = 0;
+        } elseif ($internship->end_date && now()->gt($internship->end_date)) {
+            // Internship has ended — show total weeks
+            $currentWeek = $totalWeeks;
+        } else {
+            // Internship in progress — same formula as controller
+            $currentWeek = min($totalWeeks, floor($internship->start_date->diffInWeeks(now())) + 1);
+        }
     }
 @endphp
 <div class="d-flex align-items-center gap-2">
@@ -34,7 +42,7 @@
         <span id="liveDateTime" style="font-size: 0.8rem; font-weight: 600; letter-spacing: 0.3px;">Loading...</span>
     </span>
 
-    <!-- Internship Week -->
+    <!-- Internship Week Badge -->
     <span class="badge bg-white text-dark shadow-sm px-3 py-2" style="border-radius: 1rem; border: 1px solid #e2e8f0;">
         <i class="far fa-calendar-alt text-primary me-2"></i> 
         @if($currentWeek > 0)
