@@ -5,7 +5,7 @@
 - **Name:** LIMS (Logbook Internship Management System)
 - **Type:** Final Year Project (FYP) — Faculty of Computing
 - **Purpose:** Digitize internship logbook management for students and supervisors. Students submit daily log entries; supervisors review, approve, or reject them.
-- **Live URL:** https://lims-fyp-8a6cb0f71eca.herokuapp.com/
+- **Live URL:** https://lim-system.my/
 - **Repository:** https://github.com/IAreShut/Ipan
 - **Local Path:** `C:\Users\User\FYP System\Ipan`
 
@@ -24,8 +24,9 @@
 | Technology | Version | Role |
 |---|---|---|
 | MySQL | 5.7+ / 8.0 | Primary database |
+| MySQL | 5.7+ / 8.0 | Primary database |
 | XAMPP | Latest | Local dev server (Apache + MySQL) |
-| JawsDB MySQL | kitefin plan | Production database on Heroku |
+| MySQL | 8.0+ | Production database on DigitalOcean |
 
 ### Frontend
 | Technology | Version | Role |
@@ -322,13 +323,15 @@ Schedule::call(function () {
 
 ---
 
-## 9. Deployment (Heroku)
+## 9. Deployment (DigitalOcean)
 
 ### Configuration
-- **Procfile:** `web: vendor/bin/heroku-php-apache2 public/`
-- **Buildpacks:** Node.js (1st) + PHP (2nd)
-- **Dyno:** Eco ($5/month via GitHub Student credits)
-- **Database:** JawsDB MySQL (kitefin plan)
+- **Server:** Ubuntu 24.04 LTS Droplet
+- **Web Server:** Nginx
+- **PHP:** PHP 8.3-FPM
+- **Database:** MySQL Server 8.0
+- **Domain:** `lim-system.my` (Exabytes)
+- **SSL:** Let's Encrypt (Certbot)
 
 ### HTTPS Enforcement
 ```php
@@ -338,25 +341,23 @@ if (app()->environment('production')) {
 }
 ```
 
-### Build Pipeline
-- `heroku-postbuild` script in package.json runs `npm run build`
-- Vite compiles `resources/css/app.css` and `resources/js/app.js`
-
-### Deploy Commands
+### Deploy Commands (Server)
+To update the live server after pushing to GitHub:
 ```bash
-git add .
-git commit -m "description"
-git push heroku main
+cd /var/www/Ipan
+git pull origin main
+composer install --no-dev
+php artisan migrate --force
+php artisan config:clear
+php artisan view:clear
 ```
+*(Or use `./deploy.sh` if configured)*
 
-### Common Heroku Commands
+### Useful Server Commands
 ```bash
-heroku logs --tail                              # Live logs
-heroku run "php artisan migrate --force"        # Run migrations
-heroku run "php artisan db:seed --force"        # Run seeders
-heroku config                                   # View env vars
-heroku config:set KEY=value                     # Set env var
-heroku restart                                  # Restart app
+systemctl restart nginx                   # Restart web server
+systemctl restart php8.3-fpm              # Restart PHP process
+tail -f storage/logs/laravel.log          # View Laravel logs
 ```
 
 ---
@@ -421,7 +422,6 @@ Ipan/
 │   └── console.php           # Scheduled tasks (daily reminder)
 ├── storage/app/public/       # Local file uploads (avatars, log-attachments)
 ├── .env                      # Environment config (not committed)
-├── Procfile                  # Heroku process declaration
 └── README.md                 # Project documentation
 ```
 
@@ -461,7 +461,7 @@ Ipan/
 
 3. ❌ **Do NOT switch frontend frameworks** — The project uses Bootstrap 5 + jQuery. No React, Vue, or Alpine.js without explicit approval.
 
-4. ❌ **Do NOT change the Heroku Procfile** unless deployment architecture changes.
+4. ❌ **Do NOT change the Nginx configuration** unless deployment architecture changes.
 
 5. ❌ **Do NOT use SQLite-incompatible SQL** — `.env.example` defaults to SQLite. Queries must be portable or explicitly documented as MySQL-only.
 

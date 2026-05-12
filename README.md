@@ -70,7 +70,7 @@ Sistem pengurusan logbook latihan industri berasaskan Laravel.
 | Technology | Package | Role |
 |------------|---------|------|
 | **Gemini API** | `google-gemini-php/laravel` | Generate AI summaries for supervisor reviews and feedback |
-| **Cloudinary** | `cloudinary-labs/cloudinary-laravel` | Cloud storage for persistent image uploads (log attachments & avatars) on Heroku |
+| **Cloudinary** | `cloudinary-labs/cloudinary-laravel` | Cloud storage for persistent image uploads (log attachments & avatars) on DigitalOcean |
 
 ## Installation
 ### 1. Clone / Download Project
@@ -192,51 +192,53 @@ php artisan config:clear
 chmod -R 775 storage bootstrap/cache
 ```
 
-## Heroku Deployment
+## DigitalOcean Deployment
 
-App URL: **https://lims-fyp-8a6cb0f71eca.herokuapp.com/**
+App URL: **https://lim-system.my/**
 
-### Setup (Sudah dilakukan)
-- **Dyno:** Eco ($5/bulan dari GitHub Student credits)
-- **Database:** JawsDB MySQL (kitefin)
-- **Buildpacks:** Node.js + PHP
+### Setup Server
+- **Server:** Ubuntu 24.04 LTS (Droplet)
+- **Stack:** Nginx, MySQL 8.0, PHP 8.3-FPM
+- **Domain:** `lim-system.my`
+- **SSL:** Let's Encrypt (Certbot)
 
-### Deploy / Update ke Heroku
-Setiap kali buat changes dan nak update Heroku:
+### Deploy / Update ke Server
+Setiap kali buat changes, push ke GitHub dulu:
 ```bash
 git add .
 git commit -m "description of changes"
-git push heroku main
+git push origin main
 ```
 
-### Heroku Useful Commands
+Kemudian, di Web Console DigitalOcean (Server), jalankan:
+```bash
+cd /var/www/Ipan
+git pull origin main
+composer install --no-dev
+php artisan migrate --force
+php artisan config:clear
+php artisan view:clear
+```
+*(Atau gunakan fail `deploy.sh` jika anda telah menyediakannya).*
+
+### Server Useful Commands
 
 | Command | Description |
 |---------|-------------|
-| `heroku logs --tail` | View live logs |
-| `heroku run "php artisan migrate --force"` | Run migrations on Heroku |
-| `heroku run "php artisan db:seed --force"` | Run seeders on Heroku |
-| `heroku config` | View all environment variables |
-| `heroku config:set KEY=value` | Set environment variable |
-| `heroku restart` | Restart the app |
-| `heroku open` | Open app in browser |
+| `tail -f storage/logs/laravel.log` | View live Laravel logs |
+| `systemctl restart nginx` | Restart Nginx web server |
+| `systemctl restart php8.3-fpm` | Restart PHP processor |
+| `mysql -u lims_user -p` | Masuk ke database MySQL |
+| `nano .env` | Edit environment variables |
 
-### Heroku Troubleshooting
+### Server Troubleshooting
 
-**500 Error on Heroku:**
+**500 Internal Server Error:**
+Biasanya isu permission. Jalankan:
 ```bash
-heroku logs --tail
-```
-
-**Database issues:**
-```bash
-heroku config:get JAWSDB_URL
-heroku run "php artisan migrate:status"
-```
-
-**Clear cache on Heroku:**
-```bash
-heroku run "php artisan config:clear && php artisan cache:clear && php artisan view:clear"
+chown -R www-data:www-data storage bootstrap/cache
+chmod -R 775 storage bootstrap/cache
+php artisan config:clear
 ```
 
 ---

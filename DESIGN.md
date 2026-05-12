@@ -2,7 +2,7 @@
 
 > **Logbook Internship Management System**
 > Laravel 12 MVC — FYP Faculty of Computing
-> Live: https://lims-fyp-8a6cb0f71eca.herokuapp.com/
+> Live: https://lim-system.my/
 
 ---
 
@@ -16,7 +16,7 @@ LIMS is a web-based platform that digitises internship logbook management. Three
 | **Supervisor** | Review/approve/reject log entries, assign tasks to student groups, view analytics dashboard |
 | **Admin** | Placeholder (Coming Soon) |
 
-The system runs on Heroku (PHP + MySQL via JawsDB), with Cloudinary for persistent file storage and Gemini API for AI-powered log summarisation.
+The system runs on a DigitalOcean Droplet (Ubuntu LEMP Stack), with Cloudinary for persistent file storage and Gemini API for AI-powered log summarisation.
 
 ---
 
@@ -70,7 +70,7 @@ The system runs on Heroku (PHP + MySQL via JawsDB), with Cloudinary for persiste
 ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────────┐
 │  DATA LAYER     │  │  FILE STORAGE   │  │  EXTERNAL APIs      │
 │                 │  │                 │  │                     │
-│  MySQL (JawsDB) │  │  Cloudinary     │  │  Gemini 2.5 Flash   │
+│  MySQL (DO)     │  │  Cloudinary     │  │  Gemini 2.5 Flash   │
 │  via Eloquent   │  │  (production)   │  │  Lite (AI summary)  │
 │  ORM            │  │  + local/public │  │                     │
 │                 │  │  (development)  │  │  Mailtrap SMTP      │
@@ -88,7 +88,7 @@ The system runs on Heroku (PHP + MySQL via JawsDB), with Cloudinary for persiste
 
 | Technology | Version | Why Chosen |
 |---|---|---|
-| **PHP** | 8.2+ | Required by Laravel 12; widely supported on Heroku |
+| **PHP** | 8.2+ | Required by Laravel 12; natively supported on Ubuntu 24.04 |
 | **Laravel** | 12.x | Mature MVC framework with built-in auth, Eloquent ORM, migrations, queues, and artisan CLI |
 | **Composer** | Latest | Standard PHP dependency manager |
 
@@ -117,9 +117,9 @@ The system runs on Heroku (PHP + MySQL via JawsDB), with Cloudinary for persiste
 
 | Service | Why Chosen |
 |---|---|
-| **Cloudinary** | Heroku's ephemeral filesystem requires external persistent storage for user uploads. Cloudinary provides free tier for image hosting. |
+| **Cloudinary** | Originally added for Heroku's ephemeral filesystem, retained on DO for offloading asset delivery and saving disk space. |
 | **Gemini 2.5 Flash-Lite** | Cost-effective AI model for generating professional log summaries from student rough notes. Multimodal support allows image attachment context. |
-| **JawsDB MySQL** | Free MySQL add-on for Heroku (kitefin plan). No setup required beyond connection string. |
+| **MySQL** | Self-managed MySQL 8.0 on the DigitalOcean Droplet. |
 | **Mailtrap** | SMTP sandbox for development email testing |
 | **UI Avatars** | Free placeholder avatar generation API (no API key needed) |
 
@@ -191,7 +191,6 @@ Ipan/
 │   └── console.php                        # Scheduled task + inspire command
 ├── storage/
 │   └── app/public/                        # Local file uploads (dev only)
-├── Procfile                              # Heroku: apache2 + PHP
 ├── package.json                          # NPM dependencies + dev scripts
 ├── composer.json                         # Composer dependencies + scripts
 ├── vite.config.js                        # Vite + Laravel plugin config
@@ -446,7 +445,7 @@ NotificationController@storeReminder()
 **Key design decisions:**
 - Custom `LimsDatabaseChannel` instead of Laravel's built-in `DatabaseChannel` — uses own `notifications` table schema (simpler: no `notifiable_type`, `notifiable_id`, `data` JSON column)
 - Dual delivery: all notifications go to both DB and email
-- Polling (30s interval) instead of WebSockets — simpler for Heroku deployment, no need for Pusher/reverb
+- Polling (30s interval) instead of WebSockets — simpler for deployment without WebSockets overhead.
 - Student-only polling: supervisor notifications are loaded on page refresh only
 
 ---
@@ -686,7 +685,7 @@ try {
 
 ```php
 if (env('CLOUDINARY_URL')) {
-    // PRODUCTION (Heroku ephemeral fs — must use Cloudinary)
+    // PRODUCTION
     $uploaded = cloudinary()->uploadApi()->upload($file->getRealPath(), [
         'folder' => 'lims/log-attachments/' . $logEntry->id,
     ]);
