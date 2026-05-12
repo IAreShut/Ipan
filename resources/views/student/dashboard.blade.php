@@ -108,7 +108,7 @@
 <div class="row g-4">
     <!-- Recent Logbooks -->
     <div class="col-lg-8">
-        <div class="premium-card p-4 h-100">
+        <div class="premium-card p-4">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
                     <h5 class="fw-bold mb-0 text-dark">Recent Log Entries</h5>
