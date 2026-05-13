@@ -164,6 +164,7 @@ Ipan/
 | `log_entries` | Daily logbook entries |
 | `log_attachments` | File attachments for logs |
 | `notifications` | System notifications |
+| `supervisor_assignments` | Pre-assigned supervisor-student lookup table |
 
 ## Troubleshooting
 

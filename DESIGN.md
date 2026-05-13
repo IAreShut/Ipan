@@ -13,7 +13,7 @@ LIMS is a web-based platform that digitises internship logbook management. Three
 | Actor | Responsibilities |
 |---|---|
 | **Student** | Submit daily log entries with attachments, generate AI summaries, track weekly progress, set personal reminders |
-| **Supervisor** | Review/approve/reject log entries, assign tasks to student groups, view analytics dashboard |
+| **Supervisor** | Review/approve/reject log entries, assign tasks to students, view analytics dashboard |
 | **Admin** | Placeholder (Coming Soon) |
 
 The system runs on a DigitalOcean Droplet (Ubuntu LEMP Stack), with Cloudinary for persistent file storage and Gemini API for AI-powered log summarisation.
@@ -144,16 +144,17 @@ Ipan/
 │   │   └── Supervisor/
 │   │       ├── DashboardController.php    # Supervisor stats + student list
 │   │       ├── ReviewController.php       # Approve/reject log entries
-│   │       ├── TaskController.php         # Assign tasks to student groups
+│   │       ├── TaskController.php         # Assign tasks to all students under supervisor |
 │   │       ├── AnalyticsController.php    # Performance analytics
-│   │       └── ProfileController.php      # Supervisor profile + groups
+│   │       └── ProfileController.php      # Supervisor profile |
 │   ├── Models/
 │   │   ├── User.php                       # Auth user (student/supervisor/admin)
 │   │   ├── Internship.php                 # Internship period details
 │   │   ├── LogEntry.php                   # Daily log entries
 │   │   ├── LogAttachment.php              # File attachments for logs
 │   │   ├── Notification.php               # Custom notification records
-│   │   └── Task.php                       # Tasks & personal reminders
+│   │   ├── Task.php                       # Tasks & personal reminders
+│   │   └── SupervisorAssignment.php       # Pre-assigned supervisor-student matching |
 │   ├── Notifications/
 │   │   ├── DailyLogReminderNotification.php  # Scheduled 5PM weekday
 │   │   ├── TaskSetNotification.php           # Supervisor assigns task
@@ -169,8 +170,8 @@ Ipan/
 │   ├── filesystems.php                    # Cloudinary disk definition
 │   └── services.php                       # Third-party service config
 ├── database/
-│   ├── migrations/                        # 15 migration files
-│   └── seeders/DatabaseSeeder.php         # Test data (4 user accounts)
+│   ├── migrations/                        # 17 migration files
+│   └── seeders/DatabaseSeeder.php         # Test data + SupervisorAssignmentSeeder |
 ├── public/
 │   ├── css/                               # Page-specific stylesheets (15 files)
 │   ├── js/                                # Page-specific scripts (13 files)
@@ -224,22 +225,30 @@ AuthController@login()
 
 **Registration Flow:**
 ```
-Student fills form (faculty → programme_code → class cascading dropdowns)
+Student enters matrix_id
+        │
+        ▼
+AJAX /check-assignment (AuthController@checkAssignment)
+  ├─ Found in supervisor_assignments → return SV name + academic info
+  │    └─ Frontend auto-fills faculty/programme/class (readonly), enables Register button
+  └─ Not found → return error, disables Register button
         │
         ▼
 AuthController@register()
   ├─ Validates: matrix_id (numeric, unique), phone (+60 regex), email, password (min 8)
-  ├─ Auto-assigns supervisor via User::matchesCriteria()
-  │    └─ Normalises strings, checks student group against supervisor's groups JSON
+  ├─ Strict: student matrix_id MUST exist in supervisor_assignments table
+  ├─ Auto-assigns supervisor via direct lookup: supervisor_matrix_id → users.matrix_id
   ├─ Creates User record with role='student'
-  └─ Logs in & redirects to dashboard
+  └─ Redirects to login page
 ```
 
 **Key design decisions:**
 - No email verification required (simplified for FYP scope)
 - Dual login credential: email OR matrix_id
-- Supervisor auto-matching at registration via `User::matchesCriteria()` — normalised string comparison (`faculty + programme_code + class` ↔ `groups[]`)
-- No forgot-password flow implemented
+- Pre-assigned supervisor matching via `supervisor_assignments` lookup table (admin-managed)
+- Faculty/programme/class auto-filled from assignment data, locked as readonly inputs
+- No cascading dropdowns or `matchesCriteria()` — old flow removed
+- Supervisors register freely without pre-assignment check
 
 ### 5.2 Log Entry Module (Core)
 
@@ -361,19 +370,17 @@ ReviewController@reject($id)
 **Task types:**
 | Type | Created By | Assigned To | Trigger |
 |---|---|---|---|
-| `sv_task` | Supervisor | All students in selected groups | `TaskSetNotification` |
+| `sv_task` | Supervisor | All students under supervisor | `TaskSetNotification` |
 | `personal_reminder` | Student | Self | `PersonalReminderNotification` |
 
 **Supervisor Task Assignment:**
 ```
-Supervisor selects groups (checkboxes from supervisor's groups[] JSON)
-  └─ Enter title + due date/time
+Supervisor enters title + due date/time
         │
         ▼
 TaskController@store()
-  ├─ For each selected group:
-  │    └─ Finds all students whose programme_code+class matches the group
-  ├─ Creates Task record (type=sv_task) for each matching student
+  ├─ Finds all students under this supervisor (users.supervisor_id)
+  ├─ Creates Task record (type=sv_task) for each student
   └─ Sends TaskSetNotification (LimsDBChannel + mail) to each student
 ```
 
@@ -514,18 +521,17 @@ NotificationController@storeReminder()
 | `company` | VARCHAR(255) | NULLABLE | Student's internship company |
 | `supervisor_id` | BIGINT | NULLABLE, FK→users.id ON DELETE SET NULL | Self-referencing |
 | `faculty` | VARCHAR(255) | NULLABLE | |
-| `class` | TEXT | NULLABLE | JSON-encoded array |
-| `programme_code` | TEXT | NULLABLE | JSON-encoded array |
-| `groups` | TEXT | NULLABLE | JSON array for supervisors only |
+| `class` | TEXT | NULLABLE | |
+| `programme_code` | TEXT | NULLABLE | |
 | `location` | VARCHAR(255) | NULLABLE | |
 | `about` | TEXT | NULLABLE | |
 | `avatar` | VARCHAR(255) | NULLABLE | URL (Cloudinary or local) |
 | `remember_token` | VARCHAR(100) | NULLABLE | "Remember me" |
 | `created_at`, `updated_at` | TIMESTAMP | | Eloquent timestamps |
 
-**JSON fields** (`class`, `programme_code`, `groups`):
+**JSON fields** (`class`, `programme_code`):
 - Stored as TEXT but treated as JSON arrays via model accessors
-- `getClassesAttribute()`, `getProgrammeCodesAttribute()`, `getGroupsAttribute()` handle both JSON arrays and legacy plain strings
+- `getClassesAttribute()`, `getProgrammeCodesAttribute()` handle both JSON arrays and legacy plain strings
 
 #### `internships`
 | Column | Type | Constraints |
@@ -587,6 +593,18 @@ NotificationController@storeReminder()
 
 > **Note:** This table was originally named `milestones` (migration 2026_03_03_205303). Renamed to `tasks` and `sv_milestone` type values updated to `sv_task` by migration 2026_05_04_202613.
 
+#### `supervisor_assignments`
+| Column | Type | Constraints |
+|--------|------|-------------|
+| `id` | BIGINT AUTO_INCREMENT | PRIMARY KEY |
+| `student_matrix_id` | VARCHAR(255) | UNIQUE, NOT NULL (format: 2026XXXXXX) |
+| `student_name` | VARCHAR(255) | NOT NULL |
+| `supervisor_matrix_id` | VARCHAR(255) | NOT NULL (references SV's matrix_id) |
+| `faculty` | VARCHAR(255) | NULLABLE (auto-fill for registration) |
+| `programme_code` | VARCHAR(255) | NULLABLE |
+| `class` | VARCHAR(255) | NULLABLE |
+| `created_at`, `updated_at` | TIMESTAMP | |
+
 ### 6.3 Schema Evolution (Migration History)
 
 | Migration | Purpose |
@@ -606,6 +624,8 @@ NotificationController@storeReminder()
 | 2026_05_01_111905 | Change `class` from string to TEXT |
 | 2026_05_03_183400 | Add `groups` (TEXT) after `programme_code` |
 | 2026_05_04_202613 | Rename `milestones` to `tasks`; update type values |
+| 2026_05_14_012646 | Create `supervisor_assignments` table |
+| 2026_05_14_041742 | Drop `groups` from `users` (removed group-based flow) |
 
 ---
 
@@ -710,20 +730,38 @@ $rawPhone = ltrim($rawPhone, '0');                           // remove leading 0
 $request->merge(['phone' => '+60' . $rawPhone]);             // prepend country code
 ```
 
-### 7.8 Supervisor-Student Matching Algorithm
+### 7.8 Pre-Assigned Supervisor Matching (Replaces old matchesCriteria)
+
+Registration now uses a lookup table (`supervisor_assignments`) instead of string matching:
 
 ```php
-// User.php → matchesCriteria()
-$studentGroup = strtolower(str_replace(' ', '', $programmeCode . '-' . $class));
-// e.g., "CS266-5C"
+// AuthController@checkAssignment — AJAX endpoint
+$assignment = SupervisorAssignment::where('student_matrix_id', $matrixId)->first();
 
-foreach ($supervisor->groups as $group) {
-    $normalised = strtolower(str_replace(' ', '', $group));
-    if ($normalised === $studentGroup) return true;
+if ($assignment) {
+    $supervisor = User::where('matrix_id', $assignment->supervisor_matrix_id)->first();
+    return response()->json([
+        'found' => true,
+        'supervisor_name' => $supervisor->name,
+        'faculty' => $assignment->faculty,
+        'programme_code' => $assignment->programme_code,
+        'class' => $assignment->class,
+    ]);
 }
 ```
 
-All strings are normalised (lowercased, spaces removed) for robust matching. The same logic powers the registration form's cascading dropdown (faculty → programme_code → class) via JSON-embedded supervisor criteria.
+Backend auto-assigns supervisor via direct lookup, not `matchesCriteria()`:
+
+```php
+// AuthController@register — after strict check
+$supervisor = User::where('role', 'supervisor')
+    ->where(function ($q) use ($assignment) {
+        $q->where('matrix_id', $assignment->supervisor_matrix_id)
+          ->orWhere('employee_id', $assignment->supervisor_matrix_id);
+    })->first();
+```
+
+The old `groups` column on `users` and `matchesCriteria()` method on `User` are removed.
 
 ### 7.9 MySQL-Specific Query
 
@@ -813,30 +851,58 @@ if (!$internship) {
    │  Click "Submit" ───┘
 ```
 
-### 8.2 Registration & Supervisor Auto-Assignment Flow
+### 8.2 Registration & Pre-Assigned Supervisor Flow
 
 ```
-┌──────────┐     ┌──────────────┐     ┌──────────────────┐     ┌──────────┐
-│  STUDENT  │────▶│   Auth       │────▶│  User::matches   │────▶│ DATABASE │
-│  (Browser)│     │  Controller  │     │  Criteria()      │     │ (MySQL)  │
-└──────────┘     └──────────────┘     └──────────────────┘     └──────────┘
-   │                    │                     │
-   │ Registration form: │ Validate:           │
-   │ - name             │ - matrix_id unique  │
-   │ - email            │ - email unique      │ For each supervisor:
-   │ - matrix_id        │ - phone +60 format   │   ┌────────────────────┐
-   │ - phone            │ - password min 8     │   │ faculty matches?   │
-   │ - faculty          │                      │   │ yes → check groups │
-   │ - programme_code   │ Normalise phone      │   │ group = prog_code  │
-   │ - class            │ to +60 format        │   │   + "-" + class    │
-   │                    │                      │   │ normalise strings  │
-   │ Cascading          │ Create user:         │   │ match found?       │
-   │ dropdowns driven   │  role='student'      │   │ yes → assign this  │
-   │ by supervisor      │  supervisor_id       │   │   supervisor_id    │
-   │ criteria JSON      │   (auto-assigned)    │   └────────────────────┘
-   │                    │                      │
-   │                    │ Login + redirect     │
+┌──────────┐        ┌──────────────────┐       ┌──────────────────────┐       ┌──────────┐
+│  STUDENT  │───────▶│ /check-assignment│──────▶│  supervisor_assignments│──────▶│ DATABASE │
+│  (Browser)│        │  (AJAX, no auth) │       │      table          │       │ (MySQL)  │
+└──────────┘        └──────────────────┘       └──────────────────────┘       └──────────┘
+    │                        │                          │
+    │ Enter matrix_id        │ POST {matrix_id}         │ SELECT * WHERE
+    │                        ▼                          │ student_matrix_id =
+    │                 ┌──────────────┐                  │ matrix_id
+    │                 │  Found?      │                  │
+    │                 └──────┬───────┘                  │
+    │                   ┌────┴────┐                     │
+    │                   │         │                     │
+    │                   ▼         ▼                     │
+    │              ┌────────┐ ┌────────┐                │
+    │              │ YES    │ │ NO     │                │
+    │              └───┬────┘ └───┬────┘                │
+    │                  │          │                     │
+    │                  ▼          ▼                     │
+    │         Auto-fill      Show warning               │
+    │         faculty/       "No info, wait             │
+    │         programme/     for admin..."               │
+    │         class fields   Disable button             │
+    │         Enable button                             │
+    │                  │                                │
+    │                  ▼                                │
+    │         ┌──────────────────────┐                   │
+    │         │   Register Form      │                   │
+    │         │  Submit → /register  │                   │
+    │         └──────────┬───────────┘                   │
+    │                    │                               │
+    │                    ▼                               │
+    │         ┌─────────────────┐                        │
+    │         │  AuthController  │                       │
+    │         │  @register()     │                       │
+    │         └────────┬────────┘                        │
+    │              ┌───┴───┐                            │
+    │              │       │                             │
+    │              ▼       ▼                             │
+    │         Validate   Strict check:                   │
+    │         input      matrix_id in                     │
+    │                    supervisor_assignments           │
+    │                    → Pass → lookup SV               │
+    │                    → Create user                    │
+    │                         │                           │
+    │                         ▼                           │
+    │              Redirect to login                     │
 ```
+
+The `supervisor_assignments` table serves as the single source of truth — no cascading dropdowns or `matchesCriteria()` logic.
 
 ### 8.3 Notification Delivery Flow (Scheduled + Real-Time)
 
@@ -895,10 +961,10 @@ if (!$internship) {
 
 | Field | Value |
 |---|---|
-| **Document Version** | 1.0 |
-| **Last Updated** | 2026-05-10 |
+| **Document Version** | 1.1 |
+| **Last Updated** | 2026-05-14 |
 | **Maintained By** | LIMS Development Team |
 | **Derived From** | `.clinerules` v1.0, `README.md`, codebase analysis |
 | **Project Code** | Ipan (LIMS — Logbook Internship Management System) |
 | **Framework** | Laravel 12.x |
-| **Deployment** | Heroku (Eco Dyno) |
+| **Deployment** | DigitalOcean Droplet |

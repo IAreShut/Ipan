@@ -81,16 +81,17 @@ Routes are grouped by role prefix with named route convention:
 
 All authenticated routes use `middleware(['auth'])`.
 
-### Eloquent Models (6 total)
+### Eloquent Models (7 total)
 
 | Model | Table | Key Relationships |
-|---|---|---|
+|------|-------|-----------------|
 | `User` | `users` | hasMany LogEntry, hasMany Internship, belongsTo User (supervisor), hasMany User (students) |
 | `Internship` | `internships` | belongsTo User (student), hasMany LogEntry |
 | `LogEntry` | `log_entries` | belongsTo User (student), belongsTo Internship, hasMany LogAttachment |
 | `LogAttachment` | `log_attachments` | belongsTo LogEntry |
 | `Notification` | `notifications` | belongsTo User |
-| `Milestone` | `milestones` | belongsTo User (user), belongsTo User (creator) |
+| `Task` | `tasks` | belongsTo User (user), belongsTo User (creator) |
+| `SupervisorAssignment` | `supervisor_assignments` | Lookup table for pre-assigned student-supervisor matching |
 
 ### Blade View Structure
 ```
@@ -149,7 +150,10 @@ resources/views/
 - `title`, `message`, `type` (info/reminder/milestone/etc.), `is_read` (boolean)
 - timestamps
 
-### milestones
+### supervisor_assignments
+- `student_matrix_id` (string, unique), `student_name`, `supervisor_matrix_id`
+- `faculty`, `programme_code`, `class` — academic info for auto-fill during registration
+- timestamps
 - `id`, `user_id` (FK → users.id), `created_by` (FK → users.id)
 - `title`, `due_date` (datetime), `type` (sv_milestone / personal_reminder)
 - timestamps
@@ -379,13 +383,20 @@ Runs 4 processes concurrently:
 composer setup
 ```
 
-### Test Accounts (from DatabaseSeeder)
+### Test Accounts (from DatabaseSeeder + SupervisorAssignmentSeeder)
 | Role | Email | Password |
-|---|---|---|
-| Supervisor | supervisor@test.com | password123 |
+|------|-------|----------|
+| Supervisor (Dr. Hidayah) | supervisor@test.com | password123 |
+| Supervisor (Dr. Ahmad Fauzi) | sv1@sv.my | password123 |
+| Supervisor (Prof. Nurul Huda) | sv2@sv.my | password123 |
+| Supervisor (Dr. Ramesh Kumar) | sv3@sv.my | password123 |
+| Supervisor (Dr. Siti Fatimah) | sv4@sv.my | password123 |
+| Supervisor (Prof. Tan Wei Ming) | sv5@sv.my | password123 |
 | Student | student@test.com | password123 |
 | Student | siti@test.com | password123 |
 | Admin | admin@test.com | password123 |
+- 25 pre-assigned student records in `supervisor_assignments` (5 per supervisor)
+- Use `php artisan db:seed --class=SupervisorAssignmentSeeder` to populate
 
 ### Local Database
 - Server: XAMPP MySQL
@@ -401,14 +412,14 @@ Ipan/
 ├── app/
 │   ├── Channels/             # Custom notification channel (LimsDatabaseChannel)
 │   ├── Http/Controllers/     # AuthController, StudentController, SupervisorController
-│   ├── Models/               # User, Internship, LogEntry, LogAttachment, Notification, Milestone
-│   ├── Notifications/        # DailyLogReminder, MilestoneSet, PersonalReminder
+│   ├── Models/               # User, Internship, LogEntry, LogAttachment, Notification, Task, SupervisorAssignment
+│   ├── Notifications/        # DailyLogReminder, TaskSet, PersonalReminder
 │   └── Providers/            # AppServiceProvider (HTTPS forcing)
 ├── config/
 │   └── gemini.php            # Gemini API configuration
 ├── database/
-│   ├── migrations/           # 11 migration files
-│   └── seeders/              # DatabaseSeeder (test data)
+│   ├── migrations/           # 17 migration files
+│   └── seeders/              # DatabaseSeeder + SupervisorAssignmentSeeder
 ├── legacy_src/               # ⚠️ Original static HTML/CSS prototypes (REFERENCE ONLY)
 ├── public/
 │   ├── css/                  # Page-specific CSS (NOT bundled by Vite)
@@ -448,6 +459,10 @@ Ipan/
 9. **Two layout files** — `layouts/app.blade.php` and `layouts/master.blade.php`. Check which one each view extends before modifying.
 
 10. **Attachment file_path stores full URL** — Not a relative path. Both Cloudinary URLs and `asset('storage/...')` URLs are stored as full absolute URLs.
+
+11. **Pre-assigned supervisor matching** — `App\Models\SupervisorAssignment` is a lookup table (`supervisor_assignments`). Student registration strictly checks `matrix_id` exists here before allowing signup. Faculty/programme/class are auto-filled from this table (readonly inputs). The old `matchesCriteria()` and `groups` column are removed.
+
+12. **Task assignment default** — When a supervisor creates a task, it is assigned to **all students** under their supervision. No group-based filtering. The old `groups` column was dropped from `users`.
 
 ---
 
