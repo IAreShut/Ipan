@@ -94,28 +94,6 @@
                             <input type="text" name="faculty" class="form-control-custom py-1 px-2 mt-1" value="{{ $user->faculty }}" placeholder="e.g. Faculty of Computing">
                         </div>
                     </div>
-                    <div class="info-item full-width">
-                        <i class="fas fa-users-class info-icon"></i>
-                        <div class="info-content w-100">
-                            <div class="label">Assigned Groups (Programme Code - Class)</div>
-                            <div class="tags-input-wrapper mt-1 @error('groups') border border-danger @enderror" id="groups_tags_wrapper">
-                                <div class="tags-container" id="groups_tags_container">
-                                    @foreach($user->groups as $group)
-                                        <span class="tag-item">
-                                            {{ $group }}
-                                            <input type="hidden" name="groups[]" value="{{ $group }}">
-                                            <button type="button" class="tag-remove" onclick="removeTag(this)">&times;</button>
-                                        </span>
-                                    @endforeach
-                                    <input type="text" class="tag-input" id="groups_tag_input" placeholder="e.g. CS266-5C & press Enter" onkeydown="handleTagInput(event, 'groups')">
-                                </div>
-                            </div>
-                            @error('groups')
-                                <div class="text-danger small mt-1">{{ $message }}</div>
-                            @enderror
-                            <small class="text-muted mt-1 d-block"><i class="fas fa-info-circle me-1"></i>Press Enter to add, click × to remove</small>
-                        </div>
-                    </div>
                 </div>
             </div>
 

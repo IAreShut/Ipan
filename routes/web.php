@@ -33,6 +33,7 @@ Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register'])->name('register');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+Route::post('/check-assignment', [AuthController::class, 'checkAssignment'])->name('check-assignment');
 
 // Student Routes (Protected)
 Route::middleware(['auth'])->prefix('student')->name('student.')->group(function () {

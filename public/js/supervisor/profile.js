@@ -7,7 +7,7 @@
  * - Browser Geolocation API
  */
 
-// ======== Tag Input for Assigned Groups ========
+// ======== Tag Input (Generic) ========
 function handleTagInput(event, type) {
     if (event.key === 'Enter') {
         event.preventDefault();
@@ -15,11 +15,6 @@ function handleTagInput(event, type) {
         var value = input.value.trim().toUpperCase();
         
         if (!value) return;
-
-        // Normalize separators: convert spaces, +, /, _, ,, or . to a hyphen
-        if (type === 'groups') {
-            value = value.replace(/[\s\+\/\_\,\.]+/g, '-');
-        }
 
         var containerId = type + '_tags_container';
         var inputName = type + '[]';
@@ -58,14 +53,7 @@ function removeTag(btn) {
 }
 
 // Click wrapper to focus input
-document.addEventListener('DOMContentLoaded', function() {
-    var groupsWrapper = document.getElementById('groups_tags_wrapper');
-    if (groupsWrapper) {
-        groupsWrapper.addEventListener('click', function() {
-            document.getElementById('groups_tag_input').focus();
-        });
-    }
-    
+document.addEventListener('DOMContentLoaded', function() {    
     // Init word count
     var textArea = document.getElementById('about_text');
     if (textArea) {

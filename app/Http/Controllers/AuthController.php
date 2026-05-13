@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\SupervisorAssignment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -15,25 +16,7 @@ class AuthController extends Controller
      */
     public function showLoginForm()
     {
-        $supervisors = User::where('role', 'supervisor')
-            ->whereNotNull('faculty')
-            ->whereNotNull('groups')
-            ->get();
-
-        // Build distinct values for cascading dropdowns
-        $faculties = $supervisors->pluck('faculty')->filter()->unique()->sort()->values();
-
-        // Pass full supervisor criteria as JSON for JS cascading filter
-        $supervisorCriteria = $supervisors->map(function ($sv) {
-            return [
-                'id' => $sv->id,
-                'name' => $sv->name,
-                'faculty' => $sv->faculty,
-                'groups' => $sv->groups,
-            ];
-        })->values();
-
-        return view('auth.login', compact('supervisors', 'faculties', 'supervisorCriteria'));
+        return view('auth.login');
     }
 
     /**
@@ -103,23 +86,29 @@ class AuthController extends Controller
 
         $request->validate($rules, $messages);
 
-        // Auto-assign supervisor for students
+        // Strict check: student matrix_id must exist in supervisor_assignments
+        if ($request->role === 'student') {
+            $assignment = SupervisorAssignment::where('student_matrix_id', $request->matrix_id)->first();
+
+            if (!$assignment) {
+                return back()->withErrors([
+                    'matrix_id' => 'Your ID is not in the pre-assigned supervisor list. Please contact admin.',
+                ])->withInput();
+            }
+        }
+
+        // Auto-assign supervisor for students via supervisor_assignments lookup
         $supervisorId = null;
         if ($request->role === 'student') {
             $supervisor = User::where('role', 'supervisor')
-                ->where('faculty', $request->reg_faculty)
-                ->get()
-                ->first(function ($sv) use ($request) {
-                    return $sv->matchesCriteria(
-                        $request->reg_faculty,
-                        $request->reg_class,
-                        $request->reg_programme_code
-                    );
-                });
+                ->where(function ($q) use ($assignment) {
+                    $q->where('matrix_id', $assignment->supervisor_matrix_id)
+                      ->orWhere('employee_id', $assignment->supervisor_matrix_id);
+                })->first();
 
             if (!$supervisor) {
                 return back()->withErrors([
-                    'reg_faculty' => 'No supervisor is assigned for your Faculty / Class / Programme Code combination. Please contact your faculty administrator.',
+                    'matrix_id' => 'Supervisor account (' . $assignment->supervisor_matrix_id . ') not found. Please contact admin.',
                 ])->withInput();
             }
 
@@ -141,6 +130,37 @@ class AuthController extends Controller
         ]);
 
         return redirect()->route('login')->with('success', 'Registration successful! Please login to continue.');
+    }
+
+    /**
+     * Check if student matrix_id exists in supervisor_assignments (AJAX)
+     */
+    public function checkAssignment(Request $request)
+    {
+        $matrixId = $request->input('matrix_id');
+
+        if (!$matrixId) {
+            return response()->json(['found' => false, 'message' => 'No matrix ID provided.'], 400);
+        }
+
+        $assignment = SupervisorAssignment::where('student_matrix_id', $matrixId)->first();
+
+        if (!$assignment) {
+            return response()->json([
+                'found' => false,
+                'message' => 'No info in database, please contact admin to assign supervisor to you...',
+            ]);
+        }
+
+        $supervisor = User::where('matrix_id', $assignment->supervisor_matrix_id)->first();
+
+        return response()->json([
+            'found' => true,
+            'supervisor_name' => $supervisor ? $supervisor->name : $assignment->supervisor_matrix_id,
+            'faculty' => $assignment->faculty,
+            'programme_code' => $assignment->programme_code,
+            'class' => $assignment->class,
+        ]);
     }
 
     /**

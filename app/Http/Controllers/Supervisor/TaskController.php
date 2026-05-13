@@ -27,23 +27,18 @@ class TaskController extends Controller
             ->with('user')
             ->orderBy('due_date', 'asc')
             ->get();
-
-        // Get supervisor's groups for the modal checkboxes
-        $groupOptions = $supervisor->groups;
             
         return view('supervisor.tasks', compact(
-            'supervisor', 'students', 'tasks', 'groupOptions'
+            'supervisor', 'students', 'tasks'
         ));
     }
 
     /**
-     * Store task(s) for all students matching selected groups
+     * Store task(s) for all students under this supervisor
      */
     public function store(Request $request)
     {
         $request->validate([
-            'groups' => 'required|array|min:1',
-            'groups.*' => 'string',
             'title' => 'required|string|max:255',
             'due_date' => 'required|date',
             'due_time' => 'nullable|date_format:H:i',
@@ -51,22 +46,13 @@ class TaskController extends Controller
 
         $supervisor = Auth::user();
 
-        // Get all students under this supervisor and filter by selected groups
-        $selectedGroupsNorm = array_map(function($g) {
-            return strtolower(str_replace(' ', '', $g));
-        }, $request->groups);
-
         $students = User::where('supervisor_id', $supervisor->id)
             ->where('role', 'student')
-            ->get()
-            ->filter(function ($student) use ($selectedGroupsNorm) {
-                $studentGroup = strtolower(str_replace(' ', '', ($student->programme_code ?? '') . '-' . ($student->class ?? '')));
-                return in_array($studentGroup, $selectedGroupsNorm);
-            });
+            ->get();
 
         if ($students->isEmpty()) {
             return redirect()->route('supervisor.tasks')
-                ->with('error', 'No students found matching the selected groups.');
+                ->with('error', 'No students found under your supervision.');
         }
 
         $time = $request->due_time ? ' ' . $request->due_time : ' 23:59:00';
@@ -109,9 +95,7 @@ class TaskController extends Controller
             }
         }
 
-        $groupNames = implode(', ', $request->groups);
-
         return redirect()->route('supervisor.tasks')
-            ->with('success', 'Task assigned to students in ' . $groupNames . ' and notifications sent!');
+            ->with('success', 'Task assigned to ' . $students->count() . ' students and notifications sent!');
     }
 }

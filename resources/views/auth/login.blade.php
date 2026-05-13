@@ -93,8 +93,9 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Student / Supervisor ID <span class="text-danger">*</span></label>
-                        <input type="text" name="matrix_id" class="form-control @error('matrix_id') is-invalid @enderror" 
+                        <input type="text" name="matrix_id" id="regMatrixId" class="form-control @error('matrix_id') is-invalid @enderror" 
                                placeholder="e.g. 12345678" value="{{ old('matrix_id') }}" pattern="[0-9]+" title="Numbers only" required>
+                        <div id="assignmentCheckResult" style="margin-top: 0.5rem;"></div>
                         @error('matrix_id')
                             <div class="text-danger small mt-1">{{ $message }}</div>
                         @enderror
@@ -135,36 +136,24 @@
                     </div>
                     <div class="mb-3" id="facultyField" style="{{ old('role') == 'supervisor' ? 'display: none;' : '' }}">
                         <label class="form-label">Faculty <span class="text-danger">*</span></label>
-                        <select class="form-select @error('reg_faculty') is-invalid @enderror" name="reg_faculty" id="regFaculty" {{ old('role') != 'supervisor' ? 'required' : '' }}>
-                            <option value="">-- Select Faculty --</option>
-                        </select>
+                        <input type="text" class="form-control @error('reg_faculty') is-invalid @enderror" name="reg_faculty" id="regFaculty" readonly placeholder="Auto-filled after ID verification" value="{{ old('reg_faculty') }}">
                         @error('reg_faculty')
                             <div class="text-danger small mt-1">{{ $message }}</div>
                         @enderror
                     </div>
                     <div class="mb-3" id="programmeField" style="{{ old('role') == 'supervisor' ? 'display: none;' : '' }}">
                         <label class="form-label">Programme Code <span class="text-danger">*</span></label>
-                        <select class="form-select @error('reg_programme_code') is-invalid @enderror" name="reg_programme_code" id="regProgramme" {{ old('role') != 'supervisor' ? 'required' : '' }} disabled>
-                            <option value="">-- Select Programme Code --</option>
-                        </select>
+                        <input type="text" class="form-control @error('reg_programme_code') is-invalid @enderror" name="reg_programme_code" id="regProgramme" readonly placeholder="Auto-filled after ID verification" value="{{ old('reg_programme_code') }}">
                         @error('reg_programme_code')
                             <div class="text-danger small mt-1">{{ $message }}</div>
                         @enderror
                     </div>
                     <div class="mb-3" id="classField" style="{{ old('role') == 'supervisor' ? 'display: none;' : '' }}">
                         <label class="form-label">Class <span class="text-danger">*</span></label>
-                        <select class="form-select @error('reg_class') is-invalid @enderror" name="reg_class" id="regClass" {{ old('role') != 'supervisor' ? 'required' : '' }} disabled>
-                            <option value="">-- Select Class --</option>
-                        </select>
+                        <input type="text" class="form-control @error('reg_class') is-invalid @enderror" name="reg_class" id="regClass" readonly placeholder="Auto-filled after ID verification" value="{{ old('reg_class') }}">
                         @error('reg_class')
                             <div class="text-danger small mt-1">{{ $message }}</div>
                         @enderror
-                    </div>
-                    <div class="mb-3" id="svMatchResult" style="display: none;">
-                        <div class="alert alert-info py-2 mb-0 d-flex align-items-center gap-2" id="svMatchAlert">
-                            <i class="fas fa-user-tie"></i>
-                            <span id="svMatchText">Supervisor will be auto-assigned</span>
-                        </div>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Password</label>
@@ -188,7 +177,7 @@
                         </div>
                     </div>
                     <div class="d-grid">
-                        <button type="submit" class="btn btn-success btn-lg">Register Account</button>
+                        <button type="submit" id="registerBtn" class="btn btn-success btn-lg" disabled>Register Account</button>
                     </div>
                 </form>
             </div>
@@ -199,204 +188,161 @@
 
 @push('scripts')
 <script>
-// Supervisor criteria data from backend
-var svCriteria = @json($supervisorCriteria ?? []);
+// ======== Pre-assigned Supervisor Check (AJAX) ========
+var assignmentVerified = false;
+var registerBtn = document.getElementById('registerBtn');
+var regMatrixId = document.getElementById('regMatrixId');
+var regRole = document.getElementById('regRole');
+var checkResultEl = document.getElementById('assignmentCheckResult');
+
+function checkMatrixIdAssignment() {
+    var matrixId = regMatrixId.value.trim();
+    var role = regRole.value;
+
+    if (role === 'supervisor') {
+        assignmentVerified = true;
+        enableRegisterBtn();
+        checkResultEl.innerHTML = '';
+        clearAutoFillFields();
+        return;
+    }
+
+    if (!matrixId || matrixId.length < 3) {
+        assignmentVerified = false;
+        disableRegisterBtn();
+        checkResultEl.innerHTML = '';
+        return;
+    }
+
+    checkResultEl.innerHTML = '<div class="text-muted small"><i class="fas fa-spinner fa-spin me-1"></i> Checking assignment...</div>';
+
+    var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+    fetch('{{ route("check-assignment") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': csrfToken,
+            'Accept': 'application/json',
+        },
+        body: JSON.stringify({ matrix_id: matrixId })
+    })
+    .then(function(response) { return response.json(); })
+    .then(function(data) {
+        if (data.found) {
+            assignmentVerified = true;
+            checkResultEl.innerHTML = '<div class="alert alert-success py-2 mb-0 d-flex align-items-center gap-2"><i class="fas fa-check-circle"></i><span><strong>Supervisor:</strong> ' + data.supervisor_name + '</span></div>';
+            enableRegisterBtn();
+            autoFillAcademicFields(data);
+        } else {
+            assignmentVerified = false;
+            checkResultEl.innerHTML = '<div class="alert alert-warning py-2 mb-0 d-flex align-items-center gap-2"><i class="fas fa-exclamation-triangle"></i><span>' + data.message + '</span></div>';
+            disableRegisterBtn();
+            clearAutoFillFields();
+        }
+    })
+    .catch(function() {
+        checkResultEl.innerHTML = '<div class="alert alert-danger py-2 mb-0 d-flex align-items-center gap-2"><i class="fas fa-times-circle"></i><span>Error checking assignment. Please try again.</span></div>';
+        assignmentVerified = false;
+        disableRegisterBtn();
+    });
+}
+
+function autoFillAcademicFields(data) {
+    var facultyInput = document.getElementById('regFaculty');
+    var programmeInput = document.getElementById('regProgramme');
+    var classInput = document.getElementById('regClass');
+
+    if (facultyInput) facultyInput.value = data.faculty || '';
+    if (programmeInput) programmeInput.value = data.programme_code || '';
+    if (classInput) classInput.value = data.class || '';
+}
+
+function clearAutoFillFields() {
+    var facultyInput = document.getElementById('regFaculty');
+    var programmeInput = document.getElementById('regProgramme');
+    var classInput = document.getElementById('regClass');
+
+    if (facultyInput) facultyInput.value = '';
+    if (programmeInput) programmeInput.value = '';
+    if (classInput) classInput.value = '';
+    assignmentVerified = false;
+}
+
+function enableRegisterBtn() {
+    if (registerBtn) {
+        registerBtn.disabled = false;
+        registerBtn.classList.remove('btn-secondary');
+        registerBtn.classList.add('btn-success');
+    }
+}
+
+function disableRegisterBtn() {
+    if (registerBtn) {
+        registerBtn.disabled = true;
+        registerBtn.classList.remove('btn-success');
+        registerBtn.classList.add('btn-secondary');
+    }
+}
+
+if (regMatrixId) {
+    regMatrixId.addEventListener('blur', function() { checkMatrixIdAssignment(); });
+    var checkTimeout;
+    regMatrixId.addEventListener('input', function() {
+        clearTimeout(checkTimeout);
+        checkTimeout = setTimeout(function() { checkMatrixIdAssignment(); }, 500);
+    });
+}
+
+if (regRole) {
+    regRole.addEventListener('change', function() {
+        if (this.value === 'supervisor') {
+            enableRegisterBtn();
+            checkResultEl.innerHTML = '';
+            assignmentVerified = true;
+            clearAutoFillFields();
+        } else {
+            checkMatrixIdAssignment();
+        }
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    if (regMatrixId && regMatrixId.value.trim()) {
+        checkMatrixIdAssignment();
+    }
+});
+
+document.querySelector('#pills-register form').addEventListener('submit', function(e) {
+    var role = regRole ? regRole.value : '';
+    if (role === 'student' && !assignmentVerified) {
+        e.preventDefault();
+        checkResultEl.innerHTML = '<div class="alert alert-danger py-2 mb-0 d-flex align-items-center gap-2"><i class="fas fa-times-circle"></i><span>Please verify your Student ID before registering.</span></div>';
+        disableRegisterBtn();
+    }
+});
 
 // ======== Role Toggle ========
 document.getElementById('regRole').addEventListener('change', function() {
     var isStudent = this.value === 'student';
     var studentFields = ['companyField', 'facultyField', 'classField', 'programmeField'];
-    
+
     studentFields.forEach(function(id) {
         var el = document.getElementById(id);
         if (el) el.style.display = isStudent ? 'block' : 'none';
     });
 
-    // Toggle required
     var companyInput = document.querySelector('input[name="company"]');
-    var facultySelect = document.getElementById('regFaculty');
-    var classSelect = document.getElementById('regClass');
-    var programmeSelect = document.getElementById('regProgramme');
-
     if (companyInput) companyInput.required = isStudent;
-    if (facultySelect) facultySelect.required = isStudent;
-    if (classSelect) classSelect.required = isStudent;
-    if (programmeSelect) programmeSelect.required = isStudent;
 
-    // Reset when switching to supervisor
     if (!isStudent) {
         if (companyInput) companyInput.value = '';
-        if (facultySelect) { facultySelect.value = ''; facultySelect.disabled = false; }
-        if (classSelect) { classSelect.value = ''; classSelect.disabled = true; }
-        if (programmeSelect) { programmeSelect.value = ''; programmeSelect.disabled = true; }
-        document.getElementById('svMatchResult').style.display = 'none';
     }
 });
-
-// ======== Cascading Dropdowns ========
-(function() {
-    var facultySelect = document.getElementById('regFaculty');
-    var classSelect = document.getElementById('regClass');
-    var programmeSelect = document.getElementById('regProgramme');
-    if (!facultySelect || !classSelect || !programmeSelect) return;
-
-    // Populate faculties
-    var faculties = [];
-    svCriteria.forEach(function(sv) {
-        if (sv.faculty && faculties.indexOf(sv.faculty) === -1) {
-            faculties.push(sv.faculty);
-        }
-    });
-    faculties.sort();
-    faculties.forEach(function(f) {
-        var opt = document.createElement('option');
-        opt.value = f;
-        opt.textContent = f;
-        if ('{{ old("reg_faculty") }}' === f) opt.selected = true;
-        facultySelect.appendChild(opt);
-    });
-
-    // Faculty change → filter programme codes
-    facultySelect.addEventListener('change', function() {
-        var selectedFaculty = this.value;
-        programmeSelect.innerHTML = '<option value="">-- Select Programme Code --</option>';
-        classSelect.innerHTML = '<option value="">-- Select Class --</option>';
-        classSelect.disabled = true;
-        document.getElementById('svMatchResult').style.display = 'none';
-
-        if (!selectedFaculty) {
-            programmeSelect.disabled = true;
-            return;
-        }
-
-        var codes = [];
-        svCriteria.forEach(function(sv) {
-            if (sv.faculty === selectedFaculty && sv.groups) {
-                sv.groups.forEach(function(group) {
-                    var parts = group.split('-');
-                    if (parts.length > 0) {
-                        var code = parts[0].trim();
-                        if (codes.indexOf(code) === -1) {
-                            codes.push(code);
-                        }
-                    }
-                });
-            }
-        });
-        codes.sort();
-        codes.forEach(function(c) {
-            var opt = document.createElement('option');
-            opt.value = c;
-            opt.textContent = c;
-            if ('{{ old("reg_programme_code") }}' === c) opt.selected = true;
-            programmeSelect.appendChild(opt);
-        });
-        programmeSelect.disabled = false;
-    });
-
-    // Programme Code change → filter classes
-    programmeSelect.addEventListener('change', function() {
-        var selectedFaculty = facultySelect.value;
-        var selectedProgramme = this.value;
-        classSelect.innerHTML = '<option value="">-- Select Class --</option>';
-        document.getElementById('svMatchResult').style.display = 'none';
-
-        if (!selectedProgramme) {
-            classSelect.disabled = true;
-            return;
-        }
-
-        var classes = [];
-        svCriteria.forEach(function(sv) {
-            if (sv.faculty === selectedFaculty && sv.groups) {
-                sv.groups.forEach(function(group) {
-                    var parts = group.split('-');
-                    if (parts.length === 2) {
-                        var code = parts[0].trim().toUpperCase();
-                        var cls = parts[1].trim();
-                        if (code === selectedProgramme.toUpperCase() && classes.indexOf(cls) === -1) {
-                            classes.push(cls);
-                        }
-                    }
-                });
-            }
-        });
-        classes.sort();
-        classes.forEach(function(c) {
-            var opt = document.createElement('option');
-            opt.value = c;
-            opt.textContent = c;
-            if ('{{ old("reg_class") }}' === c) opt.selected = true;
-            classSelect.appendChild(opt);
-        });
-        classSelect.disabled = false;
-    });
-
-    // Class change → find matching SV
-    classSelect.addEventListener('change', function() {
-        var selectedFaculty = facultySelect.value;
-        var selectedProgramme = programmeSelect.value;
-        var selectedClass = this.value;
-        var matchResult = document.getElementById('svMatchResult');
-        var matchAlert = document.getElementById('svMatchAlert');
-        var matchText = document.getElementById('svMatchText');
-
-        if (!selectedClass || !selectedProgramme) {
-            matchResult.style.display = 'none';
-            return;
-        }
-
-        var searchGroup = (selectedProgramme + '-' + selectedClass).replace(/\s+/g, '').toLowerCase();
-
-        // Find matching supervisor
-        var matched = null;
-        for (var i = 0; i < svCriteria.length; i++) {
-            var sv = svCriteria[i];
-            if (sv.faculty === selectedFaculty && sv.groups) {
-                for (var j = 0; j < sv.groups.length; j++) {
-                    var g = sv.groups[j].replace(/\s+/g, '').toLowerCase();
-                    if (g === searchGroup) {
-                        matched = sv;
-                        break;
-                    }
-                }
-            }
-            if (matched) break;
-        }
-
-        if (matched) {
-            matchResult.style.display = 'block';
-            matchAlert.className = 'alert alert-success py-2 mb-0 d-flex align-items-center gap-2';
-            matchText.innerHTML = '<strong>Supervisor Assigned:</strong> ' + matched.name;
-        } else {
-            matchResult.style.display = 'block';
-            matchAlert.className = 'alert alert-danger py-2 mb-0 d-flex align-items-center gap-2';
-            matchText.innerHTML = 'No supervisor found for this combination.';
-        }
-    });
-
-    // Trigger cascading on page load if old values exist
-    if ('{{ old("reg_faculty") }}') {
-        facultySelect.dispatchEvent(new Event('change'));
-        setTimeout(function() {
-            if ('{{ old("reg_programme_code") }}') {
-                programmeSelect.value = '{{ old("reg_programme_code") }}';
-                programmeSelect.dispatchEvent(new Event('change'));
-                setTimeout(function() {
-                    if ('{{ old("reg_class") }}') {
-                        classSelect.value = '{{ old("reg_class") }}';
-                        classSelect.dispatchEvent(new Event('change'));
-                    }
-                }, 50);
-            }
-        }, 50);
-    }
-})();
 
 function togglePassword(inputId, btn) {
     var input = document.getElementById(inputId);
     var icon = btn.querySelector('i');
-    
     if (input.type === 'password') {
         input.type = 'text';
         icon.classList.remove('fa-eye');

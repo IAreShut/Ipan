@@ -95,25 +95,6 @@
                 @csrf
                 <div class="modal-body p-4">
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Select Group (Programme Code - Class)</label>
-                        @if(count($groupOptions) > 0)
-                            <div class="d-flex flex-wrap gap-2">
-                                @foreach($groupOptions as $group)
-                                    <div>
-                                        <input type="checkbox" class="btn-check" name="groups[]" value="{{ $group }}" id="group_{{ $loop->index }}" autocomplete="off">
-                                        <label class="btn btn-outline-primary btn-sm rounded-pill px-3" for="group_{{ $loop->index }}">{{ $group }}</label>
-                                    </div>
-                                @endforeach
-                            </div>
-                        @else
-                            <p class="text-muted mb-0"><i class="fas fa-exclamation-circle me-1"></i> No groups set. Please update your <a href="{{ route('supervisor.profile') }}">profile</a>.</p>
-                        @endif
-                        @error('groups')
-                            <div class="text-danger mt-1" style="font-size: 0.875rem;">{{ $message }}</div>
-                        @enderror
-                    </div>
-                    
-                    <div class="mb-3">
                         <label class="form-label fw-bold">Task Title</label>
                         <input type="text" class="form-control @error('title') is-invalid @enderror" name="title" value="{{ old('title') }}" placeholder="e.g. Final Submission, Presentation Date" required>
                         @error('title')
