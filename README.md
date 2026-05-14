@@ -220,7 +220,13 @@ php artisan migrate --force
 php artisan config:clear
 php artisan view:clear
 ```
-*(Atau gunakan fail `deploy.sh` jika anda telah menyediakannya).*
+
+### Cara Pantas (Gunakan Script Deployment)
+Jika anda telah menyediakan fail `deploy.sh` di dalam `/var/www/Ipan`, anda hanya perlu jalankan:
+```bash
+cd /var/www/Ipan
+./deploy.sh
+```
 
 ### Server Useful Commands
 
