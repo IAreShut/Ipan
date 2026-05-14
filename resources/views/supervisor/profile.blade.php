@@ -208,5 +208,8 @@
     </form>
 </div>
 
-<script src="{{ asset('js/supervisor/profile.js') }}"></script>
 @endsection
+
+@push('scripts')
+<script src="{{ asset('js/supervisor/profile.js') }}"></script>
+@endpush

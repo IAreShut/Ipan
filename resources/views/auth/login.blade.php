@@ -2,23 +2,6 @@
 
 @push('styles')
 <link rel="stylesheet" href="{{ asset('css/login-register.css') }}">
-<style>
-.auth-container {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(135deg, #F3F4F6 0%, #E0E7FF 100%);
-}
-.auth-card {
-    background: white;
-    border-radius: 1rem;
-    padding: 2.5rem;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-    width: 100%;
-    max-width: 450px;
-}
-</style>
 @endpush
 
 @section('content')

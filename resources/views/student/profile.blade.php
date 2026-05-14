@@ -228,6 +228,9 @@
     </form>
 </div>
 
-<script src="{{ asset('js/student/profile.js') }}"></script>
 @endsection
+
+@push('scripts')
+<script src="{{ asset('js/student/profile.js') }}"></script>
+@endpush
 
