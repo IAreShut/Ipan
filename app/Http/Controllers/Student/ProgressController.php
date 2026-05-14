@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
-use App\Models\LogEntry;
 use App\Models\Internship;
+use App\Models\LogEntry;
 use Illuminate\Support\Facades\Auth;
 
 class ProgressController extends Controller
@@ -17,7 +17,7 @@ class ProgressController extends Controller
         $user = Auth::user();
         $internship = Internship::where('student_id', $user->id)->first();
         $logs = LogEntry::where('student_id', $user->id)->get();
-        
+
         return view('student.progress', compact('user', 'internship', 'logs'));
     }
 
@@ -29,7 +29,7 @@ class ProgressController extends Controller
         $user = Auth::user();
         $internship = Internship::where('student_id', $user->id)->first();
 
-        if (!$internship || $week < 1 || $week > $internship->total_weeks) {
+        if (! $internship || $week < 1 || $week > $internship->total_weeks) {
             return redirect()->route('student.progress')->with('error', 'Invalid week selected.');
         }
 

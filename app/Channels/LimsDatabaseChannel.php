@@ -2,8 +2,8 @@
 
 namespace App\Channels;
 
-use Illuminate\Notifications\Notification;
 use App\Models\Notification as AppNotification;
+use Illuminate\Notifications\Notification;
 
 class LimsDatabaseChannel
 {
@@ -14,7 +14,7 @@ class LimsDatabaseChannel
     {
         if (method_exists($notification, 'toLimsDatabase')) {
             $data = $notification->toLimsDatabase($notifiable);
-            
+
             AppNotification::create([
                 'user_id' => $notifiable->id,
                 'title' => $data['title'],

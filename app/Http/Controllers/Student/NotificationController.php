@@ -16,11 +16,11 @@ class NotificationController extends Controller
     {
         $user = Auth::user();
         $internship = Internship::where('student_id', $user->id)->first();
-        
+
         $notifications = \App\Models\Notification::where('user_id', $user->id)
             ->orderBy('created_at', 'desc')
             ->get();
-            
+
         $tasks = \App\Models\Task::where('user_id', $user->id)
             ->get();
 
@@ -50,7 +50,7 @@ class NotificationController extends Controller
 
         $user = Auth::user();
         // Fallback or exact parsing
-        $dueDateTime = \Carbon\Carbon::parse($request->due_date . ' ' . $request->due_time);
+        $dueDateTime = \Carbon\Carbon::parse($request->due_date.' '.$request->due_time);
 
         $task = \App\Models\Task::create([
             'user_id' => $user->id,
@@ -75,6 +75,7 @@ class NotificationController extends Controller
         if ($notification->user_id === Auth::id()) {
             $notification->update(['is_read' => true]);
         }
+
         return back();
     }
 

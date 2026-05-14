@@ -33,7 +33,7 @@ return new class extends Migration
                 'programme_code',
                 'location',
                 'about',
-                'avatar'
+                'avatar',
             ]);
         });
     }

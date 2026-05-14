@@ -1,10 +1,10 @@
 <?php
 
+use App\Models\User;
+use App\Notifications\DailyLogReminderNotification;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
-use App\Models\User;
-use App\Notifications\DailyLogReminderNotification;
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
@@ -21,6 +21,6 @@ Schedule::call(function () {
     $students = User::where('role', 'student')->get();
 
     foreach ($students as $student) {
-        $student->notify(new DailyLogReminderNotification());
+        $student->notify(new DailyLogReminderNotification);
     }
 })->weekdays()->at('17:00')->name('daily-log-reminder');

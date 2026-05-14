@@ -17,6 +17,7 @@ class ProfileController extends Controller
     {
         $user = Auth::user();
         $internship = Internship::where('student_id', $user->id)->first();
+
         return view('student.profile', compact('user', 'internship'));
     }
 
@@ -31,11 +32,11 @@ class ProfileController extends Controller
         if ($request->filled('phone')) {
             $rawPhone = preg_replace('/[^0-9]/', '', $request->phone); // digits only
             $rawPhone = ltrim($rawPhone, '0');
-            $request->merge(['phone' => '+60' . $rawPhone]);
+            $request->merge(['phone' => '+60'.$rawPhone]);
         }
 
         $request->validate([
-            'phone' => 'nullable|regex:/^\+60[0-9]{8,12}$/|unique:users,phone,' . $user->id,
+            'phone' => 'nullable|regex:/^\+60[0-9]{8,12}$/|unique:users,phone,'.$user->id,
             'faculty' => 'nullable|string|max:255',
             'class' => 'nullable|string|max:255',
             'programme_code' => 'nullable|string|max:100',
@@ -51,7 +52,7 @@ class ProfileController extends Controller
         ]);
 
         $data = $request->only([
-            'phone', 'faculty', 'class', 'programme_code', 'location', 'about'
+            'phone', 'faculty', 'class', 'programme_code', 'location', 'about',
         ]);
 
         if ($request->hasFile('avatar')) {
@@ -59,8 +60,9 @@ class ProfileController extends Controller
             if ($user->avatar && str_contains($user->avatar, 'cloudinary')) {
                 try {
                     $publicId = pathinfo(parse_url($user->avatar, PHP_URL_PATH), PATHINFO_FILENAME);
-                    cloudinary()->adminApi()->deleteAssets(['lims/avatars/' . $publicId]);
-                } catch (\Exception $e) { /* ignore delete errors */ }
+                    cloudinary()->adminApi()->deleteAssets(['lims/avatars/'.$publicId]);
+                } catch (\Exception $e) { /* ignore delete errors */
+                }
             } elseif ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
                 Storage::disk('public')->delete($user->avatar);
             }
@@ -71,7 +73,7 @@ class ProfileController extends Controller
                 ]);
                 $data['avatar'] = $uploaded['secure_url'];
             } else {
-                $data['avatar'] = asset('storage/' . $request->file('avatar')->store('avatars', 'public'));
+                $data['avatar'] = asset('storage/'.$request->file('avatar')->store('avatars', 'public'));
             }
         }
 
@@ -82,7 +84,7 @@ class ProfileController extends Controller
             $startDate = \Carbon\Carbon::parse($request->start_date);
             $endDate = \Carbon\Carbon::parse($request->end_date);
             $totalWeeks = ceil($startDate->diffInDays($endDate) / 7);
-            
+
             Internship::updateOrCreate(
                 ['student_id' => $user->id],
                 [

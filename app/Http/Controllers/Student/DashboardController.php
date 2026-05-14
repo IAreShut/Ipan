@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
-use App\Models\LogEntry;
 use App\Models\Internship;
+use App\Models\LogEntry;
 use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
@@ -16,20 +16,20 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
         $internship = Internship::where('student_id', $user->id)->first();
-        
+
         // Get log entry statistics
         $totalLogs = LogEntry::where('student_id', $user->id)->count();
         $approvedLogs = LogEntry::where('student_id', $user->id)->where('status', 'approved')->count();
         $pendingLogs = LogEntry::where('student_id', $user->id)->where('status', 'pending')->count();
         $rejectedLogs = LogEntry::where('student_id', $user->id)->where('status', 'rejected')->count();
-        
+
         // Get recent log entries — drafts first so user can prioritize
         $recentLogs = LogEntry::where('student_id', $user->id)
             ->orderByRaw("FIELD(status, 'draft') DESC")
             ->orderBy('entry_date', 'desc')
             ->take(10)
             ->get();
-        
+
         // Calculate progress
         $progress = 0;
         if ($internship && $internship->total_weeks > 0 && $internship->start_date) {
@@ -48,11 +48,11 @@ class DashboardController extends Controller
             ->get();
 
         return view('student.dashboard', compact(
-            'user', 
-            'internship', 
-            'totalLogs', 
-            'approvedLogs', 
-            'pendingLogs', 
+            'user',
+            'internship',
+            'totalLogs',
+            'approvedLogs',
+            'pendingLogs',
             'rejectedLogs',
             'recentLogs',
             'progress',

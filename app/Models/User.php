@@ -100,6 +100,7 @@ class User extends Authenticatable
         }
 
         $decoded = json_decode($this->class, true);
+
         return is_array($decoded) ? $decoded : [$this->class];
     }
 
@@ -113,6 +114,7 @@ class User extends Authenticatable
         }
 
         $decoded = json_decode($this->programme_code, true);
+
         return is_array($decoded) ? $decoded : [$this->programme_code];
     }
 }

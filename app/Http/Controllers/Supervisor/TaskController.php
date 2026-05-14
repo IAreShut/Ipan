@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Supervisor;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
 use App\Models\Task;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -16,18 +16,18 @@ class TaskController extends Controller
     public function index()
     {
         $supervisor = Auth::user();
-        
+
         $students = User::where('supervisor_id', $supervisor->id)
             ->where('role', 'student')
             ->get();
-            
+
         // Get all tasks assigned by this supervisor
         $tasks = Task::where('created_by', $supervisor->id)
             ->where('type', 'sv_task')
             ->with('user')
             ->orderBy('due_date', 'asc')
             ->get();
-            
+
         return view('supervisor.tasks', compact(
             'supervisor', 'students', 'tasks'
         ));
@@ -55,8 +55,8 @@ class TaskController extends Controller
                 ->with('error', 'No students found under your supervision.');
         }
 
-        $time = $request->due_time ? ' ' . $request->due_time : ' 23:59:00';
-        $dueDateTime = \Carbon\Carbon::parse($request->due_date . $time);
+        $time = $request->due_time ? ' '.$request->due_time : ' 23:59:00';
+        $dueDateTime = \Carbon\Carbon::parse($request->due_date.$time);
 
         \DB::beginTransaction();
         try {
@@ -72,6 +72,7 @@ class TaskController extends Controller
             \DB::commit();
         } catch (\Exception $e) {
             \DB::rollBack();
+
             return redirect()->route('supervisor.tasks')
                 ->with('error', 'Failed to assign tasks. Please try again.');
         }
@@ -90,12 +91,12 @@ class TaskController extends Controller
                     $student->notify(new \App\Notifications\TaskSetNotification($task));
                 }
             } catch (\Exception $e) {
-                \Log::warning('TaskController@store notify failed for user ' . $student->id . ': ' . $e->getMessage());
+                \Log::warning('TaskController@store notify failed for user '.$student->id.': '.$e->getMessage());
                 // Continue — don't stop if one notification fails
             }
         }
 
         return redirect()->route('supervisor.tasks')
-            ->with('success', 'Task assigned to ' . $students->count() . ' students and notifications sent!');
+            ->with('success', 'Task assigned to '.$students->count().' students and notifications sent!');
     }
 }

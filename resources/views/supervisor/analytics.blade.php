@@ -3,7 +3,7 @@
 @section('title', 'Analytics Dashboard - LIMS')
 
 @push('styles')
-<link rel="stylesheet" href="{{ asset('css/analytics.css') }}">
+<link rel="stylesheet" href="{{ asset('css/supervisor-analytics.css') }}">
 @endpush
 
 @section('sidebar-menu')

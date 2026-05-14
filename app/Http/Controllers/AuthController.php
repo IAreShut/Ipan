@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
 use App\Models\SupervisorAssignment;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -41,6 +41,7 @@ class AuthController extends Controller
             } elseif ($user->role === 'admin') {
                 return redirect()->intended(route('admin.dashboard'));
             }
+
             return redirect()->intended(route('student.dashboard'));
         }
 
@@ -90,7 +91,7 @@ class AuthController extends Controller
         if ($request->role === 'student') {
             $assignment = SupervisorAssignment::where('student_matrix_id', $request->matrix_id)->first();
 
-            if (!$assignment) {
+            if (! $assignment) {
                 return back()->withErrors([
                     'matrix_id' => 'Your ID is not in the pre-assigned supervisor list. Please contact admin.',
                 ])->withInput();
@@ -103,12 +104,12 @@ class AuthController extends Controller
             $supervisor = User::where('role', 'supervisor')
                 ->where(function ($q) use ($assignment) {
                     $q->where('matrix_id', $assignment->supervisor_matrix_id)
-                      ->orWhere('employee_id', $assignment->supervisor_matrix_id);
+                        ->orWhere('employee_id', $assignment->supervisor_matrix_id);
                 })->first();
 
-            if (!$supervisor) {
+            if (! $supervisor) {
                 return back()->withErrors([
-                    'matrix_id' => 'Supervisor account (' . $assignment->supervisor_matrix_id . ') not found. Please contact admin.',
+                    'matrix_id' => 'Supervisor account ('.$assignment->supervisor_matrix_id.') not found. Please contact admin.',
                 ])->withInput();
             }
 
@@ -139,13 +140,13 @@ class AuthController extends Controller
     {
         $matrixId = $request->input('matrix_id');
 
-        if (!$matrixId) {
+        if (! $matrixId) {
             return response()->json(['found' => false, 'message' => 'No matrix ID provided.'], 400);
         }
 
         $assignment = SupervisorAssignment::where('student_matrix_id', $matrixId)->first();
 
-        if (!$assignment) {
+        if (! $assignment) {
             return response()->json([
                 'found' => false,
                 'message' => 'No info in database, please contact admin to assign supervisor to you...',

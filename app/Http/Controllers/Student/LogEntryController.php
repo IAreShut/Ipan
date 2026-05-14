@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
-use App\Models\LogEntry;
-use App\Models\LogAttachment;
 use App\Models\Internship;
+use App\Models\LogAttachment;
+use App\Models\LogEntry;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -25,16 +25,16 @@ class LogEntryController extends Controller
             ->get();
 
         // Check if essential profile fields are filled (all except avatar)
-        $profileComplete = !empty($user->phone)
-            && !empty($user->faculty)
-            && !empty($user->class)
-            && !empty($user->programme_code)
+        $profileComplete = ! empty($user->phone)
+            && ! empty($user->faculty)
+            && ! empty($user->class)
+            && ! empty($user->programme_code)
             // && !empty($user->location)
             // && !empty($user->about)
-            && !empty($user->company)
+            && ! empty($user->company)
             && $internship
-            && !empty($internship->start_date)
-            && !empty($internship->end_date);
+            && ! empty($internship->start_date)
+            && ! empty($internship->end_date);
 
         return view('student.log-entries', compact('user', 'internship', 'logs', 'profileComplete'));
     }
@@ -58,7 +58,7 @@ class LogEntryController extends Controller
 
             // Get or create internship with ALL required fields
             $internship = Internship::where('student_id', $user->id)->first();
-            if (!$internship) {
+            if (! $internship) {
                 $internship = Internship::create([
                     'student_id' => $user->id,
                     'company_name' => 'Not Set',
@@ -84,11 +84,11 @@ class LogEntryController extends Controller
                 foreach ($request->file('attachments') as $file) {
                     if (env('CLOUDINARY_URL')) {
                         $uploaded = cloudinary()->uploadApi()->upload($file->getRealPath(), [
-                            'folder' => 'lims/log-attachments/' . $logEntry->id,
+                            'folder' => 'lims/log-attachments/'.$logEntry->id,
                         ]);
                         $path = $uploaded['secure_url'];
                     } else {
-                        $path = asset('storage/' . $file->store('log-attachments/' . $logEntry->id, 'public'));
+                        $path = asset('storage/'.$file->store('log-attachments/'.$logEntry->id, 'public'));
                     }
 
                     LogAttachment::create([
@@ -103,6 +103,7 @@ class LogEntryController extends Controller
             \DB::commit();
 
             $message = $request->has('save_draft') ? 'Draft saved successfully!' : 'Log entry submitted successfully!';
+
             return redirect()->route('student.log-entries.show', $logEntry->id)
                 ->with('success', $message);
 
@@ -127,7 +128,7 @@ class LogEntryController extends Controller
         $isSupervisor = $user->role === 'supervisor'
             && $logEntry->student && $logEntry->student->supervisor_id === $user->id;
 
-        if (!$isOwner && !$isSupervisor) {
+        if (! $isOwner && ! $isSupervisor) {
             abort(403, 'Unauthorized access to log entry.');
         }
 
@@ -199,11 +200,11 @@ class LogEntryController extends Controller
                 foreach ($request->file('attachments') as $file) {
                     if (env('CLOUDINARY_URL')) {
                         $uploaded = cloudinary()->uploadApi()->upload($file->getRealPath(), [
-                            'folder' => 'lims/log-attachments/' . $logEntry->id,
+                            'folder' => 'lims/log-attachments/'.$logEntry->id,
                         ]);
                         $path = $uploaded['secure_url'];
                     } else {
-                        $path = asset('storage/' . $file->store('log-attachments/' . $logEntry->id, 'public'));
+                        $path = asset('storage/'.$file->store('log-attachments/'.$logEntry->id, 'public'));
                     }
 
                     LogAttachment::create([
@@ -218,6 +219,7 @@ class LogEntryController extends Controller
             \DB::commit();
 
             $message = $request->has('save_draft') ? 'Draft updated successfully!' : 'Log entry submitted successfully!';
+
             return redirect()->route('student.log-entries.show', $logEntry->id)
                 ->with('success', $message);
 
@@ -246,8 +248,9 @@ class LogEntryController extends Controller
         if (str_contains($attachment->file_path, 'cloudinary')) {
             try {
                 $publicId = pathinfo(parse_url($attachment->file_path, PHP_URL_PATH), PATHINFO_FILENAME);
-                cloudinary()->adminApi()->deleteAssets(['lims/log-attachments/' . $attachment->log_entry_id . '/' . $publicId]);
-            } catch (\Exception $e) { /* ignore delete errors */ }
+                cloudinary()->adminApi()->deleteAssets(['lims/log-attachments/'.$attachment->log_entry_id.'/'.$publicId]);
+            } catch (\Exception $e) { /* ignore delete errors */
+            }
         } else {
             Storage::disk('public')->delete($attachment->file_path);
         }
@@ -280,17 +283,17 @@ class LogEntryController extends Controller
         try {
             // Build the parts array for the Gemini SDK
             $parts = [];
-            $parts[] = $systemPrompt . "\n\nStudent's raw task description:\n" . $request->task_description;
+            $parts[] = $systemPrompt."\n\nStudent's raw task description:\n".$request->task_description;
 
             // Add images if present
             if ($request->hasFile('images')) {
                 foreach ($request->file('images') as $image) {
                     $mimeType = $image->getMimeType();
                     $base64Data = base64_encode(file_get_contents($image->getRealPath()));
-                    
+
                     // Map mime type to SDK enum, fallback to JPEG
                     $sdkMime = \Gemini\Enums\MimeType::tryFrom($mimeType) ?? \Gemini\Enums\MimeType::IMAGE_JPEG;
-                    
+
                     $parts[] = new \Gemini\Data\Blob(
                         mimeType: $sdkMime,
                         data: $base64Data
@@ -311,7 +314,7 @@ class LogEntryController extends Controller
             return response()->json(['summary' => trim($summary)]);
 
         } catch (\Exception $e) {
-            return response()->json(['error' => 'AI Error: ' . $e->getMessage()], 500);
+            return response()->json(['error' => 'AI Error: '.$e->getMessage()], 500);
         }
     }
 }

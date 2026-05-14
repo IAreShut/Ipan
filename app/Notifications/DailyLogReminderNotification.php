@@ -2,10 +2,10 @@
 
 namespace App\Notifications;
 
+use App\Channels\LimsDatabaseChannel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
-use App\Channels\LimsDatabaseChannel;
 
 class DailyLogReminderNotification extends Notification
 {
@@ -20,7 +20,7 @@ class DailyLogReminderNotification extends Notification
     {
         return (new MailMessage)
             ->subject('Daily Reminder: Submit Your Log Entry')
-            ->greeting('Hello ' . $notifiable->name . ',')
+            ->greeting('Hello '.$notifiable->name.',')
             ->line('This is your daily 5:00 PM reminder to submit your internship log entry for today.')
             ->line('Keeping your logbook up to date is important for tracking your internship progress.')
             ->action('Submit Log Entry', url('/student/log-entries'))

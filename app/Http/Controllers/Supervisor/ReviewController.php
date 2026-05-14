@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Supervisor;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
 use App\Models\LogEntry;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -17,7 +17,7 @@ class ReviewController extends Controller
     {
         $supervisor = Auth::user();
         $students = User::where('supervisor_id', $supervisor->id)->pluck('id');
-        
+
         $logs = LogEntry::whereIn('student_id', $students)
             ->where('status', 'pending')
             ->with(['student', 'attachments'])

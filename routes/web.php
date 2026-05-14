@@ -1,21 +1,19 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
-
-// Student Controllers
 use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
+// Student Controllers
 use App\Http\Controllers\Student\LogEntryController;
+use App\Http\Controllers\Student\NotificationController as StudentNotificationController;
 use App\Http\Controllers\Student\ProfileController as StudentProfileController;
 use App\Http\Controllers\Student\ProgressController;
-use App\Http\Controllers\Student\NotificationController as StudentNotificationController;
-
+use App\Http\Controllers\Supervisor\AnalyticsController;
 // Supervisor Controllers
 use App\Http\Controllers\Supervisor\DashboardController as SupervisorDashboardController;
+use App\Http\Controllers\Supervisor\ProfileController as SupervisorProfileController;
 use App\Http\Controllers\Supervisor\ReviewController;
 use App\Http\Controllers\Supervisor\TaskController;
-use App\Http\Controllers\Supervisor\AnalyticsController;
-use App\Http\Controllers\Supervisor\ProfileController as SupervisorProfileController;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -62,6 +60,9 @@ Route::middleware(['auth'])->prefix('supervisor')->name('supervisor.')->group(fu
     Route::post('/approve/{id}', [ReviewController::class, 'approve'])->name('approve');
     Route::post('/reject/{id}', [ReviewController::class, 'reject'])->name('reject');
     Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics');
+    Route::post('/analytics/ai-summary', [AnalyticsController::class, 'generateAiSummary'])->name('analytics.ai-summary');
+    Route::post('/analytics/ai-at-risk', [AnalyticsController::class, 'identifyAtRisk'])->name('analytics.ai-at-risk');
+    Route::post('/analytics/ai-chat', [AnalyticsController::class, 'askData'])->name('analytics.ai-chat');
     Route::get('/tasks', [TaskController::class, 'index'])->name('tasks');
     Route::post('/tasks', [TaskController::class, 'store'])->name('tasks.store');
     Route::get('/profile', [SupervisorProfileController::class, 'show'])->name('profile');
