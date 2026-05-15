@@ -1,958 +1,391 @@
-# LIMS — System Design Document
+# LIMS — Design System
 
 > **Logbook Internship Management System**
-> Laravel 12 MVC — FYP Faculty of Computing
-> Live: https://lim-system.my/
+> Rujukan utama untuk UI/UX — semua pembangunan komponen dan halaman MESTI mengikut spesifikasi di bawah.
 
 ---
 
-## 1. System Overview
+## 1. Color Palette
 
-LIMS is a web-based platform that digitises internship logbook management. Three actor roles interact with the system:
+### 1.1 Brand Colors
 
-| Actor | Responsibilities |
-|---|---|
-| **Student** | Submit daily log entries with attachments, generate AI summaries, track weekly progress, set personal reminders |
-| **Supervisor** | Review/approve/reject log entries, assign tasks to students, view analytics dashboard |
-| **Admin** | Placeholder (Coming Soon) |
+| Token | CSS Variable | HEX | Usage |
+|-------|-------------|-----|-------|
+| Primary | `--primary-color` | `#1E40AF` | Butang utama, sidebar logo, link, hover border card |
+| Accent | `--accent-color` | `#3B82F6` | Spinner, progress bar, gradient AI button |
+| Primary Dark | — | `#1e3a8a` | `.btn-primary-custom:hover`, `.btn-premium-primary` bg |
+| Darker Navy | — | `#172554` | `.btn-premium-primary:hover` bg |
 
-The system runs on a DigitalOcean Droplet (Ubuntu LEMP Stack), with Cloudinary for persistent file storage and Gemini API for AI-powered log summarisation.
+### 1.2 Semantic Colors
 
----
+| Token | HEX | Usage |
+|-------|-----|-------|
+| Success | `#10B981` | Status `approved`, badge hijau, SweetAlert2 success |
+| Danger | `#EF4444` | Status `rejected`, badge merah, logout link, SweetAlert2 error |
+| Warning | `#F59E0B` | Status `pending`, badge kuning, SweetAlert2 warning |
+| Info | `#3B82F6` | Notifikasi info |
 
-## 2. Architecture Overview
+### 1.3 Neutral / Background
 
-```
-┌─────────────────────────────────────────────────────────────────────────┐
-│                           CLIENT LAYER (Browser)                        │
-│  Blade Templates → Bootstrap 5 → jQuery/DataTables → SweetAlert2        │
-│  AJAX Polling (30s) for real-time notification toasts                   │
-└───────────────────────────────┬─────────────────────────────────────────┘
-                                │ HTTPS
-                                ▼
-┌─────────────────────────────────────────────────────────────────────────┐
-│                         SERVER LAYER (Laravel 12)                       │
-│                                                                         │
-│  ┌──────────┐    ┌────────────────────────────────────┐                 │
-│  │  Routes   │───▶│           Controllers               │                 │
-│  │ (web.php) │    │  AuthController                    │                 │
-│  │           │    │  Student\{Dashboard,LogEntry,       │                 │
-│  │ / (public)│    │    Progress,Profile,Notification}   │                 │
-│  │ /student/*│    │  Supervisor\{Dashboard,Review,      │                 │
-│  │ /supervisor/*│  │    Task,Analytics,Profile}         │                 │
-│  │ /admin/*  │    │  Controller (base)                  │                 │
-│  └──────────┘    └────────────┬───────────────────────┘                 │
-│                               │                                         │
-│  ┌────────────────────────────┼────────────────────────────┐            │
-│  │  Middleware                │        Notifications       │            │
-│  │  - auth (built-in)         │  3 Classes + LimsDBChannel │            │
-│  │  - No role middleware      │  Scheduled (5PM weekdays)  │            │
-│  │  - HTTPS forced in prod    │  AJAX polling (30s)        │            │
-│  └────────────────────────────┼────────────────────────────┘            │
-│                               │                                         │
-│  ┌──────────────────────┐     │    ┌────────────────────────┐           │
-│  │  Channels             │     │    │  Providers             │           │
-│  │  LimsDatabaseChannel  │     │    │  AppServiceProvider    │           │
-│  │  (custom DB notifs)   │     │    │  (HTTPS forcing)       │           │
-│  └──────────────────────┘     │    └────────────────────────┘           │
-│                               ▼                                         │
-│                    ┌─────────────────────┐                              │
-│                    │   Eloquent Models    │                              │
-│                    │  User, Internship,   │                              │
-│                    │  LogEntry,           │                              │
-│                    │  LogAttachment,      │                              │
-│                    │  Notification, Task  │                              │
-│                    └─────────┬───────────┘                              │
-└──────────────────────────────┼──────────────────────────────────────────┘
-                               │
-         ┌─────────────────────┼─────────────────────┐
-         ▼                     ▼                     ▼
-┌─────────────────┐  ┌─────────────────┐  ┌─────────────────────┐
-│  DATA LAYER     │  │  FILE STORAGE   │  │  EXTERNAL APIs      │
-│                 │  │                 │  │                     │
-│  MySQL (DO)     │  │  Cloudinary     │  │  Gemini 2.5 Flash   │
-│  via Eloquent   │  │  (production)   │  │  Lite (AI summary)  │
-│  ORM            │  │  + local/public │  │                     │
-│                 │  │  (development)  │  │  Mailtrap SMTP      │
-│                 │  │                 │  │  (email delivery)   │
-└─────────────────┘  └─────────────────┘  └─────────────────────┘
-```
+| Token | HEX | Usage |
+|-------|-----|-------|
+| Light BG | `#F3F4F6` | Body background (global) |
+| Card BG | `#ffffff` | Semua card, sidebar, modal |
+| Soft BG | `#F8FAFC` | Input fields, task content box, student list items |
+| Table Header | `#F8FAFC` | Table `thead` background |
+| Dark Text | `#1F2937` | Body text, headings |
+| Muted Text | `#6B7280` | `text-muted`, labels, secondary info |
+| Table Text | `#334155` | Table body text |
+| Table Header Text | `#64748B` | Table header text (uppercase) |
 
-**Architecture style:** Monolithic MVC with role-based route grouping. No microservices, no API layer. Server-rendered Blade views with AJAX for real-time interactivity.
+### 1.4 Border Colors
+
+| Token | HEX | Usage |
+|-------|-----|-------|
+| Card Border | `#cbd5e1` | Card outline (default state) |
+| Soft Border | `#e2e8f0` | Table rows, card header/footer, input border on focus |
+| Light Border | `#E5E7EB` | Sidebar divider, progress bar bg, timeline |
+
+### 1.5 Status Badge Colors
+
+| Status | BG | Text |
+|--------|----|------|
+| Approved | `#D1FAE5` | `#065F46` |
+| Rejected | `#FEE2E2` | `#991B1B` |
+| Pending | `#FEF3C7` | `#92400E` |
+| Draft | `#f1f5f9` | `#64748b` |
+
+### 1.6 Soft Icon Backgrounds
+
+| Icon Variant | BG | Text |
+|-------------|-----|------|
+| Primary | `#EFF6FF` | `#1e3a8a` |
+| Success | `#ecfdf5` | `#10b981` |
+| Warning | `#fffbeb` | `#f59e0b` |
+| Danger | `#fef2f2` | `#ef4444` |
 
 ---
 
-## 3. Tech Stack & Decision Rationale
+## 2. Typography
 
-### 3.1 Backend
+### 2.1 Font Family
 
-| Technology | Version | Why Chosen |
-|---|---|---|
-| **PHP** | 8.2+ | Required by Laravel 12; natively supported on Ubuntu 24.04 |
-| **Laravel** | 12.x | Mature MVC framework with built-in auth, Eloquent ORM, migrations, queues, and artisan CLI |
-| **Composer** | Latest | Standard PHP dependency manager |
+Font utama: **`'Inter', sans-serif`**
 
-### 3.2 Frontend
+Dimuat melalui Google Fonts (`@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap')`) di `public/css/style.css`.
 
-| Technology | Why Chosen |
-|---|---|
-| **Blade** (built-in) | Server-side rendering avoids SPA complexity; ideal for a multi-page CRUD app |
-| **Bootstrap 5.3** | Consistent, responsive UI; `.card` and `.table` classes globally styled for premium SaaS look |
-| **Tailwind CSS 4.0** | Utility classes for one-off custom styling (bundled via Vite) |
-| **jQuery 3.7** | Simple DOM manipulation and AJAX — no need for React/Vue given page-level interactivity |
-| **DataTables 1.13** | Production-grade table sorting, pagination, and search with minimal setup |
-| **SweetAlert2 11** | Beautiful, accessible popups for alerts and confirmations |
-| **Font Awesome 6.4** | Consistent icon set across all UI components |
-| **Animate.css 4** | Subtle CSS animations for UI polish |
+Fallback: `ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'`.
 
-### 3.3 Build Tools
+### 2.2 Heading Sizes
 
-| Technology | Why Chosen |
-|---|---|
-| **Vite 7** | Fast HMR and build, Laravel Vite Plugin for seamless Blade integration |
-| **Axios 1.11** | Promise-based HTTP client for AJAX (CSRF token auto-injection) |
-| **Concurrently 9** | Runs `artisan serve`, `queue:listen`, `pail`, and `npm run dev` in one terminal |
+| Element | Weight | Notes |
+|---------|--------|-------|
+| `<h1>` hingga `<h6>` | `font-weight: 600` | Bootstrap default sizes |
+| `.h2` dalam dashboard header | `fw-bold` | Saiz `2rem` (Bootstrap) |
+| `.h4` sidebar logo | `fw-bold`, `mb-0` | |
 
-### 3.4 External Services
+### 2.3 Body Text
 
-| Service | Why Chosen |
-|---|---|
-| **Cloudinary** | Originally added for Heroku's ephemeral filesystem, retained on DO for offloading asset delivery and saving disk space. |
-| **Gemini 2.5 Flash-Lite** | Cost-effective AI model for generating professional log summaries from student rough notes. Multimodal support allows image attachment context. |
-| **MySQL** | Self-managed MySQL 8.0 on the DigitalOcean Droplet. |
-| **Mailtrap** | SMTP sandbox for development email testing |
-| **UI Avatars** | Free placeholder avatar generation API (no API key needed) |
+| Element | Size | Weight | Color |
+|---------|------|--------|-------|
+| Body | Bootstrap default (`1rem`) | — | `#1F2937` |
+| Table body | `0.95rem` | — | `#334155` |
+| Table header | `0.85rem` | `600` | `#64748b` (uppercase) |
+| Stat value | `2.25rem` | `800` | `#0f172a` |
+| Stat label | `0.85rem` | `600` | `#64748b` (uppercase) |
+| Small muted | `0.75rem`‑`0.85rem` | `500` | `#64748b` |
+
+### 2.4 Link Styles
+
+| Variant | Style |
+|---------|-------|
+| Nav link (sidebar) | `#6B7280`, hover `#1E40AF` with `#EFF6FF` bg + right border |
+| Danger link (logout) | `#dc3545` (Bootstrap default) |
+| Navy link | `#1E3A8A`, `fw-600` |
 
 ---
 
-## 4. Directory Structure
+## 3. Components
 
-```
-Ipan/
-├── app/
-│   ├── Channels/
-│   │   └── LimsDatabaseChannel.php        # Custom DB notification channel
-│   ├── Http/Controllers/
-│   │   ├── AuthController.php             # Login, register, logout
-│   │   ├── Controller.php                 # Abstract base controller
-│   │   ├── Student/
-│   │   │   ├── DashboardController.php    # Student stats + recent logs
-│   │   │   ├── LogEntryController.php     # CRUD log entries + AI + attachments
-│   │   │   ├── ProfileController.php      # Student profile + internship info
-│   │   │   ├── ProgressController.php     # Weekly progress grid + drill-down
-│   │   │   └── NotificationController.php # Notifications + personal reminders
-│   │   └── Supervisor/
-│   │       ├── DashboardController.php    # Supervisor stats + student list
-│   │       ├── ReviewController.php       # Approve/reject log entries
-│   │       ├── TaskController.php         # Assign tasks to all students under supervisor |
-│   │       ├── AnalyticsController.php    # Performance analytics
-│   │       └── ProfileController.php      # Supervisor profile |
-│   ├── Models/
-│   │   ├── User.php                       # Auth user (student/supervisor/admin)
-│   │   ├── Internship.php                 # Internship period details
-│   │   ├── LogEntry.php                   # Daily log entries
-│   │   ├── LogAttachment.php              # File attachments for logs
-│   │   ├── Notification.php               # Custom notification records
-│   │   ├── Task.php                       # Tasks & personal reminders
-│   │   └── SupervisorAssignment.php       # Pre-assigned supervisor-student matching |
-│   ├── Notifications/
-│   │   ├── DailyLogReminderNotification.php  # Scheduled 5PM weekday
-│   │   ├── TaskSetNotification.php           # Supervisor assigns task
-│   │   └── PersonalReminderNotification.php  # Student self-reminder
-│   └── Providers/
-│       └── AppServiceProvider.php         # HTTPS forcing in production
-├── bootstrap/
-│   ├── app.php                            # Application bootstrap
-│   └── providers.php                      # Service provider registration
-├── config/
-│   ├── app.php, auth.php, database.php    # Standard Laravel configs
-│   ├── gemini.php                         # Gemini API key + base URL
-│   ├── filesystems.php                    # Cloudinary disk definition
-│   └── services.php                       # Third-party service config
-├── database/
-│   ├── migrations/                        # 17 migration files
-│   └── seeders/DatabaseSeeder.php         # Test data + SupervisorAssignmentSeeder |
-├── public/
-│   ├── css/                               # Page-specific stylesheets (15 files)
-│   ├── js/                                # Page-specific scripts (13 files)
-│   └── index.php                          # Application entry point
-├── resources/
-│   ├── css/app.css                        # Vite-bundled CSS (Tailwind)
-│   ├── js/app.js                          # Vite-bundled JS
-│   └── views/
-│       ├── welcome.blade.php              # Landing page
-│       ├── auth/login.blade.php           # Combined login + register
-│       ├── layouts/
-│       │   ├── master.blade.php           # Root layout (Bootstrap + JS libs)
-│       │   └── app.blade.php              # Inner layout (sidebar + content)
-│       ├── student/                       # 7 Blade views
-│       └── supervisor/                    # 5 Blade views
-├── routes/
-│   ├── web.php                            # All 28 web routes
-│   └── console.php                        # Scheduled task + inspire command
-├── storage/
-│   └── app/public/                        # Local file uploads (dev only)
-├── package.json                          # NPM dependencies + dev scripts
-├── composer.json                         # Composer dependencies + scripts
-├── vite.config.js                        # Vite + Laravel plugin config
-├── .env.example                          # Environment template
-├── README.md                             # Setup + troubleshooting guide
-└── DESIGN.md                             # This document
-```
+### 3.1 Buttons
 
----
+#### 3.1.1 `.btn-primary-custom`
 
-## 5. Module Design
+| State | Style |
+|-------|-------|
+| Default | `background: #1E40AF`, `color: white`, `border-color: #1E40AF` |
+| Hover | `background: #1e3a8a`, `color: white` |
 
-### 5.1 Authentication Module
+#### 3.1.2 `.btn-premium` (base class)
 
-**Files:** `AuthController.php`, `auth/login.blade.php`, `layouts/master.blade.php`
+- `padding: 0.75rem 1.5rem`
+- `border-radius: 1rem`
+- `font-weight: 600`
+- `display: flex`, `align-items: center`, `gap: 0.5rem`
 
-**Login Flow:**
-```
-User enters email/matrix_id + password
-        │
-        ▼
-AuthController@login()
-  ├─ Detects input type (FILTER_VALIDATE_EMAIL)
-  ├─ Authenticates via Auth::attempt()
-  ├─ Regenerates session
-  └─ Redirects by role:
-       supervisor → /supervisor/dashboard
-       admin      → /admin/dashboard
-       default    → /student/dashboard
-```
+| Variant | Default | Hover |
+|---------|---------|-------|
+| `.btn-premium-primary` | `background: #1e3a8a`, `color: white` | `background: #172554`, `translateY(-1px)`, `box-shadow` |
+| `.btn-premium-outline` | `background: white`, `color: #1e3a8a`, `border: 1px solid #1e3a8a` | `background: #EFF6FF`, `translateY(-1px)` |
 
-**Registration Flow:**
-```
-Student enters matrix_id
-        │
-        ▼
-AJAX /check-assignment (AuthController@checkAssignment)
-  ├─ Found in supervisor_assignments → return SV name + academic info
-  │    └─ Frontend auto-fills faculty/programme/class (readonly), enables Register button
-  └─ Not found → return error, disables Register button
-        │
-        ▼
-AuthController@register()
-  ├─ Validates: matrix_id (numeric, unique), phone (+60 regex), email, password (min 8)
-  ├─ Strict: student matrix_id MUST exist in supervisor_assignments table
-  ├─ Auto-assigns supervisor via direct lookup: supervisor_matrix_id → users.matrix_id
-  ├─ Creates User record with role='student'
-  └─ Redirects to login page
-```
+#### 3.1.3 `.btn-action-icon`
 
-**Key design decisions:**
-- No email verification required (simplified for FYP scope)
-- Dual login credential: email OR matrix_id
-- Pre-assigned supervisor matching via `supervisor_assignments` lookup table (admin-managed)
-- Faculty/programme/class auto-filled from assignment data, locked as readonly inputs
-- No cascading dropdowns or `matchesCriteria()` — old flow removed
-- Supervisors register freely without pre-assignment check
+- `width: 32px`, `height: 32px`
+- `border-radius: 50%`
+- `background: #f1f5f9`, `color: #64748b`
+- Hover: `background: #EFF6FF`, `color: #1e3a8a`
 
-### 5.2 Log Entry Module (Core)
+#### 3.1.4 `.btn-ai-generate`
 
-**Files:** `Student/LogEntryController.php`, `student/log-entries.blade.php`, `student/log-entry-show.blade.php`
+- `background: linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%)`
+- `border-radius: 50px`
+- `padding: 0.6rem 1.4rem`, `font-weight: 600`
+- `box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4)`
+- Hover: `translateY(-2px)`, shadow lebih besar
+- Active: `translateY(0)`
+- Icon `i` animasi `sparkle` (scale + rotate)
 
-**Status Lifecycle:**
-```
-            ┌────────────┐
-            │   DRAFT    │ ← Student saves as draft (editable)
-            └─────┬──────┘
-                  │ Submit button
-                  ▼
-            ┌────────────┐
-            │  PENDING   │ ← Visible to supervisor for review
-            └─────┬──────┘
-        ┌─────────┴─────────┐
-        ▼                   ▼
-   ┌──────────┐      ┌──────────┐
-   │ APPROVED │      │ REJECTED │ ← Supervisor action (rejection requires comment)
-   └──────────┘      └──────────┘
+#### 3.1.5 Buttons Lain
+
+| Class | Style |
+|-------|-------|
+| `.btn-navy-link` | `color: #1E3A8A`, `fw-600`, `text-decoration: none`, gap `0.5rem` |
+| `.btn-back-nav` | `border-radius: 0.5rem`, border `1px solid #E5E7EB`, `box-shadow`, hover `bg: #F9FAFB` |
+| `.btn-close-custom` | `32x32` circle, `border: 1px solid #E5E7EB`, `border-radius: 50%` |
+| `.btn-thumb-delete` | `18x18` circle, `bg: rgba(239,68,68,0.9)`, hidden until hover |
+
+### 3.2 Input Fields
+
+#### 3.2.1 `.form-control-custom`
+
+| State | Style |
+|-------|-------|
+| Default | `background: #f8fafc`, `border: 1px solid transparent`, `border-radius: 0.75rem`, `padding: 0.75rem 1rem`, `font-size: 0.9rem`, `color: #334155` |
+| Focus | `background: #fff`, `border-color: #cbd5e1`, `box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.05)` |
+| Disabled | `background: #f8fafc`, `opacity: 1` |
+
+#### 3.2.2 `.upload-zone`
+
+| State | Style |
+|-------|-------|
+| Default | `border: 2px dashed #c8d1dc`, `padding: 2rem`, `border-radius: 12px`, `background: #f8fafc` |
+| Hover | `border-color: #6366f1`, `background: #eef2ff` |
+| Drag active | `border-color: #6366f1`, `background: #e0e7ff`, `box-shadow: 0 0 0 4px rgba(99,102,241,0.15)` |
+
+#### 3.2.3 DataTables Search
+
+| State | Style |
+|-------|-------|
+| Default | `border: 1px solid #cbd5e1`, `border-radius: 2rem`, `padding: 0.5rem 1rem` |
+| Focus | `border-color: var(--primary-color)`, `box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1)` |
+
+#### 3.2.4 Labels
+
+- `.form-label-custom`: `font-size: 0.85rem`, `font-weight: 500`, `color: #475569`, `margin-bottom: 0.4rem`
+
+### 3.3 Cards
+
+#### 3.3.1 Card Global (`style.css`)
+
+| Property | Value |
+|----------|-------|
+| Background | `#ffffff` |
+| Border radius | `1.5rem` |
+| Border | `1px solid #cbd5e1` |
+| Box shadow | `0 10px 25px rgba(0, 0, 0, 0.03)` |
+| Hover | `translateY(-3px)`, `border-color: #1E40AF`, `box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05)` |
+| Transition | `0.2s ease` (transform, box-shadow, border-color) |
+| Overflow | `hidden` |
+| Margin bottom | `1.5rem` |
+
+Classes yang mendapat gaya ini: `.card`, `.card-custom`, `.profile-card`, `.detail-card`, `.auth-card`
+
+#### 3.3.2 Card Variants
+
+| Class | Special Properties |
+|-------|-------------------|
+| `.stat-card` | `padding: 1.5rem`, `display: flex`, `justify-content: space-between` |
+| `.premium-card` | Sama dengan global card (student dashboard) |
+| `.detail-card` | `box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05)`, `padding: 1.5rem` (log entry show) |
+| `.activity-card` | `border-radius: 1.25rem`, `padding: 1.5rem`, `margin-bottom: 1rem`, animasi `slideUpFadeIn` |
+| `.week-card` | `border: 2px solid transparent`, hover `border-color: #1E3A8A`, `translateY(-5px)` |
+| `.stat-card-modern` | `border-radius: 12px`, `padding: 20px`, `border: 1px solid #e2e8f0` |
+
+#### 3.3.3 Card Sub-elements
+
+| Element | Style |
+|---------|-------|
+| `.card-header` / `.card-footer` | `background: transparent`, `border-bottom: 1px solid #e2e8f0` |
+| `.profile-card-header` | `display: flex`, `justify-content: space-between`, `margin-bottom: 1.5rem` |
+| `.profile-card-title` | `font-size: 1.1rem`, `fw-600`, `color: #1e293b` |
+| `.profile-card-subtitle` | `font-size: 0.85rem`, `color: #64748b` |
+
+### 3.4 Alerts & Modals
+
+#### 3.4.1 Flash Messages (SweetAlert2)
+
+Flash messages dihantar dari Laravel controller melalui `<meta>` tags (dibaca oleh `ux-helpers.js`):
+
+| Type | SweetAlert2 Config |
+|------|-------------------|
+| Success | `icon: 'success'`, `confirmButtonColor: '#10B981'`, `timer: 4000`, animasi `fadeInDown` |
+| Error | `icon: 'error'`, `confirmButtonColor: '#EF4444'` |
+| Validation | `icon: 'warning'`, `confirmButtonColor: '#F59E0B'`, `html`: `<ul>` errors |
+| Toast (real-time notif) | `toast: true`, `position: 'top-end'`, `timer: 10000`, animasi `fadeInRight` |
+
+#### 3.4.2 Meta Tag Pattern
+
+```blade
+@if(session('success'))
+    <meta name="flash-success" content="{{ session('success') }}">
+@endif
+@if(session('error'))
+    <meta name="flash-error" content="{{ session('error') }}">
+@endif
+@if($errors->any())
+    <meta name="flash-validation" content="{{ json_encode($errors->all()) }}">
+@endif
 ```
 
-**Create Flow:**
-```
-Student clicks "New Log Entry"
-        │
-        ▼
-LogEntryController@store()
-  ├─ Validates: entry_date, week_number, task_description, attachments (image, max 5MB)
-  ├─ Auto-creates Internship if none exists (company_name='Not Set')
-  ├─ DB::beginTransaction()
-  ├─ Creates LogEntry (status=draft or pending)
-  ├─ If has attachments:
-  │    ├─ CLOUDINARY_URL set? → Upload to cloudinary, store secure_url
-  │    └─ Not set?           → Store to storage/app/public/, store asset() URL
-  └─ DB::commit()
-        │
-        ▼
-  Redirect with flash message
-```
-
-**Edit constraint:** Only `draft` entries can be edited by the student. Once submitted (`pending`), the entry is locked.
-
-**View authorisation:** A log entry can be viewed by its owner student OR that student's assigned supervisor.
-
-**AI Summary Flow:**
-```
-Student clicks "Generate AI Summary" button (AJAX)
-        │
-        ▼
-POST /student/ai-generate-summary
-  ├─ Reads task_description from request
-  ├─ Checks for attached images → base64 Blob objects
-  ├─ Calls Gemini::generativeModel('models/gemini-2.5-flash-lite')
-  │    └─ System prompt: "Act as professional internship student"
-  │       - Use professional verbs (Assisted, Analyzed, Developed...)
-  │       - Minimum 50 words, 1 paragraph
-  │       - Malaysian basic English, informal tone
-  │       - No greetings/sign-offs
-  ├─ Returns JSON: { summary: "..." }
-  └─ Error → JSON 500: { error: "..." }
-```
-
-**Week calculation:** `week_number = diffInWeeks(entry_date, internship.start_date) + 1`
-
-### 5.3 Progress Tracking Module
-
-**Files:** `Student/ProgressController.php`, `student/progress.blade.php`, `student/progress-week.blade.php`
-
-```
-ProgressController@index()
-  ├─ Calculates total weeks from internship
-  ├─ Groups log entries by week_number
-  └─ Renders progress grid:
-       Each week card shows: log count/5, status (Complete/In Progress/Incomplete)
-       STATUS per card is derived from the aggregate of all 5 daily logs:
-         All approved → Approved
-         Any rejected → Rejected  
-         All pending  → Pending
-         Mixed        → In Progress
-
-ProgressController@week($week)
-  └─ Drills down into daily log entries for a specific week
-       Each day card shows: date, task preview, image thumbnail, status badge
-```
-
-**Week status derivation:**
-| Condition | Display |
-|---|---|
-| All 5 logs approved | Approved (green) |
-| All 5 logs pending | Pending (yellow) |
-| Any log rejected | Rejected (red) |
-| No logs | Incomplete (grey) |
-| Mixed statuses | In Progress (blue) |
-
-### 5.4 Review Module
-
-**Files:** `Supervisor/ReviewController.php`, `supervisor/review-logbook.blade.php`
-
-```
-ReviewController@index()
-  └─ Lists all pending log entries from students under this supervisor
-       Each entry card shows: student avatar, task description, attachments, timestamps
-
-ReviewController@approve($id)
-  └─ Sets status='approved', no comment required
-
-ReviewController@reject($id)
-  └─ Sets status='rejected', supervisor_comment is REQUIRED
-       └─ Modal popup with textarea for mandatory rejection reason
-```
-
-**Authorisation:** Supervisor can only review entries belonging to their assigned students (`supervisor_id` matches).
-
-### 5.5 Task & Reminder Module
-
-**Files:** `Supervisor/TaskController.php`, `Student/NotificationController.php`, `supervisor/tasks.blade.php`, `student/notifications.blade.php`
-
-**Task types:**
-| Type | Created By | Assigned To | Trigger |
-|---|---|---|---|
-| `sv_task` | Supervisor | All students under supervisor | `TaskSetNotification` |
-| `personal_reminder` | Student | Self | `PersonalReminderNotification` |
-
-**Supervisor Task Assignment:**
-```
-Supervisor enters title + due date/time
-        │
-        ▼
-TaskController@store()
-  ├─ Finds all students under this supervisor (users.supervisor_id)
-  ├─ Creates Task record (type=sv_task) for each student
-  └─ Sends TaskSetNotification (LimsDBChannel + mail) to each student
-```
-
-**Student Personal Reminder:**
-```
-Student clicks "Add Reminder" in notifications page
-  └─ Modal: title + due date + time
-        │
-        ▼
-NotificationController@storeReminder()
-  ├─ Creates Task (type=personal_reminder, created_by=self)
-  └─ Sends PersonalReminderNotification to self (LimsDBChannel + mail)
-```
-
-**FullCalendar integration:** The notifications page renders tasks as FullCalendar events for visual timeline view.
-
-### 5.6 Notification Module
-
-**Files:** `LimsDatabaseChannel.php`, 3 notification classes, `master.blade.php` (polling JS)
-
-**Architecture:**
-```
-┌─────────────────────────────────────────────────────────────┐
-│                  Notification Delivery                       │
-│                                                             │
-│  ┌──────────────────┐     ┌──────────────────┐              │
-│  │  Scheduled        │     │  Event-Driven     │              │
-│  │  (routes/console) │     │  (controllers)    │              │
-│  │                   │     │                   │              │
-│  │  Weekdays 5PM     │     │  Supervisor       │              │
-│  │  → All students   │     │  assigns task     │              │
-│  │  → DailyLogRemind │     │  → TaskSetNotif   │              │
-│  │                   │     │                   │              │
-│  │                   │     │  Student creates  │              │
-│  │                   │     │  reminder         │              │
-│  │                   │     │  → PersonalRemind │              │
-│  └────────┬──────────┘     └────────┬─────────┘              │
-│           │                         │                        │
-│           └─────────┬───────────────┘                        │
-│                     ▼                                        │
-│           ┌─────────────────────┐                            │
-│           │  Notification::via()│                            │
-│           │  [LimsDBChannel,    │                            │
-│           │   'mail']           │                            │
-│           └─────────┬───────────┘                            │
-│           ┌─────────┴───────────┐                            │
-│           ▼                     ▼                            │
-│   ┌───────────────┐    ┌───────────────┐                    │
-│   │ LimsDBChannel  │    │  Mail Channel  │                    │
-│   │ → notifications│    │  → Email (SMTP)│                    │
-│   │   table        │    │  via Mailtrap   │                    │
-│   └───────┬───────┘    └───────────────┘                    │
-│           │                                                  │
-│           ▼                                                  │
-│   ┌───────────────────────────────────────┐                  │
-│   │  Real-Time Delivery (Student only)    │                  │
-│   │                                       │                  │
-│   │  master.blade.php JS polls every 30s: │                  │
-│   │  GET /student/notifications/unread    │                  │
-│   │  → Returns: { count: N,              │                  │
-│   │               notifications: [...] }  │                  │
-│   │  → SweetAlert2 toast for new notifs   │                  │
-│   └───────────────────────────────────────┘                  │
-└─────────────────────────────────────────────────────────────┘
-```
-
-**Notification types (DB):** `info`, `warning`, `success`, `danger`
-
-**Key design decisions:**
-- Custom `LimsDatabaseChannel` instead of Laravel's built-in `DatabaseChannel` — uses own `notifications` table schema (simpler: no `notifiable_type`, `notifiable_id`, `data` JSON column)
-- Dual delivery: all notifications go to both DB and email
-- Polling (30s interval) instead of WebSockets — simpler for deployment without WebSockets overhead.
-- Student-only polling: supervisor notifications are loaded on page refresh only
-
----
-
-## 6. Database Schema
-
-### 6.1 Entity-Relationship Diagram
-
-```
-┌──────────────────────────────────────────────────────────────────────┐
-│                                                                      │
-│   ┌──────────┐          ┌──────────────┐          ┌─────────────┐  │
-│   │   users   │ 1──────N │ internships  │ 1──────N │ log_entries │  │
-│   │          │          │              │          │             │  │
-│   │ id (PK)  │          │ id (PK)      │          │ id (PK)     │  │
-│   │ name     │          │ student_id   │          │ student_id  │  │
-│   │ email    │          │ company_name │          │ internship_id│  │
-│   │ password │          │ start_date   │          │ entry_date  │  │
-│   │ role     │          │ end_date     │          │ week_number │  │
-│   │          │          │ total_weeks  │          │ task_desc   │  │
-│   └────┬─────┘          └──────────────┘          │ status      │  │
-│        │                                          │ sv_comment  │  │
-│        │ self-ref: supervisor_id                  └──────┬──────┘  │
-│        │                                          │      │         │
-│        │        ┌──────────────┐                   │      │ 1──N    │
-│        ├──1──N─▶│ notifications│                   │      ▼         │
-│        │        │              │                   │ ┌──────────┐  │
-│        │        │ id (PK)      │                   │ │   log    │  │
-│        │        │ user_id (FK) │                   │ │attachments│  │
-│        │        │ title        │                   │ │          │  │
-│        │        │ message      │                   │ │ id (PK)  │  │
-│        │        │ type         │                   │ │log_entry │  │
-│        │        │ is_read      │                   │ │  _id(FK) │  │
-│        │        └──────────────┘                   │ │file_path │  │
-│        │                                           │ │file_name │  │
-│        │        ┌──────────────┐                   │ │file_type │  │
-│        ├──1──N─▶│    tasks     │                   │ └──────────┘  │
-│        │        │              │                   │               │
-│        │        │ id (PK)      │                   └───────────────┘
-│        │        │ user_id (FK) │
-│        │        │ created_by   │──FK──▶ users.id
-│        │        │ title        │
-│        │        │ due_date     │
-│        │        │ type         │
-│        │        └──────────────┘
-│        │
-│   (supervisor_id FK references users.id — self-referencing)
-│                                                                      │
-└──────────────────────────────────────────────────────────────────────┘
-```
-
-### 6.2 Table Details
-
-#### `users`
-| Column | Type | Constraints | Notes |
-|---|---|---|---|
-| `id` | BIGINT AUTO_INCREMENT | PRIMARY KEY | |
-| `name` | VARCHAR(255) | NOT NULL | |
-| `email` | VARCHAR(255) | UNIQUE, NOT NULL | Also used as login identifier |
-| `email_verified_at` | TIMESTAMP | NULLABLE | Not enforced |
-| `password` | VARCHAR(255) | NOT NULL | Hashed (bcrypt) |
-| `role` | ENUM('student','supervisor','admin') | NOT NULL | Role-based routing |
-| `matrix_id` | VARCHAR(255) | UNIQUE, NULLABLE | Student/Staff ID; alternate login |
-| `employee_id` | VARCHAR(255) | NULLABLE | Supervisor-only field |
-| `phone` | VARCHAR(255) | NULLABLE | Malaysian +60 format |
-| `company` | VARCHAR(255) | NULLABLE | Student's internship company |
-| `supervisor_id` | BIGINT | NULLABLE, FK→users.id ON DELETE SET NULL | Self-referencing |
-| `faculty` | VARCHAR(255) | NULLABLE | |
-| `class` | TEXT | NULLABLE | |
-| `programme_code` | TEXT | NULLABLE | |
-| `location` | VARCHAR(255) | NULLABLE | |
-| `about` | TEXT | NULLABLE | |
-| `avatar` | VARCHAR(255) | NULLABLE | URL (Cloudinary or local) |
-| `remember_token` | VARCHAR(100) | NULLABLE | "Remember me" |
-| `created_at`, `updated_at` | TIMESTAMP | | Eloquent timestamps |
-
-**JSON fields** (`class`, `programme_code`):
-- Stored as TEXT but treated as JSON arrays via model accessors
-- `getClassesAttribute()`, `getProgrammeCodesAttribute()` handle both JSON arrays and legacy plain strings
-
-#### `internships`
-| Column | Type | Constraints |
-|---|---|---|
-| `id` | BIGINT AUTO_INCREMENT | PRIMARY KEY |
-| `student_id` | BIGINT | FK→users.id ON DELETE CASCADE |
-| `company_name` | VARCHAR(255) | NOT NULL, DEFAULT 'Not Set' |
-| `company_address` | VARCHAR(255) | NULLABLE |
-| `start_date` | DATE | NOT NULL |
-| `end_date` | DATE | NOT NULL |
-| `total_weeks` | INT | DEFAULT 12 |
-| `created_at`, `updated_at` | TIMESTAMP | |
-
-#### `log_entries`
-| Column | Type | Constraints |
-|---|---|---|
-| `id` | BIGINT AUTO_INCREMENT | PRIMARY KEY |
-| `student_id` | BIGINT | FK→users.id ON DELETE CASCADE |
-| `internship_id` | BIGINT | FK→internships.id ON DELETE CASCADE |
-| `entry_date` | DATE | NOT NULL |
-| `week_number` | INT | NOT NULL |
-| `task_description` | TEXT | NOT NULL |
-| `ai_summary` | TEXT | NULLABLE |
-| `status` | VARCHAR(255) | DEFAULT 'draft'; values: draft/pending/approved/rejected |
-| `supervisor_comment` | TEXT | NULLABLE |
-| `created_at`, `updated_at` | TIMESTAMP | |
-
-#### `log_attachments`
-| Column | Type | Constraints |
-|---|---|---|
-| `id` | BIGINT AUTO_INCREMENT | PRIMARY KEY |
-| `log_entry_id` | BIGINT | FK→log_entries.id ON DELETE CASCADE |
-| `file_path` | VARCHAR(255) | NOT NULL (full URL: Cloudinary or local) |
-| `file_name` | VARCHAR(255) | NOT NULL |
-| `file_type` | VARCHAR(255) | NULLABLE |
-| `created_at`, `updated_at` | TIMESTAMP | |
-
-#### `notifications` (custom — NOT Laravel's built-in)
-| Column | Type | Constraints |
-|---|---|---|
-| `id` | BIGINT AUTO_INCREMENT | PRIMARY KEY |
-| `user_id` | BIGINT | FK→users.id ON DELETE CASCADE |
-| `title` | VARCHAR(255) | NOT NULL |
-| `message` | TEXT | NOT NULL |
-| `type` | VARCHAR(255) | DEFAULT 'info' (info/warning/success/danger) |
-| `is_read` | TINYINT(1) | DEFAULT 0 (boolean) |
-| `created_at`, `updated_at` | TIMESTAMP | |
-
-#### `tasks`
-| Column | Type | Constraints |
-|---|---|---|
-| `id` | BIGINT AUTO_INCREMENT | PRIMARY KEY |
-| `user_id` | BIGINT | FK→users.id ON DELETE CASCADE |
-| `created_by` | BIGINT | FK→users.id ON DELETE CASCADE |
-| `title` | VARCHAR(255) | NOT NULL |
-| `due_date` | DATETIME | NOT NULL |
-| `type` | VARCHAR(255) | DEFAULT 'sv_task' (sv_task / personal_reminder) |
-| `created_at`, `updated_at` | TIMESTAMP | |
-
-> **Note:** This table was originally named `milestones` (migration 2026_03_03_205303). Renamed to `tasks` and `sv_milestone` type values updated to `sv_task` by migration 2026_05_04_202613.
-
-#### `supervisor_assignments`
-| Column | Type | Constraints |
-|--------|------|-------------|
-| `id` | BIGINT AUTO_INCREMENT | PRIMARY KEY |
-| `student_matrix_id` | VARCHAR(255) | UNIQUE, NOT NULL (format: 2026XXXXXX) |
-| `student_name` | VARCHAR(255) | NOT NULL |
-| `supervisor_matrix_id` | VARCHAR(255) | NOT NULL (references SV's matrix_id) |
-| `faculty` | VARCHAR(255) | NULLABLE (auto-fill for registration) |
-| `programme_code` | VARCHAR(255) | NULLABLE |
-| `class` | VARCHAR(255) | NULLABLE |
-| `created_at`, `updated_at` | TIMESTAMP | |
-
-### 6.3 Schema Evolution (Migration History)
-
-| Migration | Purpose |
-|---|---|
-| 0001_01_01_000000 | Create `users`, `password_reset_tokens`, `sessions` |
-| 0001_01_01_000001 | Create `cache`, `cache_locks` |
-| 0001_01_01_000002 | Create `jobs`, `job_batches`, `failed_jobs` |
-| 2026_01_31_150000 | Create `internships` |
-| 2026_01_31_150001 | Create `log_entries` |
-| 2026_01_31_150002 | Create `log_attachments` |
-| 2026_01_31_150003 | Create `notifications` |
-| 2026_01_31_174955 | Add `matrix_id` to users (after `name`) |
-| 2026_01_31_191345 | Add `phone` to users (after `email`) |
-| 2026_03_03_205303 | Create `milestones` (later renamed to `tasks`) |
-| 2026_03_04_202928 | Add `faculty`, `class`, `programme_code`, `location`, `about`, `avatar` to users |
-| 2026_05_01_102304 | Change `programme_code` to TEXT; add `employee_id` |
-| 2026_05_01_111905 | Change `class` from string to TEXT |
-| 2026_05_03_183400 | Add `groups` (TEXT) after `programme_code` |
-| 2026_05_04_202613 | Rename `milestones` to `tasks`; update type values |
-| 2026_05_14_012646 | Create `supervisor_assignments` table |
-| 2026_05_14_041742 | Drop `groups` from `users` (removed group-based flow) |
-
----
-
-## 7. Design Patterns & Conventions
-
-### 7.1 MVC with Controller-per-Role Pattern
-
-```
-Routes grouped by role prefix → Controllers per role → Views per role
-  /student/*     → Student\{Dashboard,LogEntry,Progress,Profile,Notification}Controller
-  /supervisor/*  → Supervisor\{Dashboard,Review,Task,Analytics,Profile}Controller
-  /admin/*       → Placeholder (closure)
-```
-
-- Each role has its own controller namespace
-- No shared controller methods between roles
-- `AuthController` handles cross-cutting auth logic
-
-### 7.2 Authorisation Pattern
-
-**No role-based middleware.** All access control is inline in controllers:
+#### 3.4.3 Controller Flash Pattern
 
 ```php
-// Example: Check if student can edit this log entry
-if ($logEntry->student_id !== Auth::id() || $logEntry->status !== 'draft') {
-    abort(403);
+// Success redirect
+redirect()->route('...')->with('success', '...')
+
+// Error redirect
+redirect()->back()->with('error', '...')->withInput()
+```
+
+---
+
+## 4. Layout Rules
+
+### 4.1 Framework
+
+| Layer | Peranan |
+|-------|---------|
+| **Bootstrap 5.3** | Framework utama — grid system, responsive layout, components (offcanvas, nav, card, table) |
+| **Tailwind CSS 4.0** | Utiliti kelas untuk one-off styling (via Vite build) |
+| **Custom CSS** | Gaya khusus sistem — terletak di `public/css/*.css` |
+
+### 4.2 Layout Structure
+
+```
+┌──────────────────────────────────────────────┐
+│  master.blade.php (root layout)               │
+│  ├── Bootstrap/DataTables/SweetAlert2 CDN     │
+│  ├── Global spinner overlay                   │
+│  └── @yield('content')                        │
+│                                               │
+│  app.blade.php (inner layout)                 │
+│  ├── Sidebar (offcanvas-lg)                   │
+│  │   ├── Logo (LIMS)                          │
+│  │   ├── User profile card                    │
+│  │   └── Nav links + Logout                   │
+│  └── Main content                             │
+│      ├── Mobile header (d-lg-none)            │
+│      ├── Desktop header (d-none d-lg-flex)    │
+│      └── @yield('main-content')               │
+└──────────────────────────────────────────────┘
+```
+
+### 4.3 Sidebar
+
+| Property | Value |
+|----------|-------|
+| Width | `260px` (`--sidebar-width`) |
+| Background | `white` |
+| Box shadow | `2px 0 10px rgba(0,0,0,0.05)` |
+| Position (lg+) | `fixed`, `left: 0`, `height: 100vh`, `z-index: 1000` |
+| Mobile (<992px) | Offcanvas (Bootstrap `offcanvas-lg`) |
+| Nav link padding | `0.75rem 1.5rem` |
+| Nav link active | `color: #1E40AF`, `bg: #EFF6FF`, `border-right: 3px solid #1E40AF` |
+
+### 4.4 Main Content
+
+| Property | Value |
+|----------|-------|
+| Margin-left (lg+) | `260px` |
+| Padding | `2rem` |
+| Mobile (<992px) | `margin-left: 0`, `padding: 1rem` |
+
+### 4.5 Responsive Breakpoints
+
+| Breakpoint | Behavior |
+|-----------|----------|
+| `>=992px` (lg) | Sidebar fixed, main content with margin |
+| `<992px` | Sidebar jadi offcanvas, main content full width |
+
+### 4.6 Standard Spacing
+
+| Use Case | Value |
+|----------|-------|
+| Card margin-bottom | `1.5rem` |
+| Card padding (stat-card) | `1.5rem` |
+| Main content padding (desktop) | `2rem` |
+| Main content padding (mobile) | `1rem` |
+| Sidebar logo padding | `1.5rem` |
+| Nav link padding (Y) | `0.75rem` |
+| Grid gap (info-grid) | `1.5rem` |
+| Flex gap (nav items) | `0.75rem` |
+| Image thumb gap | `6px`‑`12px` |
+| Component gap (buttons) | `0.5rem` |
+
+---
+
+## 5. Naming Convention
+
+### 5.1 Pattern
+
+Gaya: **kebab-case dengan BEM modifiers**
+
+```
+.block-element—state
+.block__element—modifier
+```
+
+### 5.2 Examples
+
+| Category | Examples |
+|----------|----------|
+| **Status badges** | `.badge-status-approved`, `.badge-status-rejected`, `.badge-status-pending`, `.badge-status.draft` |
+| **Buttons** | `.btn-primary-custom`, `.btn-premium-primary`, `.btn-premium-outline`, `.btn-action-icon`, `.btn-ai-generate`, `.btn-close-custom`, `.btn-back-nav`, `.btn-navy-link` |
+| **Cards** | `.premium-card`, `.stat-card`, `.profile-card`, `.detail-card`, `.auth-card`, `.activity-card`, `.week-card` |
+| **Forms** | `.form-control-custom`, `.form-label-custom`, `.form-group-custom` |
+| **Icons/Stats** | `.stat-icon-wrapper`, `.stat-label`, `.stat-value`, `.icon-primary`, `.icon-success`, `.icon-warning`, `.icon-danger` |
+| **Upload** | `.upload-zone`, `.upload-zone.drag-active`, `.image-preview-grid`, `.preview-item`, `.btn-preview-remove` |
+| **Attachments** | `.attachment-thumbnails`, `.thumb-wrapper`, `.attachment-thumb`, `.thumb-delete-form`, `.btn-thumb-delete` |
+| **Timeline** | `.timeline`, `.timeline-item`, `.drill-down-content` |
+| **Sidebar** | `.sidebar`, `.sidebar-logo`, `.main-content` |
+| **Auth** | `.auth-container`, `.auth-card` |
+| **Utilities** | `.text-primary-custom`, `.bg-primary-custom`, `.text-lims-navy`, `.bg-lims-light`, `.rounded-2xl`, `.shadow-soft`, `.line-clamp-2` |
+| **Badges/Tags** | `.badge-status`, `.status-badge`, `.tag-badge`, `.tag-item`, `.tag-remove`, `.tag-input` |
+| **Profile** | `.avatar-wrapper`, `.avatar-upload-btn`, `.info-grid`, `.info-item`, `.info-icon`, `.info-content` |
+| **Details** | `.detail-meta-item`, `.section-title`, `.task-content-box`, `.feedback-box` |
+
+### 5.3 Modifier Rules
+
+- Status modifiers guna class terpisah (bukan `--modifier`): `.badge-status.approved`
+- Hover/Focus states guna pseudo-class CSS
+- Dark/light variants guna prefix: `.btn-premium-primary`, `.btn-premium-outline`
+
+### 5.4 CSS Variables
+
+Gunakan `:root` CSS custom properties untuk konsistensi:
+
+```css
+:root {
+    --primary-color: #1E40AF;
+    --accent-color: #3B82F6;
+    --success-color: #10B981;
+    --danger-color: #EF4444;
+    --warning-color: #F59E0B;
+    --light-bg: #F3F4F6;
+    --text-dark: #1F2937;
+    --text-muted: #6B7280;
+    --sidebar-width: 260px;
 }
-
-// Example: Supervisor can only review their own students' entries
-$entries = LogEntry::whereIn('student_id', 
-    User::where('supervisor_id', Auth::id())->pluck('id')
-)->where('status', 'pending')->paginate(...);
-```
-
-Rationale: The three-role system is simple enough that middleware would add unnecessary indirection. If more roles are added, introduce a `RoleMiddleware`.
-
-### 7.3 Validation Pattern
-
-**Inline in controllers** (no Form Request classes):
-
-```php
-$request->validate([
-    'entry_date'        => 'required|date',
-    'week_number'       => 'required|integer|min:1',
-    'task_description'  => 'required|string',
-    'attachments.*'     => 'nullable|image|mimes:jpg,jpeg,png,gif,webp|max:5120',
-]);
-```
-
-### 7.4 Response Pattern
-
-| Context | Pattern |
-|---|---|
-| Web redirect | `redirect()->route('student.log-entries')->with('success', '...')` |
-| Web error | `redirect()->back()->with('error', '...')->withInput()` |
-| AJAX success | `response()->json(['summary' => $summary])` |
-| AJAX error | `response()->json(['error' => '...'], 500)` |
-| AJAX unread | `response()->json(['count' => N, 'notifications' => [...]])` |
-
-### 7.5 Database Transaction Pattern
-
-Used for multi-step writes (log entry + attachments):
-
-```php
-\DB::beginTransaction();
-try {
-    // create log entry
-    // upload & create attachment records
-    \DB::commit();
-} catch (\Exception $e) {
-    \DB::rollBack();
-    return redirect()->back()->with('error', '...');
-}
-```
-
-### 7.6 Dual-Path File Storage Pattern
-
-```php
-if (env('CLOUDINARY_URL')) {
-    // PRODUCTION
-    $uploaded = cloudinary()->uploadApi()->upload($file->getRealPath(), [
-        'folder' => 'lims/log-attachments/' . $logEntry->id,
-    ]);
-    $path = $uploaded['secure_url'];
-} else {
-    // LOCAL DEVELOPMENT (persistent fs)
-    $path = asset('storage/' . $file->store('log-attachments/' . $logEntry->id, 'public'));
-}
-```
-
-**Cloudinary folder structure:**
-- Log attachments: `lims/log-attachments/{logEntryId}/`
-- Avatars: `lims/avatars/`
-
-**Known tradeoff:** `env('CLOUDINARY_URL')` is called directly in controllers instead of `config('filesystems.cloudinary')`. This breaks if config is cached (`php artisan config:cache`). Future improvement: use config helper.
-
-### 7.7 Phone Normalisation (Malaysian +60)
-
-```php
-$rawPhone = preg_replace('/[^0-9]/', '', $request->phone);  // strip non-digits
-$rawPhone = ltrim($rawPhone, '0');                           // remove leading 0
-$request->merge(['phone' => '+60' . $rawPhone]);             // prepend country code
-```
-
-### 7.8 Pre-Assigned Supervisor Matching (Replaces old matchesCriteria)
-
-Registration now uses a lookup table (`supervisor_assignments`) instead of string matching:
-
-```php
-// AuthController@checkAssignment — AJAX endpoint
-$assignment = SupervisorAssignment::where('student_matrix_id', $matrixId)->first();
-
-if ($assignment) {
-    $supervisor = User::where('matrix_id', $assignment->supervisor_matrix_id)->first();
-    return response()->json([
-        'found' => true,
-        'supervisor_name' => $supervisor->name,
-        'faculty' => $assignment->faculty,
-        'programme_code' => $assignment->programme_code,
-        'class' => $assignment->class,
-    ]);
-}
-```
-
-Backend auto-assigns supervisor via direct lookup, not `matchesCriteria()`:
-
-```php
-// AuthController@register — after strict check
-$supervisor = User::where('role', 'supervisor')
-    ->where(function ($q) use ($assignment) {
-        $q->where('matrix_id', $assignment->supervisor_matrix_id)
-          ->orWhere('employee_id', $assignment->supervisor_matrix_id);
-    })->first();
-```
-
-The old `groups` column on `users` and `matchesCriteria()` method on `User` are removed.
-
-### 7.9 MySQL-Specific Query
-
-```php
-// Student dashboard — sorts drafts to top
-LogEntry::where('student_id', $studentId)
-    ->orderByRaw("FIELD(status, 'draft') DESC")
-    ->latest()
-    ->take(5)
-    ->get();
-```
-
-`FIELD()` is MySQL-specific. Will NOT work on SQLite. Documented in `.clinerules` as a known constraint.
-
-### 7.10 Internship Auto-Creation
-
-If a student submits a log entry without an existing internship record:
-
-```php
-if (!$internship) {
-    $internship = Internship::create([
-        'student_id'   => $student->id,
-        'company_name' => 'Not Set',
-        'start_date'   => now(),
-        'end_date'     => now()->addWeeks(12),
-        'total_weeks'  => 12,
-    ]);
-}
-```
-
-### 7.11 UI Conventions
-
-| Element | Convention |
-|---|---|
-| Cards | `.card` class (globally styled: `1.5rem` radius, soft shadow, `1px solid #cbd5e1` outline, blue hover border) |
-| Tables | `.table` class (no vertical borders, uppercase light-grey headers, rounded pagination) |
-| Buttons | `.btn-premium` with `rounded-pill` or `1rem` radius, always with icons |
-| Layout base | All authenticated views extend `layouts/app.blade.php` → extends `layouts/master.blade.php` |
-
----
-
-## 8. Data Flow Diagrams
-
-### 8.1 Log Entry Creation & AI Summary Flow
-
-```
-┌──────────┐     ┌──────────────┐     ┌──────────────┐     ┌──────────────┐
-│  STUDENT  │────▶│ LogEntry     │────▶│   DATABASE   │────▶│   RESPONSE   │
-│  (Browser)│     │ Controller   │     │  (MySQL)     │     │  (Redirect)  │
-└──────────┘     └──────┬───────┘     └──────────────┘     └──────────────┘
-   │                    │
-   │ Fill form:         │ Validate input
-   │ - entry_date       │
-   │ - task_description │ DB::beginTransaction()
-   │ - upload images    │
-   │                    ├─ Create LogEntry
-   │ [Optional]         ├─ If attachments:
-   │ Click "Generate    │    ├─ Cloudinary? → upload → secure_url
-   │  AI Summary"       │    └─ Local?     → store  → asset() URL
-   │        │           ├─ DB::commit()
-   │        ▼           │
-   │  ┌──────────────┐  │
-   │  │  AJAX Call   │  │
-   │  │  POST /ai-   │  │
-   │  │  generate-   │──┤
-   │  │  summary     │  │
-   │  └──────┬───────┘  │
-   │         │          │
-   │         ▼          │
-   │  ┌──────────────┐  │
-   │  │  Gemini API  │  │
-   │  │  Flash-Lite  │  │
-   │  │              │  │
-   │  │  System Prompt│  │
-   │  │  + task_desc  │  │
-   │  │  + images     │  │
-   │  └──────┬───────┘  │
-   │         │          │
-   │         ▼          │
-   │  JSON: {summary}  │
-   │         │          │
-   │         ▼          │
-   │  Fill textarea    │
-   │  with AI summary  │
-   │         │          │
-   │         ▼          │
-   │  Click "Submit" ───┘
-```
-
-### 8.2 Registration & Pre-Assigned Supervisor Flow
-
-```
-┌──────────┐        ┌──────────────────┐       ┌──────────────────────┐       ┌──────────┐
-│  STUDENT  │───────▶│ /check-assignment│──────▶│  supervisor_assignments│──────▶│ DATABASE │
-│  (Browser)│        │  (AJAX, no auth) │       │      table          │       │ (MySQL)  │
-└──────────┘        └──────────────────┘       └──────────────────────┘       └──────────┘
-    │                        │                          │
-    │ Enter matrix_id        │ POST {matrix_id}         │ SELECT * WHERE
-    │                        ▼                          │ student_matrix_id =
-    │                 ┌──────────────┐                  │ matrix_id
-    │                 │  Found?      │                  │
-    │                 └──────┬───────┘                  │
-    │                   ┌────┴────┐                     │
-    │                   │         │                     │
-    │                   ▼         ▼                     │
-    │              ┌────────┐ ┌────────┐                │
-    │              │ YES    │ │ NO     │                │
-    │              └───┬────┘ └───┬────┘                │
-    │                  │          │                     │
-    │                  ▼          ▼                     │
-    │         Auto-fill      Show warning               │
-    │         faculty/       "No info, wait             │
-    │         programme/     for admin..."               │
-    │         class fields   Disable button             │
-    │         Enable button                             │
-    │                  │                                │
-    │                  ▼                                │
-    │         ┌──────────────────────┐                   │
-    │         │   Register Form      │                   │
-    │         │  Submit → /register  │                   │
-    │         └──────────┬───────────┘                   │
-    │                    │                               │
-    │                    ▼                               │
-    │         ┌─────────────────┐                        │
-    │         │  AuthController  │                       │
-    │         │  @register()     │                       │
-    │         └────────┬────────┘                        │
-    │              ┌───┴───┐                            │
-    │              │       │                             │
-    │              ▼       ▼                             │
-    │         Validate   Strict check:                   │
-    │         input      matrix_id in                     │
-    │                    supervisor_assignments           │
-    │                    → Pass → lookup SV               │
-    │                    → Create user                    │
-    │                         │                           │
-    │                         ▼                           │
-    │              Redirect to login                     │
-```
-
-The `supervisor_assignments` table serves as the single source of truth — no cascading dropdowns or `matchesCriteria()` logic.
-
-### 8.3 Notification Delivery Flow (Scheduled + Real-Time)
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                    SCHEDULED (PUSH)                              │
-│                                                                 │
-│  routes/console.php                                             │
-│  Schedule::call() weekdays 17:00                                │
-│       │                                                         │
-│       ▼                                                         │
-│  User::where('role','student')->get()                           │
-│       │                                                         │
-│       ▼                                                         │
-│  $student->notify(new DailyLogReminderNotification())           │
-│       │                                                         │
-│       ├──▶ LimsDatabaseChannel::send()                          │
-│       │         └──▶ notifications table (title, message, type) │
-│       │                                                         │
-│       └──▶ Mail Channel                                         │
-│                └──▶ Mailtrap SMTP → student email               │
-│                                                                 │
-├─────────────────────────────────────────────────────────────────┤
-│                    REAL-TIME (POLL, Student Only)                │
-│                                                                 │
-│  master.blade.php JS (setInterval 30s)                          │
-│       │                                                         │
-│       ▼                                                         │
-│  GET /student/notifications/unread (AJAX)                       │
-│       │                                                         │
-│       ▼                                                         │
-│  NotificationController@unread()                                │
-│       ├──▶ Count unread notifications for Auth::user()          │
-│       └──▶ Return JSON: { count: N, notifications: [...] }     │
-│                │                                                │
-│                ▼                                                │
-│  JS receives response:                                          │
-│       ├──▶ Update nav bell badge with count                     │
-│       └──▶ If new notifications: SweetAlert2 toast popup        │
-│                                                                 │
-├─────────────────────────────────────────────────────────────────┤
-│                    EVENT-DRIVEN (PUSH)                           │
-│                                                                 │
-│  Supervisor assigns task → TaskSetNotification                  │
-│  Student sets reminder → PersonalReminderNotification           │
-│       │                                                         │
-│       └──▶ Same dual-channel delivery (DB + mail)               │
-│            Picked up by polling on next 30s cycle               │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -960,11 +393,9 @@ The `supervisor_assignments` table serves as the single source of truth — no c
 ## Document Metadata
 
 | Field | Value |
-|---|---|
-| **Document Version** | 1.1 |
-| **Last Updated** | 2026-05-14 |
-| **Maintained By** | LIMS Development Team |
-| **Derived From** | `.clinerules` v1.0, `README.md`, codebase analysis |
-| **Project Code** | Ipan (LIMS — Logbook Internship Management System) |
-| **Framework** | Laravel 12.x |
-| **Deployment** | DigitalOcean Droplet |
+|-------|-------|
+| **Document Version** | 2.0 |
+| **Last Updated** | 2026-05-16 |
+| **Purpose** | UI Design System & Visual Conventions |
+| **Source** | `public/css/*.css`, `resources/views/layouts/*.blade.php`, `public/js/*.js` |
+| **Project** | LIMS — Logbook Internship Management System |
