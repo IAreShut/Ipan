@@ -17,6 +17,16 @@
 @section('page-title', 'Supervisor Dashboard')
 @section('page-subtitle', 'Overview of your supervised students.')
 
+@section('header-right')
+<div class="d-flex align-items-center gap-2">
+    <!-- Live Date Time -->
+    <span class="badge bg-white text-dark shadow-sm px-3 py-2 d-flex align-items-center" style="border-radius: 1rem; border: 1px solid #e2e8f0;">
+        <i class="far fa-clock text-primary me-2"></i>
+        <span id="liveDateTime" style="font-size: 0.8rem; font-weight: 600; letter-spacing: 0.3px;">Loading...</span>
+    </span>
+</div>
+@endsection
+
 @section('main-content')
 <div class="row">
     <!-- Left Column: Stats & Student List -->

@@ -18,57 +18,69 @@
 @section('page-subtitle', 'Review and approve student log entries.')
 
 @section('main-content')
-<div class="card card-custom p-4">
-    @forelse($logs as $log)
-    <div class="border rounded p-3 mb-3">
-        <div class="d-flex justify-content-between align-items-start mb-3">
-            <div class="d-flex align-items-center">
-                <img src="https://ui-avatars.com/api/?name={{ urlencode($log->student->name ?? 'User') }}&background=random" class="rounded-circle me-2" width="40">
-                <div>
-                    <h6 class="mb-0 fw-bold">{{ $log->student->name ?? 'Unknown Student' }}</h6>
-                    <small class="text-muted">Week {{ $log->week_number }} - {{ $log->entry_date->format('d M Y') }}</small>
+@if($logs->count() > 0)
+<div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4 mb-4">
+    @foreach($logs as $log)
+    <div class="col">
+        <div class="card card-custom h-100 shadow-sm border" style="border-radius: 12px; border-color: #cbd5e1 !important; border-top: 4px solid #FBBF24;">
+            <div class="card-body p-4 d-flex flex-column">
+                <!-- Profile & Date -->
+                <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-3">
+                    <div class="d-flex align-items-center">
+                        <img src="{{ $log->student->avatar ? (str_starts_with($log->student->avatar, 'http') ? $log->student->avatar : asset('storage/' . $log->student->avatar)) : 'https://ui-avatars.com/api/?name=' . urlencode($log->student->name ?? 'User') . '&background=E0E7FF&color=4F46E5' }}" class="rounded-circle shadow-sm me-2" width="28" height="28" style="object-fit: cover;">
+                        <span class="fw-bold text-dark fs-6">{{ $log->student->name ?? 'Unknown Student' }}</span>
+                    </div>
+                    <div class="text-muted small fw-medium">
+                        {{ $log->entry_date->format('d M Y') }}
+                    </div>
+                </div>
+
+                <!-- Title & Attachment -->
+                <div class="d-flex justify-content-between align-items-start mb-4 flex-grow-1">
+                    <div class="me-3">
+                        <h6 class="mb-1 fw-bold text-dark">Week {{ $log->week_number }} Log Entry</h6>
+                        <small class="text-muted d-block">{{ Str::limit($log->task_description, 80, '...') }}</small>
+                    </div>
+                    @if($log->attachments && $log->attachments->count() > 0)
+                        <button type="button" class="btn btn-sm rounded-pill fw-bold border-0 px-3 text-nowrap" 
+                                style="background-color: #E0F2FE; color: #0284C7; font-size: 0.75rem;"
+                                data-bs-toggle="modal" data-bs-target="#viewLogModal{{ $log->id }}">
+                            <i class="fas fa-paperclip me-1"></i> +{{ $log->attachments->count() }}
+                        </button>
+                    @endif
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="d-flex gap-2 mt-auto">
+                    <form action="{{ route('supervisor.approve', $log->id) }}" method="POST" class="flex-grow-1 m-0">
+                        @csrf
+                        <button type="submit" class="btn btn-success btn-sm w-100 rounded-3 fw-bold py-2" style="background-color: #10B981; border-color: #10B981;">
+                            Approve
+                        </button>
+                    </form>
+                    <button type="button" class="btn btn-outline-danger btn-sm flex-grow-1 rounded-3 fw-bold py-2" data-bs-toggle="modal" data-bs-target="#rejectModal{{ $log->id }}">
+                        Reject
+                    </button>
+                    <button type="button" class="btn btn-light btn-sm border rounded-3 d-flex align-items-center px-3 fw-bold text-dark" data-bs-toggle="modal" data-bs-target="#viewLogModal{{ $log->id }}">
+                        View
+                    </button>
                 </div>
             </div>
-            <span class="badge badge-status-pending">Pending Review</span>
-        </div>
-        
-        <div class="bg-light p-3 rounded mb-3">
-            <p class="mb-0">{{ $log->task_description }}</p>
-            @if($log->attachments && $log->attachments->count() > 0)
-                <div class="sv-attachment-gallery">
-                    @foreach($log->attachments as $attachment)
-                        <img src="{{ str_starts_with($attachment->file_path, 'http') ? $attachment->file_path : asset('storage/' . $attachment->file_path) }}" 
-                             alt="{{ $attachment->file_name }}"
-                             data-bs-toggle="modal" 
-                             data-bs-target="#svImageModal"
-                             data-img-src="{{ str_starts_with($attachment->file_path, 'http') ? $attachment->file_path : asset('storage/' . $attachment->file_path) }}"
-                             data-img-name="{{ $attachment->file_name }}"
-                             title="{{ $attachment->file_name }}">
-                    @endforeach
-                </div>
-            @endif
-        </div>
-
-        <div class="d-flex gap-2">
-            <form action="{{ route('supervisor.approve', $log->id) }}" method="POST" class="d-inline">
-                @csrf
-                <button type="submit" class="btn btn-success btn-sm">
-                    <i class="fas fa-check me-1"></i> Approve
-                </button>
-            </form>
-            <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#rejectModal{{ $log->id }}">
-                <i class="fas fa-times me-1"></i> Reject
-            </button>
         </div>
     </div>
-    @empty
-    <div class="text-center py-5">
+    @endforeach
+</div>
+@else
+<div class="mb-4">
+    <div class="text-center py-5 bg-white rounded-4 border shadow-sm">
         <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
         <h5>All Caught Up!</h5>
         <p class="text-muted">No pending log entries to review.</p>
     </div>
-    @endforelse
+</div>
+@endif
 
+<div class="d-flex justify-content-center mt-4">
     {{ $logs->links() }}
 </div>
 
@@ -88,10 +100,76 @@
                     <textarea name="comment" class="form-control" rows="3" required placeholder="Please provide feedback for the student..."></textarea>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary-custom" data-bs-dismiss="modal">Cancel</button>
                     <button type="submit" class="btn btn-danger">Reject</button>
                 </div>
             </form>
+        </div>
+    </div>
+</div>
+@endforeach
+
+<!-- View Log Modals -->
+@foreach($logs as $log)
+<div class="modal fade" id="viewLogModal{{ $log->id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header border-bottom">
+                <h5 class="modal-title fw-bold text-dark">Log Entry Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="d-flex align-items-center mb-4">
+                    <img src="{{ $log->student->avatar ? (str_starts_with($log->student->avatar, 'http') ? $log->student->avatar : asset('storage/' . $log->student->avatar)) : 'https://ui-avatars.com/api/?name=' . urlencode($log->student->name ?? 'User') . '&background=E0E7FF&color=4F46E5' }}" class="rounded-circle shadow-sm me-3" width="48" height="48" style="object-fit: cover;">
+                    <div>
+                        <h6 class="mb-0 fw-bold text-dark">{{ $log->student->name ?? 'Unknown Student' }}</h6>
+                        <small class="text-muted">{{ $log->student->email ?? 'student@email.com' }}</small>
+                    </div>
+                    <div class="ms-auto text-end">
+                        <small class="text-muted d-block">Submitted:</small>
+                        <small class="text-dark fw-medium">{{ $log->entry_date->format('l, d M Y') }}</small>
+                    </div>
+                </div>
+
+                <div class="bg-light p-3 rounded-3 mb-4 border">
+                    <h6 class="fw-bold mb-2 text-dark">Task Description (Week {{ $log->week_number }})</h6>
+                    <p class="mb-0 text-secondary" style="white-space: pre-wrap; line-height: 1.6;">{{ $log->task_description }}</p>
+                </div>
+
+                @if($log->attachments && $log->attachments->count() > 0)
+                <h6 class="fw-bold mb-3 text-dark">Attachments ({{ $log->attachments->count() }})</h6>
+                <div class="row g-3">
+                    @foreach($log->attachments as $attachment)
+                        @if(str_starts_with($attachment->file_type, 'image/'))
+                        <div class="col-12">
+                            <img src="{{ str_starts_with($attachment->file_path, 'http') ? $attachment->file_path : asset('storage/' . $attachment->file_path) }}" 
+                                 class="img-fluid rounded border shadow-sm w-100 object-fit-contain bg-light" style="max-height: 400px;" alt="{{ $attachment->file_name }}">
+                        </div>
+                        @else
+                        <div class="col-12">
+                            <div class="d-flex align-items-center p-3 border rounded bg-light">
+                                <i class="fas fa-file-alt fa-2x text-secondary me-3"></i>
+                                <div>
+                                    <h6 class="mb-1 fw-bold text-dark">{{ $attachment->file_name }}</h6>
+                                    <a href="{{ str_starts_with($attachment->file_path, 'http') ? $attachment->file_path : asset('storage/' . $attachment->file_path) }}" target="_blank" class="small fw-bold text-primary text-decoration-none">Download File</a>
+                                </div>
+                            </div>
+                        </div>
+                        @endif
+                    @endforeach
+                </div>
+                @endif
+            </div>
+            <div class="modal-footer d-flex justify-content-between bg-light border-top">
+                <div class="d-flex gap-2">
+                    <form action="{{ route('supervisor.approve', $log->id) }}" method="POST" class="m-0">
+                        @csrf
+                        <button type="submit" class="btn btn-success fw-bold px-4 py-2 rounded-3" style="background-color: #10B981; border-color: #10B981;">Approve</button>
+                    </form>
+                    <button type="button" class="btn btn-outline-danger fw-bold px-4 py-2 rounded-3" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#rejectModal{{ $log->id }}">Reject</button>
+                </div>
+                <button type="button" class="btn btn-primary-custom fw-bold px-4 py-2 rounded-3" data-bs-dismiss="modal">Close</button>
+            </div>
         </div>
     </div>
 </div>

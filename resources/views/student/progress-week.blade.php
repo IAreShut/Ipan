@@ -23,89 +23,83 @@
 @endsection
 
 @section('main-content')
-<!-- <div class="mb-4">
-    <a href="{{ url()->previous() }}" class="btn btn-primary-custom px-4">
-        <i class="fas fa-arrow-left me-2"></i> Back
-    </a>
-</div> -->
+<div class="mb-4">
+    <h4 class="fw-bold text-lims-navy m-0">Daily Logs for Week {{ $week }}</h4>
+    <p class="text-muted mt-1 mb-0"><i class="fas fa-info-circle me-1"></i> Review your daily entries and their approval statuses</p>
+</div>
 
-<div class="card card-custom p-4 p-md-5 shadow-sm position-relative mb-5" style="border-radius: 1.5rem; border: 1px solid #E5E7EB;">
-    <div class="border-bottom pb-4 mb-4">
-        <h4 class="fw-bold text-lims-navy m-0">Daily Logs for Week {{ $week }}</h4>
-        <p class="text-muted mt-1 mb-0"><i class="fas fa-info-circle me-1"></i> Review your daily entries and their approval statuses</p>
-    </div>
-    
-    <div class="activity-stack">
-        @if($weekLogs->count() > 0)
-            @foreach($weekLogs as $log)
-                <div class="activity-card" style="animation-delay: {{ $loop->index * 0.1 }}s">
-                    <div class="row align-items-center gy-3">
-                        <!-- Left Section: Date & Week -->
-                        <div class="col-lg-3 col-md-4">
-                            <h5 class="fw-bold text-dark mb-1">{{ $log->entry_date->format('l, j M') }}</h5>
-                            <span class="badge bg-light text-secondary border px-2 py-1"><i class="fas fa-calendar-day me-1"></i> Week {{ $log->week_number }}</span>
+@if($weekLogs->count() > 0)
+<div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4 mb-5">
+        @foreach($weekLogs as $log)
+    <div class="col">
+        <div class="card card-custom h-100 shadow-sm border" style="border-radius: 12px; border-color: #cbd5e1 !important; border-top: 4px solid @if($log->status == 'approved') #10B981 @elseif($log->status == 'rejected') #EF4444 @elseif($log->status == 'pending') #FBBF24 @else #6B7280 @endif;">
+            <div class="card-body p-4 d-flex flex-column">
+                <!-- Profile & Date -->
+                <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-3">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-primary text-white rounded-circle d-flex justify-content-center align-items-center shadow-sm me-2" style="width: 28px; height: 28px; background-color: #1E40AF !important;">
+                            <span class="fw-bold" style="font-size: 0.75rem;">{{ $log->entry_date->format('d') }}</span>
                         </div>
-
-                        <!-- Middle Section: Task preview & Thumbnail -->
-                        <div class="col-lg-5 col-md-4">
-                            <div class="d-flex align-items-center gap-3">
-                                @php 
-                                    $hasImage = false;
-                                    $imageUrl = '';
-                                    if($log->attachments && $log->attachments->count() > 0) {
-                                        $firstImage = $log->attachments->firstWhere(function($a) {
-                                            return str_starts_with($a->file_type, 'image/');
-                                        });
-                                        if($firstImage) {
-                                            $hasImage = true;
-                                            $imageUrl = str_starts_with($firstImage->file_path, 'http') ? $firstImage->file_path : asset('storage/' . $firstImage->file_path);
-                                        }
-                                    }
-                                @endphp
-                                
-                                @if($hasImage)
-                                    <div class="flex-shrink-0">
-                                        <img src="{{ $imageUrl }}" alt="Attachment" class="rounded object-fit-cover shadow-sm border border-light" style="width: 52px; height: 52px;">
-                                    </div>
-                                @endif
-                                
-                                <div class="text-muted small mb-0 lh-base line-clamp-2">
-                                    {{ $log->task_description }}
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Right Section: Status & Button -->
-                        <div class="col-lg-4 col-md-4">
-                            <div class="d-flex flex-md-column flex-row justify-content-between align-items-md-end align-items-center gap-3">
-                                @if($log->status === 'approved')
-                                    <span class="status-badge approved"><i class="fas fa-check-circle"></i> Approved</span>
-                                @elseif($log->status === 'rejected')
-                                    <span class="status-badge rejected"><i class="fas fa-times-circle"></i> Rejected</span>
-                                @elseif($log->status === 'pending')
-                                    <span class="status-badge pending"><i class="fas fa-clock"></i> Pending</span>
-                                @else
-                                    <span class="status-badge draft"><i class="fas fa-file-alt"></i> Draft</span>
-                                @endif
-                                
-                                <a href="{{ route('student.log-entries.show', $log->id) }}" class="btn-navy-link">
-                                    View Full Entry <i class="fas fa-arrow-right"></i>
-                                </a>
-                            </div>
-                        </div>
+                        <span class="fw-bold text-dark fs-6">{{ $log->entry_date->format('l') }}</span>
+                    </div>
+                    <div class="text-muted small fw-medium">
+                        {{ $log->entry_date->format('d M Y') }}
                     </div>
                 </div>
-            @endforeach
-        @else
-            <div class="text-center py-5 text-muted my-4">
+
+                <!-- Title & Attachment -->
+                <div class="d-flex justify-content-between align-items-start mb-4 flex-grow-1">
+                    <div class="me-3">
+                        <h6 class="mb-1 fw-bold text-dark">Week {{ $log->week_number }} Log Entry</h6>
+                        <small class="text-muted d-block">{{ Str::limit($log->task_description, 80, '...') }}</small>
+                    </div>
+                    @if($log->attachments && $log->attachments->count() > 0)
+                        <a href="{{ route('student.log-entries.show', $log->id) }}" class="btn btn-sm rounded-pill fw-bold border-0 px-3 text-nowrap text-decoration-none" 
+                                style="background-color: #E0F2FE; color: #0284C7; font-size: 0.75rem;">
+                            <i class="fas fa-paperclip me-1"></i> +{{ $log->attachments->count() }}
+                        </a>
+                    @endif
+                </div>
+
+                <!-- Action / Status -->
+                <div class="d-flex justify-content-between align-items-center mt-auto">
+                    <div>
+                        @if($log->status === 'approved')
+                            <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-3 py-2 rounded-pill fw-bold">Approved</span>
+                        @elseif($log->status === 'rejected')
+                            <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 px-3 py-2 rounded-pill fw-bold">Rejected</span>
+                        @elseif($log->status === 'pending')
+                            <span class="badge bg-warning bg-opacity-10 text-warning-emphasis border border-warning border-opacity-25 px-3 py-2 rounded-pill fw-bold text-dark">Pending</span>
+                        @else
+                            <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25 px-3 py-2 rounded-pill fw-bold">Draft</span>
+                        @endif
+                    </div>
+                    <div class="d-flex gap-2">
+                        @if($log->status === 'draft')
+                            <a href="{{ route('student.log-entries.edit', $log->id) }}" class="btn btn-sm btn-light bg-warning bg-opacity-10 text-warning border rounded-3 d-flex align-items-center px-3 fw-bold py-2" title="Edit Draft">
+                                <i class="fas fa-edit me-1"></i> Edit
+                            </a>
+                        @endif
+                        <a href="{{ route('student.log-entries.show', $log->id) }}" class="btn btn-light btn-sm border rounded-3 d-flex align-items-center px-4 fw-bold py-2 text-dark" title="View Full Entry">
+                            View
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+        @endforeach
+</div>
+    @else
+        <div class="mb-5">
+            <div class="text-center py-5 text-muted bg-white rounded-4 border shadow-sm">
                 <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3 shadow-sm" style="width: 80px; height: 80px;">
                     <i class="fas fa-calendar-times fs-2 text-secondary opacity-75"></i>
                 </div>
                 <h6 class="fw-bold text-dark">No Logs Found</h6>
                 <p class="small">You haven't submitted any logs for this week yet.</p>
-                <a href="{{ route('student.log-entries') }}" class="btn btn-sm btn-primary px-4 py-2 rounded-pill mt-3 shadow-sm">Log Activity Now</a>
+                <a href="{{ route('student.log-entries') }}" class="btn btn-sm btn-primary-custom px-4 py-2 rounded-pill mt-3 shadow-sm">Log Activity Now</a>
             </div>
-        @endif
-    </div>
-</div>
+        </div>
+    @endif
 @endsection
