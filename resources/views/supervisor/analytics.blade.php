@@ -115,9 +115,9 @@
         </div>
     </div>
     <div class="col-md-4">
-        <div class="card card-custom p-4 h-100 d-flex flex-column justify-content-between">
+        <div class="card card-custom p-4 h-100 d-flex flex-column">
+            <h5 class="fw-bold mb-4 w-100 text-start">Logbook Breakdown</h5>
             <div class="d-flex flex-column align-items-center justify-content-center flex-grow-1 py-3">
-                <h5 class="fw-bold mb-4 w-100 text-start">Logbook Breakdown</h5>
                 @php
                     $total = $totalLogbooks > 0 ? $totalLogbooks : 1;
                     $pctApproved = round(($approvedLogbooks / $total) * 100);
