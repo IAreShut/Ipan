@@ -1,7 +1,6 @@
 /* Supervisor Review Logbook Page Styles */
 .review-card {
     transition: all 0.3s ease-in-out;
-    cursor: pointer;
     border: 2px solid #E5E7EB !important;
     transform: translateY(0);
 }

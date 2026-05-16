@@ -53,7 +53,7 @@
 
 <div class="row g-4 mb-4">
     <div class="col-md-3">
-        <div class="stat-card-modern">
+        <div class="card card-custom stat-card-modern">
             <div class="d-flex justify-content-between">
                 <div>
                     <div class="text-muted small mb-1 fw-bold">Total Logbooks</div>
@@ -65,7 +65,7 @@
         </div>
     </div>
     <div class="col-md-3">
-        <div class="stat-card-modern">
+        <div class="card card-custom stat-card-modern">
             <div class="d-flex justify-content-between">
                 <div>
                     <div class="text-muted small mb-1 fw-bold">Pending Reviews</div>
@@ -77,7 +77,7 @@
         </div>
     </div>
     <div class="col-md-3">
-        <div class="stat-card-modern">
+        <div class="card card-custom stat-card-modern">
             <div class="d-flex justify-content-between">
                 <div>
                     <div class="text-muted small mb-1 fw-bold">Approved Logbooks</div>
@@ -89,7 +89,7 @@
         </div>
     </div>
     <div class="col-md-3">
-        <div class="stat-card-modern">
+        <div class="card card-custom stat-card-modern">
             <div class="d-flex justify-content-between">
                 <div>
                     <div class="text-muted small mb-1 fw-bold">Active Tasks</div>
