@@ -63,19 +63,19 @@
                 
                 // Status Determination
                 if ($logCount == 0) {
-                    $statusStr = 'Incomplete';
+                    $statusStr = '0% Started';
                     $statusIcon = 'fas fa-minus-circle text-secondary';
                 } elseif ($rejectedCount > 0) {
-                    $statusStr = 'Rejected Logs';
+                    $statusStr = $rejectedCount . ' Issues Found';
                     $statusIcon = 'fas fa-times-circle text-danger';
                 } elseif ($pendingCount > 0) {
-                    $statusStr = 'Pending Approval';
+                    $statusStr = 'Awaiting Feedback';
                     $statusIcon = 'fas fa-clock text-warning';
                 } elseif ($approvedCount == $logCount) {
-                    $statusStr = 'Fully Approved';
+                    $statusStr = '100% Completed';
                     $statusIcon = 'fas fa-check-circle text-success';
                 } else {
-                    $statusStr = 'In Progress';
+                    $statusStr = $logCount . '/5 Progress';
                     $statusIcon = 'fas fa-spinner text-info';
                 }
             @endphp

@@ -1,1 +1,12 @@
 /* Supervisor Review Logbook Page Styles */
+.review-card {
+    transition: all 0.3s ease-in-out;
+    cursor: pointer;
+    border: 2px solid #E5E7EB !important;
+    transform: translateY(0);
+}
+.review-card:hover, .review-card.active-card {
+    transform: translateY(-5px);
+    border-color: #1E3A8A !important;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+}

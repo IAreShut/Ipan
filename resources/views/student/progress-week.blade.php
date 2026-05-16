@@ -32,7 +32,7 @@
 <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4 mb-5">
         @foreach($weekLogs as $log)
     <div class="col">
-        <div class="card card-custom h-100 shadow-sm border" style="border-radius: 12px; border-color: #cbd5e1 !important; border-top: 4px solid @if($log->status == 'approved') #10B981 @elseif($log->status == 'rejected') #EF4444 @elseif($log->status == 'pending') #FBBF24 @else #6B7280 @endif;">
+        <div class="card week-card h-100 shadow-sm border">
             <div class="card-body p-4 d-flex flex-column">
                 <!-- Profile & Date -->
                 <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-3">
@@ -48,10 +48,10 @@
                 </div>
 
                 <!-- Title & Attachment -->
-                <div class="d-flex justify-content-between align-items-start mb-4 flex-grow-1">
+                <div class="d-flex justify-content-between align-items-start flex-grow-1">
                     <div class="me-3">
                         <h6 class="mb-1 fw-bold text-dark">Week {{ $log->week_number }} Log Entry</h6>
-                        <small class="text-muted d-block">{{ Str::limit($log->task_description, 80, '...') }}</small>
+                        <small class="text-muted d-block">{{ Str::limit($log->task_description, 100, '...') }}</small>
                     </div>
                     @if($log->attachments && $log->attachments->count() > 0)
                         <a href="{{ route('student.log-entries.show', $log->id) }}" class="btn btn-sm rounded-pill fw-bold border-0 px-3 text-nowrap text-decoration-none" 
