@@ -22,7 +22,7 @@
     <button class="btn btn-outline-secondary me-2 rounded-pill"><i class="fas fa-filter"></i> Filter</button>
     <div class="dropdown d-inline-block">
         <button class="btn ai-btn dropdown-toggle" type="button" id="aiAssistantDropdownDesktop" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="fas fa-magic"></i> AI Assistant
+            <i class="fas fa-wand-magic-sparkles"></i> AI Assistant
         </button>
         <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="aiAssistantDropdownDesktop">
             <li><a class="dropdown-item ai-action py-2" href="#" data-action="summary"><i class="fas fa-chart-bar text-primary me-2"></i> Generate Performance Summary</a></li>
@@ -109,42 +109,43 @@
                 <h5 class="fw-bold m-0">Performance Trend</h5>
                 <select class="form-select form-select-sm w-auto rounded-pill"><option>Monthly</option></select>
             </div>
-            <div style="height: 300px;">
+            <div class="position-relative w-100" style="height: 380px;">
                 <canvas id="trendChart"></canvas>
             </div>
         </div>
     </div>
     <div class="col-md-4">
-        <div class="card card-custom p-4 h-100">
-            <h5 class="fw-bold mb-4">Logbook Breakdown</h5>
-            @php
-                $total = $totalLogbooks > 0 ? $totalLogbooks : 1;
-                $pctApproved = round(($approvedLogbooks / $total) * 100);
-                $pctPending = round(($pendingReviews / $total) * 100);
-                $pctRejected = round(($rejectedLogbooks / $total) * 100);
-            @endphp
-            
-            <h2 class="fw-bold">{{ $totalLogbooks }}</h2>
-            <p class="text-muted small mb-4">Total submissions</p>
-            
-            <div class="progress progress-stacked mb-4">
-                <div class="progress-bar bg-success" role="progressbar" style="width: {{ $pctApproved }}%"></div>
-                <div class="progress-bar bg-warning" role="progressbar" style="width: {{ $pctPending }}%"></div>
-                <div class="progress-bar bg-danger" role="progressbar" style="width: {{ $pctRejected }}%"></div>
+        <div class="card card-custom p-4 h-100 d-flex flex-column justify-content-between">
+            <div class="d-flex flex-column align-items-center justify-content-center flex-grow-1 py-3">
+                <h5 class="fw-bold mb-4 w-100 text-start">Logbook Breakdown</h5>
+                @php
+                    $total = $totalLogbooks > 0 ? $totalLogbooks : 1;
+                    $pctApproved = round(($approvedLogbooks / $total) * 100);
+                    $pctPending = round(($pendingReviews / $total) * 100);
+                    $pctRejected = round(($rejectedLogbooks / $total) * 100);
+                @endphp
+                
+                <div class="position-relative mx-auto mt-2 mb-4" style="width: 200px; height: 200px;">
+                    <canvas id="breakdownChart"></canvas>
+                    <div class="position-absolute top-50 start-50 translate-middle text-center w-100">
+                        <h2 class="fw-bold mb-0" style="font-size: 2.5rem; line-height: 1;">{{ $totalLogbooks }}</h2>
+                        <span class="text-muted" style="font-size: 0.85rem; font-weight: 500;">Total</span>
+                    </div>
+                </div>
             </div>
             
-            <ul class="list-unstyled">
-                <li class="d-flex justify-content-between align-items-center mb-3">
-                    <div><i class="fas fa-circle text-success small me-2"></i> Approved</div>
-                    <div class="fw-bold">{{ $pctApproved }}% <span class="text-muted ms-2">{{ $approvedLogbooks }}</span></div>
+            <ul class="list-unstyled mb-0">
+                <li class="d-flex justify-content-between align-items-center mb-4">
+                    <div class="fs-6"><i class="fas fa-circle text-success small me-2"></i> Approved</div>
+                    <div class="fw-bold fs-6">{{ $pctApproved }}% <span class="text-muted ms-2">{{ $approvedLogbooks }}</span></div>
                 </li>
-                <li class="d-flex justify-content-between align-items-center mb-3">
-                    <div><i class="fas fa-circle text-warning small me-2"></i> Pending</div>
-                    <div class="fw-bold">{{ $pctPending }}% <span class="text-muted ms-2">{{ $pendingReviews }}</span></div>
+                <li class="d-flex justify-content-between align-items-center mb-4">
+                    <div class="fs-6"><i class="fas fa-circle text-warning small me-2"></i> Pending</div>
+                    <div class="fw-bold fs-6">{{ $pctPending }}% <span class="text-muted ms-2">{{ $pendingReviews }}</span></div>
                 </li>
                 <li class="d-flex justify-content-between align-items-center">
-                    <div><i class="fas fa-circle text-danger small me-2"></i> Rejected</div>
-                    <div class="fw-bold">{{ $pctRejected }}% <span class="text-muted ms-2">{{ $rejectedLogbooks }}</span></div>
+                    <div class="fs-6"><i class="fas fa-circle text-danger small me-2"></i> Rejected</div>
+                    <div class="fw-bold fs-6">{{ $pctRejected }}% <span class="text-muted ms-2">{{ $rejectedLogbooks }}</span></div>
                 </li>
             </ul>
         </div>
@@ -201,6 +202,13 @@
 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>window.chartData = {!! json_encode($chartData) !!};</script>
+<script>
+    window.chartData = {!! json_encode($chartData) !!};
+    window.breakdownData = {
+        approved: {{ $approvedLogbooks }},
+        pending: {{ $pendingReviews }},
+        rejected: {{ $rejectedLogbooks }}
+    };
+</script>
 <script src="{{ asset('js/supervisor/analytics.js') }}"></script>
 @endpush

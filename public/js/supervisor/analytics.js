@@ -51,6 +51,43 @@ $(document).ready(function() {
             }
         });
     }
+    
+    // Doughnut Breakdown Chart
+    if (window.breakdownData && document.getElementById('breakdownChart')) {
+        var bdCtx = document.getElementById('breakdownChart').getContext('2d');
+        new Chart(bdCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Approved', 'Pending', 'Rejected'],
+                datasets: [{
+                    data: [window.breakdownData.approved, window.breakdownData.pending, window.breakdownData.rejected],
+                    backgroundColor: ['#198754', '#ffc107', '#dc3545'],
+                    borderWidth: 0,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '75%', // Creates the thin doughnut look
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                var label = context.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                label += context.parsed + ' logs';
+                                return label;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
 
     // AI Assistant Actions
     $('.ai-action').click(function(e) {
