@@ -46,7 +46,7 @@
 <!-- Main Content -->
 <div class="main-content">
     <!-- Mobile Header -->
-    <div class="d-flex justify-content-between align-items-center d-lg-none mb-4">
+    <div class="d-flex justify-content-between align-items-center d-lg-none mb-2">
         <h4 class="fw-bold text-primary-custom">@yield('page-title')</h4>
         <button class="btn btn-primary-custom" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu">
             <i class="fas fa-bars"></i>
@@ -54,7 +54,7 @@
     </div>
 
     <!-- Desktop Header -->
-    <div class="d-none d-lg-flex justify-content-between align-items-center mb-4">
+    <div class="d-none d-lg-flex justify-content-between align-items-center mb-2">
         <div>
             <h2 class="fw-bold text-dark">@yield('page-title')</h2>
             <p class="text-muted">@yield('page-subtitle')</p>

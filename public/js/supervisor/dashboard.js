@@ -3,7 +3,17 @@
  * - DataTable initialization for student list
  */
 $(document).ready(function() {
-    $('#supervisorStudentTable').DataTable();
+    const table = $('#supervisorStudentTable').DataTable({
+        "dom": '<"top">rt<"bottom"ip><"clear">',
+        "pageLength": 5,
+        "language": {
+            "emptyTable": "No students found."
+        }
+    });
+
+    $('#studentSearch').on('keyup', function() {
+        table.search(this.value).draw();
+    });
 
    // Live Date Time functionality
     function updateDateTime() {

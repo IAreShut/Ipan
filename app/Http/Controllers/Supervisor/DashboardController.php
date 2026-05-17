@@ -16,9 +16,10 @@ class DashboardController extends Controller
     {
         $supervisor = Auth::user();
 
-        // Get students under this supervisor
+        // Get students under this supervisor with their log entries
         $students = User::where('supervisor_id', $supervisor->id)
             ->where('role', 'student')
+            ->with('logEntries')
             ->get();
 
         $totalStudents = $students->count();
@@ -42,13 +43,21 @@ class DashboardController extends Controller
             ->with('student')
             ->get();
 
+        // Identify At-Risk Students (has rejected logs or >2 pending logs)
+        $atRiskStudents = $students->filter(function($student) {
+            $rejectedCount = $student->logEntries->where('status', 'rejected')->count();
+            $pendingCount = $student->logEntries->where('status', 'pending')->count();
+            return $rejectedCount > 0 || $pendingCount >= 2;
+        });
+
         return view('supervisor.dashboard', compact(
             'supervisor',
             'students',
             'totalStudents',
             'pendingReviews',
             'alerts',
-            'recentActivity'
+            'recentActivity',
+            'atRiskStudents'
         ));
     }
 }

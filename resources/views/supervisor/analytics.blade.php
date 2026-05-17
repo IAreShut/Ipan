@@ -51,7 +51,7 @@
     </div>
 </div>
 
-<div class="row g-4 mb-4">
+<div class="row g-4 mb-2">
     <div class="col-md-3">
         <div class="card card-custom stat-card-modern">
             <div class="d-flex justify-content-between">

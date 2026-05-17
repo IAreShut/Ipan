@@ -155,7 +155,7 @@
         <!-- Left Column: Profile Card (Swapped) -->
         <div class="col-12 col-lg-4 order-1 order-lg-1 mb-4 mb-lg-0">
             <!-- Main Profile Avatar Card -->
-            <div class="profile-card p-4 text-center pb-5" style="border-radius: 2rem;">
+            <div class="profile-card p-4 text-center" style="border-radius: 2rem;">
                 <!-- Hidden File Input -->
                 <input type="file" name="avatar" id="avatar_input" class="d-none" accept="image/*" onchange="previewAvatar(event)">
 
