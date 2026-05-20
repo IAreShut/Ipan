@@ -161,6 +161,7 @@
         <table id="topPerformingTable" class="table table-hover align-middle">
             <thead class="table-light">
                 <tr>
+                    <th>No.</th>
                     <th>Student Info</th>
                     <th>Logbooks Submitted</th>
                     <th>Approval Rate</th>
@@ -176,6 +177,7 @@
                     $rate = $stdTotal > 0 ? round(($stdApp / $stdTotal) * 100) : 0;
                 @endphp
                 <tr>
+                    <td>{{ $loop->iteration }}.</td>
                     <td>
                         <div class="d-flex align-items-center">
                             <img src="https://ui-avatars.com/api/?name={{ urlencode($student->name) }}&background=random" class="rounded-circle me-3" width="40">

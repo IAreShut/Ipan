@@ -4,7 +4,6 @@
 
 @push('styles')
 <link rel="stylesheet" href="{{ asset('css/student-log-entries.css') }}">
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
 @endpush
 
 @section('sidebar-menu')
@@ -133,6 +132,7 @@
         <table id="logEntriesTable" class="table table-hover align-middle">
             <thead class="table-light">
                 <tr>
+                    <th>No.</th>
                     <th>Week</th>
                     <th>Date</th>
                     <th>Task Summary</th>
@@ -145,6 +145,7 @@
             <tbody>
                 @foreach($logs as $log)
                 <tr>
+                    <td>{{ $loop->iteration }}.</td>
                     <td>W{{ $log->week_number }}</td>
                     <td>{{ $log->entry_date->format('d M Y') }}</td>
                     <td>{{ Str::limit($log->task_description, 50) }}</td>
@@ -168,25 +169,27 @@
                     </td>
                     <td>
                         @if($log->status === 'approved')
-                            <span class="badge badge-status-approved">Approved</span>
+                            <span class="badge-status approved">Approved</span>
                         @elseif($log->status === 'rejected')
-                            <span class="badge badge-status-rejected">Rejected</span>
+                            <span class="badge-status rejected">Rejected</span>
                         @elseif($log->status === 'pending')
-                            <span class="badge badge-status-pending">Pending</span>
+                            <span class="badge-status pending">Pending</span>
                         @else
-                            <span class="badge bg-secondary">Draft</span>
+                            <span class="badge-status draft">Draft</span>
                         @endif
                     </td>
                     <td>{{ $log->supervisor_comment ?? '-' }}</td>
                     <td>
-                        <a href="{{ route('student.log-entries.show', $log->id) }}" class="btn btn-sm btn-light text-primary" title="View Details">
-                            <i class="fas fa-eye"></i>
-                        </a>
-                        @if($log->status === 'draft')
-                        <a href="{{ route('student.log-entries.edit', $log->id) }}" class="btn btn-sm btn-light text-warning" title="Edit Draft">
-                            <i class="fas fa-pen"></i>
-                        </a>
-                        @endif
+                        <div class="d-flex gap-2">
+                            <a href="{{ route('student.log-entries.show', $log->id) }}" class="btn-table-action action-view" title="View Details">
+                                <i class="fas fa-eye"></i> View
+                            </a>
+                            @if($log->status === 'draft')
+                            <a href="{{ route('student.log-entries.edit', $log->id) }}" class="btn-table-action action-edit" title="Edit Draft">
+                                <i class="fas fa-pen"></i> Edit
+                            </a>
+                            @endif
+                        </div>
                     </td>
                 </tr>
                 @endforeach

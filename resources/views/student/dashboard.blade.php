@@ -122,6 +122,7 @@
                 <table id="recentLogEntriesTable" class="table table-premium w-100">
                     <thead>
                         <tr>
+                            <th>No.</th>
                             <th>Week</th>
                             <th>Date</th>
                             <th>Task Summary</th>
@@ -132,6 +133,7 @@
                     <tbody>
                         @foreach($recentLogs as $log)
                         <tr>
+                            <td>{{ $loop->iteration }}.</td>
                             <td class="fw-bold text-dark">W{{ $log->week_number }}</td>
                             <td>{{ $log->entry_date->format('d M Y') }}</td>
                             <td>{{ Str::limit($log->task_description, 40) }}</td>
@@ -147,14 +149,16 @@
                                 @endif
                             </td>
                             <td class="text-center text-nowrap">
-                                <a href="{{ route('student.log-entries.show', $log->id) }}" class="btn-action-icon" title="View Details">
-                                    <i class="fas fa-eye"></i>
-                                </a>
-                                @if($log->status === 'draft')
-                                <a href="{{ route('student.log-entries.edit', $log->id) }}" class="btn-action-icon ms-1" title="Edit Draft" style="color: var(--warning-text);">
-                                    <i class="fas fa-pen"></i>
-                                </a>
-                                @endif
+                                <div class="d-flex justify-content-center gap-2">
+                                    <a href="{{ route('student.log-entries.show', $log->id) }}" class="btn-table-action action-view" title="View Details">
+                                        <i class="fas fa-eye"></i> View
+                                    </a>
+                                    @if($log->status === 'draft')
+                                    <a href="{{ route('student.log-entries.edit', $log->id) }}" class="btn-table-action action-edit" title="Edit Draft">
+                                        <i class="fas fa-pen"></i> Edit
+                                    </a>
+                                    @endif
+                                </div>
                             </td>
                         </tr>
                         @endforeach

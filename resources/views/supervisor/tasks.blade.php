@@ -34,6 +34,7 @@
                 <table id="tasksTable" class="table table-hover align-middle">
                     <thead class="table-light">
                         <tr>
+                            <th>No.</th>
                             <th>Student Name</th>
                             <th>Group</th>
                             <th>Task</th>
@@ -48,6 +49,7 @@
                                 $isToday = $task->due_date->isToday();
                             @endphp
                             <tr>
+                                <td>{{ $loop->iteration }}.</td>
                                 <td>
                                     <div class="d-flex align-items-center">
                                         <img src="https://ui-avatars.com/api/?name={{ urlencode($task->user->name) }}&background=random&size=32" class="rounded-circle me-2" alt="">

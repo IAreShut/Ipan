@@ -1,4 +1,16 @@
 /* Student Log Entries Page Styles */
+:root {
+    --navy-primary: #1e3a8a;
+    --navy-light: #eff6ff;
+    --success-soft: #ecfdf5;
+    --success-text: #10b981;
+    --warning-soft: #fffbeb;
+    --warning-text: #f59e0b;
+    --danger-soft: #fef2f2;
+    --danger-text: #ef4444;
+    --card-shadow: 0 10px 25px rgba(0, 0, 0, 0.03);
+    --border-soft: #f1f5f9;
+}
 
 /* ===== Upload Zone ===== */
 .upload-zone {
@@ -9,14 +21,16 @@
     background: #f8fafc;
     transition: all 0.3s ease;
 }
+
 .upload-zone:hover {
     border-color: #6366f1;
     background: #eef2ff;
 }
+
 .upload-zone.drag-active {
     border-color: #6366f1;
     background: #e0e7ff;
-    box-shadow: 0 0 0 4px rgba(99,102,241,0.15);
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
 }
 
 /* ===== Image Preview Grid ===== */
@@ -25,25 +39,29 @@
     flex-wrap: wrap;
     gap: 12px;
 }
+
 .preview-item {
     position: relative;
     width: 110px;
     border-radius: 10px;
     overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     background: #fff;
     transition: transform 0.2s;
 }
+
 .preview-item:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
 }
+
 .preview-item img {
     width: 100%;
     height: 80px;
     object-fit: cover;
     display: block;
 }
+
 .preview-name {
     display: block;
     font-size: 0.65rem;
@@ -53,11 +71,12 @@
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
 .btn-preview-remove {
     position: absolute;
     top: 4px;
     right: 4px;
-    background: rgba(239,68,68,0.9);
+    background: rgba(239, 68, 68, 0.9);
     color: #fff;
     border: none;
     border-radius: 50%;
@@ -71,6 +90,7 @@
     opacity: 0;
     transition: opacity 0.2s;
 }
+
 .preview-item:hover .btn-preview-remove {
     opacity: 1;
 }
@@ -81,10 +101,12 @@
     flex-wrap: wrap;
     gap: 6px;
 }
+
 .thumb-wrapper {
     position: relative;
     display: inline-block;
 }
+
 .attachment-thumb {
     width: 44px;
     height: 44px;
@@ -94,18 +116,21 @@
     border: 2px solid transparent;
     transition: all 0.2s;
 }
+
 .attachment-thumb:hover {
     border-color: #6366f1;
     transform: scale(1.1);
-    box-shadow: 0 2px 8px rgba(99,102,241,0.3);
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
 }
+
 .thumb-delete-form {
     position: absolute;
     top: -6px;
     right: -6px;
 }
+
 .btn-thumb-delete {
-    background: rgba(239,68,68,0.9);
+    background: rgba(239, 68, 68, 0.9);
     color: #fff;
     border: none;
     border-radius: 50%;
@@ -120,6 +145,7 @@
     transition: opacity 0.2s;
     padding: 0;
 }
+
 .thumb-wrapper:hover .btn-thumb-delete {
     opacity: 1;
 }
@@ -131,6 +157,7 @@
     gap: 8px;
     margin-top: 0.5rem;
 }
+
 .sv-attachment-gallery img {
     width: 80px;
     height: 80px;
@@ -140,10 +167,11 @@
     border: 2px solid #e2e8f0;
     transition: all 0.2s;
 }
+
 .sv-attachment-gallery img:hover {
     border-color: #6366f1;
     transform: scale(1.05);
-    box-shadow: 0 3px 12px rgba(0,0,0,0.15);
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.15);
 }
 
 /* ===== AI Generate Button ===== */
@@ -161,7 +189,7 @@
     align-items: center;
     gap: 10px;
     cursor: pointer;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .btn-ai-generate:hover {
@@ -178,10 +206,47 @@
 
 /* Sparkle animation for the magic wand icon */
 @keyframes sparkle {
-    0%, 100% { transform: scale(1) rotate(0deg); opacity: 1; }
-    50% { transform: scale(1.1) rotate(10deg); opacity: 0.8; }
+
+    0%,
+    100% {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.1) rotate(10deg);
+        opacity: 0.8;
+    }
 }
 
 .btn-ai-generate i {
     animation: sparkle 2s infinite ease-in-out;
+}
+
+.badge-status {
+    padding: 0.4rem 0.8rem;
+    border-radius: 2rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+}
+
+.badge-status.approved {
+    background-color: var(--success-soft);
+    color: var(--success-text);
+}
+
+.badge-status.rejected {
+    background-color: var(--danger-soft);
+    color: var(--danger-text);
+}
+
+.badge-status.pending {
+    background-color: var(--warning-soft);
+    color: var(--warning-text);
+}
+
+.badge-status.draft {
+    background-color: #f1f5f9;
+    color: #64748b;
 }

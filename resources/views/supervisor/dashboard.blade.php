@@ -34,7 +34,7 @@
     <div class="ai-digest-card">
         <div class="ai-digest-content-wrapper">
             <div class="ai-digest-icon">
-                <i class="fas fa-sparkles"></i>
+                <i class="fa-solid fa-robot"></i>
             </div>
             <div class="ai-digest-content">
                 <h5 class="fw-bold mb-1">Supervisor's AI Digest</h5>
@@ -51,48 +51,42 @@
         <div class="row g-4 mb-4 animate-slide-up delay-100">
             <div class="col-md-4">
                 <div class="premium-card stat-card h-100 p-4">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div class="stat-info">
-                            <span class="stat-label">Total Students</span>
-                            <h3 class="stat-value">{{ $totalStudents }}</h3>
-                        </div>
-                        <div class="stat-icon-wrapper icon-primary">
-                            <i class="fas fa-users"></i>
-                        </div>
+                    <div class="stat-info">
+                        <span class="stat-label">Total Students</span>
+                        <h3 class="stat-value">{{ $totalStudents }}</h3>
+                    </div>
+                    <div class="stat-icon-wrapper icon-primary">
+                        <i class="fas fa-users"></i>
                     </div>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="premium-card stat-card h-100 p-4 {{ $pendingReviews > 5 ? 'urgent' : '' }}">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div class="stat-info">
-                            <span class="stat-label">Pending Review</span>
-                            <h3 class="stat-value">{{ $pendingReviews }}</h3>
-                            @if($pendingReviews > 0)
-                                <div class="stat-trend down"><i class="fas fa-arrow-up"></i> Action required</div>
-                            @endif
-                        </div>
-                        <div class="stat-icon-wrapper icon-warning">
-                            <i class="fas fa-clock"></i>
-                        </div>
+                    <div class="stat-info">
+                        <span class="stat-label">Pending Review</span>
+                        <h3 class="stat-value">{{ $pendingReviews }}</h3>
+                        @if($pendingReviews > 0)
+                            <div class="stat-trend down"><i class="fas fa-arrow-up"></i> Action required</div>
+                        @endif
+                    </div>
+                    <div class="stat-icon-wrapper icon-warning">
+                        <i class="fas fa-clock"></i>
                     </div>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="premium-card stat-card h-100 p-4 {{ $alerts > 0 ? 'urgent' : '' }}">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div class="stat-info">
-                            <span class="stat-label">Flags / Alerts</span>
-                            <h3 class="stat-value">{{ $alerts }}</h3>
-                            @if($alerts > 0)
-                                <div class="stat-trend down"><i class="fas fa-exclamation-circle"></i> Needs attention</div>
-                            @else
-                                <div class="stat-trend up"><i class="fas fa-check-circle"></i> All good</div>
-                            @endif
-                        </div>
-                        <div class="stat-icon-wrapper icon-danger">
-                            <i class="fas fa-exclamation-triangle"></i>
-                        </div>
+                    <div class="stat-info">
+                        <span class="stat-label">Flags / Alerts</span>
+                        <h3 class="stat-value">{{ $alerts }}</h3>
+                        @if($alerts > 0)
+                            <div class="stat-trend down"><i class="fas fa-exclamation-circle"></i> Needs attention</div>
+                        @else
+                            <div class="stat-trend up"><i class="fas fa-check-circle"></i> All good</div>
+                        @endif
+                    </div>
+                    <div class="stat-icon-wrapper icon-danger">
+                        <i class="fas fa-exclamation-triangle"></i>
                     </div>
                 </div>
             </div>
@@ -131,6 +125,7 @@
                 <table id="supervisorStudentTable" class="table table-hover align-middle">
                     <thead class="table-light">
                         <tr>
+                            <th>No.</th>
                             <th>Student Name</th>
                             <th>Company</th>
                             <th>Progress</th>
@@ -147,6 +142,7 @@
                             $progressPct = min(100, round(($approvedCount / 12) * 100));
                         @endphp
                         <tr>
+                            <td>{{ $loop->iteration }}.</td>
                             <td>
                                 <div class="d-flex align-items-center">
                                     <img src="https://ui-avatars.com/api/?name={{ urlencode($student->name) }}&background=random" class="student-avatar-lg me-3">
@@ -176,7 +172,9 @@
                                 @endif
                             </td>
                             <td>
-                                <a href="{{ route('supervisor.review-logbook') }}" class="btn btn-sm btn-premium-outline">Review</a>
+                                <a href="{{ route('supervisor.review-logbook') }}" class="btn-table-action action-review">
+                                    <i class="fas fa-check-circle"></i> Review
+                                </a>
                             </td>
                         </tr>
                         @endforeach
