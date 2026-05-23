@@ -10,6 +10,7 @@ use App\Http\Controllers\Student\ProgressController;
 use App\Http\Controllers\Supervisor\AnalyticsController;
 // Supervisor Controllers
 use App\Http\Controllers\Supervisor\DashboardController as SupervisorDashboardController;
+use App\Http\Controllers\Supervisor\AssignStudentController;
 use App\Http\Controllers\Supervisor\ProfileController as SupervisorProfileController;
 use App\Http\Controllers\Supervisor\ReviewController;
 use App\Http\Controllers\Supervisor\TaskController;
@@ -57,6 +58,7 @@ Route::middleware(['auth'])->prefix('student')->name('student.')->group(function
 // Supervisor Routes (Protected)
 Route::middleware(['auth'])->prefix('supervisor')->name('supervisor.')->group(function () {
     Route::get('/dashboard', [SupervisorDashboardController::class, 'dashboard'])->name('dashboard');
+    Route::get('/assigned-students', [AssignStudentController::class, 'assignedStudents'])->name('assigned-students');
     Route::get('/students/{student}', [SupervisorDashboardController::class, 'showStudent'])->name('students.show');
     Route::get('/review-logbook', [ReviewController::class, 'index'])->name('review-logbook');
     Route::post('/approve/{id}', [ReviewController::class, 'approve'])->name('approve');

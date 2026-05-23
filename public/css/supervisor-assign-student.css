@@ -1,0 +1,162 @@
+/* Assign Student View Stylesheet */
+
+/* Top Row Cards */
+.stat-card-assigned {
+    border-left: 4px solid var(--primary-color) !important;
+}
+.stat-card-completed {
+    border-left: 4px solid var(--success-color) !important;
+}
+.stat-card-inprogress {
+    border-left: 4px solid var(--warning-color) !important;
+}
+.stat-card-overdue {
+    border-left: 4px solid var(--danger-color) !important;
+}
+
+.card-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 6px;
+}
+.dot-primary { background-color: var(--primary-color); }
+.dot-success { background-color: var(--success-color); }
+.dot-warning { background-color: var(--warning-color); }
+.dot-danger { background-color: var(--danger-color); }
+
+/* Student Profile Grid */
+.student-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.student-profile-card {
+    background: #ffffff;
+    border-radius: 1.5rem;
+    border: 1px solid #cbd5e1;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.03);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    overflow: hidden;
+    padding: 2rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    cursor: pointer;
+    text-decoration: none !important;
+    color: inherit;
+}
+
+.student-profile-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+    border-color: var(--primary-color);
+}
+
+.student-profile-card .avatar-wrapper {
+    position: relative;
+    margin-bottom: 1.25rem;
+}
+
+.student-profile-card .student-avatar {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #f1f5f9;
+    transition: border-color 0.2s ease;
+}
+
+.student-profile-card:hover .student-avatar {
+    border-color: var(--accent-color);
+}
+
+.student-profile-card .student-name {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 0.25rem;
+    line-height: 1.3;
+}
+
+.student-profile-card .student-prog {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.75rem;
+}
+
+.student-profile-card .student-meta {
+    font-size: 0.85rem;
+    color: #475569;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    width: 100%;
+    justify-content: center;
+}
+
+.student-profile-card .student-email {
+    font-size: 0.8rem;
+    color: var(--primary-color);
+    font-weight: 500;
+    word-break: break-all;
+    margin-top: 0.5rem;
+    padding: 0.25rem 0.75rem;
+    background-color: #EFF6FF;
+    border-radius: 1rem;
+    transition: background-color 0.2s ease;
+}
+
+.student-profile-card:hover .student-email {
+    background-color: var(--primary-color);
+    color: #ffffff;
+}
+
+/* Badge overlay in card */
+.student-profile-card .status-badge-overlay {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.25rem 0.6rem;
+    border-radius: 1rem;
+}
+
+/* Table styles */
+.table-responsive-custom {
+    border-radius: 1rem;
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+}
+
+/* Stat Cards */
+.stat-card-modern {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+    border: 1px solid #e2e8f0;
+}
+.icon-shape {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+}
+
+.text-value-metric {
+    font-weight: 700;
+    font-size: 1.05rem;
+}

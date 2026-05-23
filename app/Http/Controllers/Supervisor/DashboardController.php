@@ -128,4 +128,5 @@ class DashboardController extends Controller
             'weeklyProgress', 'totalWeeks', 'progressPct'
         ));
     }
+
 }

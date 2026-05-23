@@ -11,6 +11,7 @@
 <a class="nav-link" href="{{ route('supervisor.review-logbook') }}"><i class="fas fa-check-circle"></i> Review Logbook</a>
 <a class="nav-link" href="{{ route('supervisor.tasks') }}"><i class="fas fa-flag-checkered"></i> Tasks</a>
 <a class="nav-link active" href="{{ route('supervisor.analytics') }}"><i class="fas fa-chart-line"></i> Analytics</a>
+<a class="nav-link" href="{{ route('supervisor.assigned-students') }}"><i class="fas fa-user-plus"></i> Assign Student</a>
 <a class="nav-link" href="{{ route('supervisor.profile') }}"><i class="fas fa-user-cog"></i> Profile</a>
 @endsection
 
@@ -19,7 +20,6 @@
 
 @section('header-right')
 <div>
-    <button class="btn btn-outline-secondary me-2 rounded-pill"><i class="fas fa-filter"></i> Filter</button>
     <div class="dropdown d-inline-block">
         <button class="btn ai-btn dropdown-toggle" type="button" id="aiAssistantDropdownDesktop" data-bs-toggle="dropdown" aria-expanded="false">
             <i class="fas fa-wand-magic-sparkles"></i> AI Assistant
