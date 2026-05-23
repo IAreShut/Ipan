@@ -15,10 +15,12 @@ class Task extends Model
         'title',
         'due_date',
         'type',
+        'completed_at',
     ];
 
     protected $casts = [
         'due_date' => 'datetime',
+        'completed_at' => 'datetime',
     ];
 
     public function user()
@@ -29,5 +31,15 @@ class Task extends Model
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function isCompleted()
+    {
+        return !is_null($this->completed_at);
+    }
+
+    public function markAsCompleted()
+    {
+        $this->update(['completed_at' => now()]);
     }
 }

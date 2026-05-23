@@ -21,7 +21,7 @@
 @section('main-content')
 <div class="row g-4">
     <!-- Center Column: Calendar -->
-    <div class="col-lg-12">
+    <div class="col-lg-8">
         <div class="card card-custom p-4 mb-4">
             <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
                 <h5 class="fw-bold m-0"><i class="fas fa-calendar-alt text-primary me-2"></i> My Calendar</h5>
@@ -87,6 +87,47 @@
             </div>
             <!-- FullCalendar Container -->
             <div id="calendar"></div>
+        </div>
+    </div>
+
+    <!-- Right Column: Task Checklist -->
+    <div class="col-lg-4">
+        <div class="card card-custom p-4 mb-4">
+            <h5 class="fw-bold mb-4"><i class="fas fa-tasks text-primary me-2"></i> My Tasks</h5>
+            
+            <div class="task-list d-flex flex-column gap-3" style="max-height: 600px; overflow-y: auto;">
+                @forelse($tasks->where('type', 'sv_task') as $task)
+                    <div class="p-3 {{ $task->isCompleted() ? 'bg-light text-muted' : 'bg-white shadow-sm' }}" style="border-radius: 1rem; border: 1px solid #e2e8f0;">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h6 class="fw-bold m-0 {{ $task->isCompleted() ? 'text-decoration-line-through' : '' }}" style="font-size: 0.95rem;">{{ $task->title }}</h6>
+                            @if($task->isCompleted())
+                                <span class="badge bg-success rounded-pill"><i class="fas fa-check"></i> Done</span>
+                            @else
+                                <span class="badge bg-warning text-dark rounded-pill"><i class="fas fa-clock"></i> Pending</span>
+                            @endif
+                        </div>
+                        <div class="d-flex align-items-center mb-3" style="font-size: 0.8rem;">
+                            <i class="far fa-calendar-alt me-2 text-primary"></i>
+                            <span class="{{ $task->due_date->isPast() && !$task->isCompleted() ? 'text-danger fw-bold' : 'text-muted' }}">
+                                Due: {{ $task->due_date->format('d M Y, h:i A') }}
+                            </span>
+                        </div>
+                        @if(!$task->isCompleted())
+                            <form action="{{ route('student.tasks.complete', $task) }}" method="POST">
+                                @csrf
+                                <button type="submit" class="btn btn-sm btn-outline-success w-100 rounded-pill fw-semibold">
+                                    <i class="fas fa-check-circle me-1"></i> Mark as Done
+                                </button>
+                            </form>
+                        @endif
+                    </div>
+                @empty
+                    <div class="text-center p-4 text-muted border rounded" style="background-color: #f8fafc; border-style: dashed !important;">
+                        <i class="fas fa-clipboard-check fs-2 mb-2 opacity-50"></i>
+                        <p class="mb-0 small">No pending tasks.</p>
+                    </div>
+                @endforelse
+            </div>
         </div>
     </div>
 </div>

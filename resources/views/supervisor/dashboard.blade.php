@@ -66,7 +66,7 @@
                         <span class="stat-label">Pending Review</span>
                         <h3 class="stat-value">{{ $pendingReviews }}</h3>
                         @if($pendingReviews > 0)
-                            <div class="stat-trend down"><i class="fas fa-arrow-up"></i> Action required</div>
+                        <div class="stat-trend down"><i class="fas fa-arrow-up"></i> Action required</div>
                         @endif
                     </div>
                     <div class="stat-icon-wrapper icon-warning">
@@ -80,9 +80,9 @@
                         <span class="stat-label">Flags / Alerts</span>
                         <h3 class="stat-value">{{ $alerts }}</h3>
                         @if($alerts > 0)
-                            <div class="stat-trend down"><i class="fas fa-exclamation-circle"></i> Needs attention</div>
+                        <div class="stat-trend down"><i class="fas fa-exclamation-circle"></i> Needs attention</div>
                         @else
-                            <div class="stat-trend up"><i class="fas fa-check-circle"></i> All good</div>
+                        <div class="stat-trend up"><i class="fas fa-check-circle"></i> All good</div>
                         @endif
                     </div>
                     <div class="stat-icon-wrapper icon-danger">
@@ -120,7 +120,7 @@
                     <input type="text" class="form-control form-control-sm" id="studentSearch" placeholder="Search students...">
                 </div>
             </div>
-            
+
             <div class="table-responsive">
                 <table id="supervisorStudentTable" class="table table-hover align-middle">
                     <thead class="table-light">
@@ -136,10 +136,10 @@
                     <tbody>
                         @foreach($students as $student)
                         @php
-                            $pendingCount = $student->logEntries->where('status', 'pending')->count();
-                            $approvedCount = $student->logEntries->where('status', 'approved')->count();
-                            // Assuming 12 weeks is a full internship length for calculation
-                            $progressPct = min(100, round(($approvedCount / 12) * 100));
+                        $pendingCount = $student->logEntries->where('status', 'pending')->count();
+                        $approvedCount = $student->logEntries->where('status', 'approved')->count();
+                        // Assuming 12 weeks is a full internship length for calculation
+                        $progressPct = min(100, round(($approvedCount / 12) * 100));
                         @endphp
                         <tr>
                             <td>{{ $loop->iteration }}.</td>
@@ -147,7 +147,9 @@
                                 <div class="d-flex align-items-center">
                                     <img src="https://ui-avatars.com/api/?name={{ urlencode($student->name) }}&background=random" class="student-avatar-lg me-3">
                                     <div>
-                                        <span class="fw-bold d-block">{{ $student->name }}</span>
+                                        <a href="{{ route('supervisor.students.show', $student->id) }}" class="text-decoration-none">
+                                            <span class="fw-bold d-block text-dark" style="transition: color 0.2s;" onmouseover="this.style.color='#1E40AF'" onmouseout="this.style.color='#212529'">{{ $student->name }}</span>
+                                        </a>
                                         <small class="text-muted">{{ $student->email }}</small>
                                     </div>
                                 </div>
@@ -166,9 +168,9 @@
                             </td>
                             <td>
                                 @if($pendingCount > 0)
-                                    <span class="badge badge-status-pending">{{ $pendingCount }} Pending</span>
+                                <span class="badge badge-status-pending">{{ $pendingCount }} Pending</span>
                                 @else
-                                    <span class="badge badge-status-approved">Up to Date</span>
+                                <span class="badge badge-status-approved">Up to Date</span>
                                 @endif
                             </td>
                             <td>

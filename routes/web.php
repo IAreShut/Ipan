@@ -49,6 +49,7 @@ Route::middleware(['auth'])->prefix('student')->name('student.')->group(function
     Route::get('/progress/week/{week}', [ProgressController::class, 'week'])->name('progress.week');
     Route::get('/notifications', [StudentNotificationController::class, 'index'])->name('notifications');
     Route::post('/reminders', [StudentNotificationController::class, 'storeReminder'])->name('reminders.store');
+    Route::post('/tasks/{task}/complete', [StudentNotificationController::class, 'completeTask'])->name('tasks.complete');
     Route::post('/notifications/{notification}/read', [StudentNotificationController::class, 'markRead'])->name('notifications.read');
     Route::get('/notifications/unread', [StudentNotificationController::class, 'unread'])->name('notifications.unread');
 });
@@ -56,6 +57,7 @@ Route::middleware(['auth'])->prefix('student')->name('student.')->group(function
 // Supervisor Routes (Protected)
 Route::middleware(['auth'])->prefix('supervisor')->name('supervisor.')->group(function () {
     Route::get('/dashboard', [SupervisorDashboardController::class, 'dashboard'])->name('dashboard');
+    Route::get('/students/{student}', [SupervisorDashboardController::class, 'showStudent'])->name('students.show');
     Route::get('/review-logbook', [ReviewController::class, 'index'])->name('review-logbook');
     Route::post('/approve/{id}', [ReviewController::class, 'approve'])->name('approve');
     Route::post('/reject/{id}', [ReviewController::class, 'reject'])->name('reject');

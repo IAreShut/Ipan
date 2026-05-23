@@ -1,0 +1,126 @@
+/* Supervisor Student Show CSS */
+
+/* Progress Grid */
+.progress-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(45px, 1fr));
+    gap: 10px;
+    margin-bottom: 1rem;
+}
+
+.week-cell {
+    aspect-ratio: 1;
+    border-radius: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    border: 2px solid transparent;
+    color: #475569;
+}
+
+.week-cell:hover {
+    transform: translateY(-4px) scale(1.05);
+    box-shadow: 0 10px 15px rgba(0,0,0,0.05);
+}
+
+.week-cell .week-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    margin-bottom: 2px;
+}
+
+.week-cell i {
+    font-size: 0.8rem;
+}
+
+/* Status Colors for Grid */
+.week-cell.approved {
+    background-color: #d1fae5;
+    border-color: #10b981;
+    color: #065f46;
+}
+
+.week-cell.pending {
+    background-color: #fef3c7;
+    border-color: #f59e0b;
+    color: #92400e;
+}
+
+.week-cell.rejected {
+    background-color: #fee2e2;
+    border-color: #ef4444;
+    color: #991b1b;
+}
+
+.week-cell.mixed {
+    background-color: #dbeafe;
+    border-color: #3b82f6;
+    color: #1e40af;
+}
+
+.week-cell.empty {
+    background-color: #f8fafc;
+    border-color: #cbd5e1;
+    color: #94a3b8;
+}
+
+/* Legend Colors */
+.legend-color {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+.legend-color.approved { background-color: #10b981; }
+.legend-color.pending { background-color: #f59e0b; }
+.legend-color.rejected { background-color: #ef4444; }
+.legend-color.mixed { background-color: #3b82f6; }
+.legend-color.empty { background-color: #cbd5e1; }
+
+/* Timeline adjustments for inline feedback */
+.timeline-modern {
+    position: relative;
+    padding-left: 30px;
+}
+
+.timeline-modern::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #e2e8f0;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 2rem;
+    display: flex;
+}
+
+.timeline-icon {
+    position: absolute;
+    left: -37px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #fff;
+    border: 3px solid #cbd5e1;
+    z-index: 1;
+}
+
+.timeline-icon.approved { border-color: #10b981; }
+.timeline-icon.pending { border-color: #f59e0b; }
+.timeline-icon.rejected { border-color: #ef4444; }
+
+/* FullCalendar Custom Completed Event */
+.fc-event-completed {
+    background-color: #10b981 !important;
+    border-color: #059669 !important;
+    color: #fff !important;
+    text-decoration: line-through;
+}

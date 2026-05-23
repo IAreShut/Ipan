@@ -29,7 +29,7 @@ class NotificationController extends Controller
             return [
                 'title' => $task->title,
                 'start' => $task->due_date->format('Y-m-d\TH:i:s'),
-                'className' => $task->type === 'sv_task' ? 'fc-event-sv' : 'fc-event-personal',
+                'className' => $task->completed_at ? 'fc-event-completed' : ($task->type === 'sv_task' ? 'fc-event-sv' : 'fc-event-personal'),
                 'allDay' => false,
             ];
         })->values();
@@ -77,6 +77,21 @@ class NotificationController extends Controller
         }
 
         return back();
+    }
+
+    /**
+     * Mark task as completed
+     */
+    public function completeTask(\App\Models\Task $task)
+    {
+        if ($task->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $task->markAsCompleted();
+
+        return redirect()->route('student.notifications')
+            ->with('success', 'Task marked as completed!');
     }
 
     /**
