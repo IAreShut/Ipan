@@ -105,7 +105,7 @@ $(document).ready(function() {
             title = 'At-Risk Students';
         } else if (action === 'chat') {
             Swal.fire({
-                title: 'Ask Gemini AI',
+                title: 'Ask AI Assistant',
                 input: 'text',
                 inputLabel: 'What do you want to know about your data?',
                 inputPlaceholder: 'e.g., Which student has the most rejected logs?',

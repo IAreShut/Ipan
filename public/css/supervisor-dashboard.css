@@ -123,7 +123,7 @@
 /* Stat Cards - Executive Look */
 .premium-card {
     border-radius: 1.5rem;
-    border: 1px solid rgba(226, 232, 240, 0.8);
+    border: 1px solid #cbd5e1;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.02);
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     background: #ffffff;
@@ -132,7 +132,7 @@
 .premium-card:hover {
     transform: translateY(-4px);
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.06);
-    border-color: rgba(30, 64, 175, 0.15);
+    border-color: var(--primary-color);
 }
 
 .stat-card {

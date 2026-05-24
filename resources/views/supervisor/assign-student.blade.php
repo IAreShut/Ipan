@@ -13,7 +13,7 @@
 <a class="nav-link" href="{{ route('supervisor.tasks') }}"><i class="fas fa-flag-checkered"></i> Tasks</a>
 <a class="nav-link" href="{{ route('supervisor.analytics') }}"><i class="fas fa-chart-line"></i> Analytics</a>
 <a class="nav-link active" href="{{ route('supervisor.assigned-students') }}"><i class="fas fa-user-plus"></i> Assign Student</a>
-<a class="nav-link" href="{{ route('supervisor.profile') }}"><i class="fas fa-user-cog"></i> Profile</a>
+<a class="nav-link" href="{{ route('supervisor.profile') }}"><i class="fa-solid fa-circle-user"></i> Profile</a>
 @endsection
 
 @section('page-title', 'Assign Student')
@@ -21,10 +21,10 @@
 
 @section('main-content')
 <!-- Top Stat Cards -->
-<div class="row g-4 mb-4 animate-slide-up">
+<div class="row g-4 animate-slide-up">
     <!-- Assigned Card -->
     <div class="col-md-3">
-        <div class="card card-custom stat-card-modern h-100">
+        <div class="card card-custom stat-card-modern">
             <div class="d-flex justify-content-between align-items-center">
                 <div class="pe-2">
                     <div class="text-muted small mb-1 fw-bold">Assigned</div>
@@ -38,7 +38,7 @@
     
     <!-- Completed Card -->
     <div class="col-md-3">
-        <div class="card card-custom stat-card-modern h-100">
+        <div class="card card-custom stat-card-modern">
             <div class="d-flex justify-content-between align-items-center">
                 <div class="pe-2">
                     <div class="text-muted small mb-1 fw-bold">Completed</div>
@@ -52,7 +52,7 @@
     
     <!-- In Progress Card -->
     <div class="col-md-3">
-        <div class="card card-custom stat-card-modern h-100">
+        <div class="card card-custom stat-card-modern">
             <div class="d-flex justify-content-between align-items-center">
                 <div class="pe-2">
                     <div class="text-muted small mb-1 fw-bold">In Progress</div>
@@ -66,7 +66,7 @@
     
     <!-- Overdue Card -->
     <div class="col-md-3">
-        <div class="card card-custom stat-card-modern h-100">
+        <div class="card card-custom stat-card-modern">
             <div class="d-flex justify-content-between align-items-center">
                 <div class="pe-2">
                     <div class="text-muted small mb-1 fw-bold">Overdue</div>

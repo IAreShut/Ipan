@@ -13,7 +13,7 @@
 <a class="nav-link" href="{{ route('supervisor.tasks')}}"><i class="fas fa-flag-checkered"></i> Tasks</a>
 <a class="nav-link" href="{{ route('supervisor.analytics') }}"><i class="fas fa-chart-line"></i> Analytics</a>
 <a class="nav-link" href="{{ route('supervisor.assigned-students') }}"><i class="fas fa-user-plus"></i> Assign Student</a>
-<a class="nav-link" href="{{ route('supervisor.profile') }}"><i class="fas fa-user-cog"></i> Profile</a>
+<a class="nav-link" href="{{ route('supervisor.profile') }}"><i class="fa-solid fa-circle-user"></i> Profile</a>
 @endsection
 
 @section('page-title', 'Supervisor Dashboard')
@@ -62,7 +62,7 @@
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="premium-card stat-card h-100 p-4 {{ $pendingReviews > 5 ? 'urgent' : '' }}">
+                <div class="premium-card stat-card p-4 {{ $pendingReviews > 5 ? 'urgent' : '' }}">
                     <div class="stat-info">
                         <span class="stat-label">Pending Review</span>
                         <h3 class="stat-value">{{ $pendingReviews }}</h3>
@@ -76,7 +76,7 @@
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="premium-card stat-card h-100 p-4 {{ $alerts > 0 ? 'urgent' : '' }}">
+                <div class="premium-card stat-card p-4 {{ $alerts > 0 ? 'urgent' : '' }}">
                     <div class="stat-info">
                         <span class="stat-label">Flags / Alerts</span>
                         <h3 class="stat-value">{{ $alerts }}</h3>

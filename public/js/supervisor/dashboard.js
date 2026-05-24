@@ -4,7 +4,7 @@
  */
 $(document).ready(function() {
     const table = $('#supervisorStudentTable').DataTable({
-        "dom": '<"top">rt<"bottom"ip><"clear">',
+        "dom": 'rt<"row align-items-center mt-3"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7 d-flex justify-content-md-end justify-content-center"p>>',
         "pageLength": 5,
         "language": {
             "emptyTable": "No students found."

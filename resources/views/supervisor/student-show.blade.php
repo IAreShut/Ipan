@@ -26,7 +26,7 @@
 
 @section('main-content')
 <!-- Student Header -->
-<div class="row mb-4 animate-slide-up">
+<div class="row animate-slide-up">
     <div class="col-12">
         <div class="card profile-card p-4">
             <div class="d-flex flex-column flex-md-row align-items-center align-items-md-start gap-4">
