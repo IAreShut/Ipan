@@ -242,23 +242,5 @@
 @push('scripts')
 <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        if ($.fn.DataTable.isDataTable('#assignedStudentsTable')) {
-            $('#assignedStudentsTable').DataTable().destroy();
-        }
-        
-        $('#assignedStudentsTable').DataTable({
-            responsive: true,
-            language: {
-                search: "_INPUT_",
-                searchPlaceholder: "Search students...",
-            },
-            pageLength: 10,
-            columnDefs: [
-                { orderable: false, targets: [1, 7] }
-            ]
-        });
-    });
-</script>
+<script src="{{ asset('js/supervisor/assign-student.js') }}"></script>
 @endpush

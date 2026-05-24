@@ -33,11 +33,11 @@
                 <div class="avatar-container position-relative">
                     <img src="{{ $student->avatar ? (str_starts_with($student->avatar, 'http') ? $student->avatar : asset('storage/' . $student->avatar)) : 'https://ui-avatars.com/api/?name=' . urlencode($student->name) . '&background=random' }}" class="rounded-circle shadow-sm" width="120" height="120" style="object-fit: cover; border: 4px solid #fff;" alt="{{ $student->name }}">
                     @if($progressPct == 100)
-                    <span class="position-absolute bottom-0 end-0 badge bg-success rounded-circle p-2 border border-white border-2" title="Completed"><i class="fas fa-check"></i></span>
+                    <span class="position-absolute bottom-0 end-0 badge bg-success rounded-circle border border-white border-2 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;" title="Completed"><i class="fas fa-check"></i></span>
                     @elseif($pendingCount > 0)
-                    <span class="position-absolute bottom-0 end-0 badge bg-warning rounded-circle p-2 border border-white border-2" title="Action Needed"><i class="fas fa-exclamation"></i></span>
+                    <span class="position-absolute bottom-0 end-0 badge bg-warning rounded-circle border border-white border-2 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;" title="Action Needed"><i class="fas fa-exclamation"></i></span>
                     @else
-                    <span class="position-absolute bottom-0 end-0 badge bg-primary rounded-circle p-2 border border-white border-2" title="Active"><i class="fas fa-circle"></i></span>
+                    <span class="position-absolute bottom-0 end-0 badge bg-primary rounded-circle border border-white border-2 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;" title="Active"><i class="fas fa-circle"></i></span>
                     @endif
                 </div>
 
@@ -144,7 +144,7 @@
                     @if($log->attachments->count() > 0)
                     <div class="attachment-gallery d-flex flex-wrap gap-2 mb-3">
                         @foreach($log->attachments as $attachment)
-                        <a href="{{ str_starts_with($attachment->file_path, 'http') ? $attachment->file_path : asset($attachment->file_path) }}" target="_blank" class="attachment-thumb">
+                        <a href="javascript:void(0)" onclick="openImageModal('{{ str_starts_with($attachment->file_path, 'http') ? $attachment->file_path : asset($attachment->file_path) }}')" class="attachment-thumb">
                             <img src="{{ str_starts_with($attachment->file_path, 'http') ? $attachment->file_path : asset($attachment->file_path) }}" class="rounded shadow-sm" style="width: 72px; height: 72px; object-fit: cover; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'">
                         </a>
                         @endforeach
@@ -241,46 +241,22 @@
     </div>
 </div>
 </div>
+
+<!-- Image Popup Modal -->
+<div class="modal fade" id="imagePopupModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content bg-transparent border-0 shadow-none">
+            <div class="modal-header border-0 p-2 justify-content-end">
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" style="background-color: rgba(255,255,255,0.8); border-radius: 50%; padding: 0.5rem;"></button>
+            </div>
+            <div class="modal-body text-center p-0">
+                <img id="popupImagePreview" src="" class="img-fluid rounded shadow-lg" style="max-height: 85vh; object-fit: contain;">
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 
 @push('scripts')
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Interactive Grid Filtering
-        const weekCells = document.querySelectorAll('.week-cell');
-        const logItems = document.querySelectorAll('.log-item');
-        let activeWeek = null;
-
-        weekCells.forEach(cell => {
-            cell.addEventListener('click', function() {
-                const week = this.getAttribute('data-week');
-
-                if (activeWeek === week) {
-                    // Toggle off
-                    activeWeek = null;
-                    this.style.transform = '';
-                    this.style.boxShadow = '';
-                    logItems.forEach(item => item.style.display = 'flex');
-                } else {
-                    // Toggle on
-                    activeWeek = week;
-                    weekCells.forEach(c => {
-                        c.style.transform = '';
-                        c.style.boxShadow = '';
-                    });
-                    this.style.transform = 'scale(1.1)';
-                    this.style.boxShadow = '0 0 0 3px rgba(30, 64, 175, 0.3)';
-
-                    logItems.forEach(item => {
-                        if (item.getAttribute('data-week') === week) {
-                            item.style.display = 'flex';
-                        } else {
-                            item.style.display = 'none';
-                        }
-                    });
-                }
-            });
-        });
-    });
-</script>
+<script src="{{ asset('js/supervisor/student-show.js') }}"></script>
 @endpush
