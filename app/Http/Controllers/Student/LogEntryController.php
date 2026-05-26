@@ -47,6 +47,7 @@ class LogEntryController extends Controller
         $request->validate([
             'entry_date' => 'required|date',
             'week_number' => 'required|integer|min:1',
+            'log_type' => 'required|in:work,holiday,leave',
             'task_description' => 'required|string',
             'attachments.*' => 'nullable|image|mimes:jpg,jpeg,png,gif,webp|max:5120',
         ]);
@@ -75,6 +76,7 @@ class LogEntryController extends Controller
                 'internship_id' => $internship->id,
                 'entry_date' => $request->entry_date,
                 'week_number' => $request->week_number,
+                'log_type' => $request->log_type,
                 'task_description' => $request->task_description,
                 'status' => $request->has('save_draft') ? 'draft' : 'pending',
             ]);
@@ -181,6 +183,7 @@ class LogEntryController extends Controller
         $request->validate([
             'entry_date' => 'required|date',
             'week_number' => 'required|integer|min:1',
+            'log_type' => 'required|in:work,holiday,leave',
             'task_description' => 'required|string',
             'attachments.*' => 'nullable|image|mimes:jpg,jpeg,png,gif,webp|max:5120',
         ]);
@@ -191,6 +194,7 @@ class LogEntryController extends Controller
             $logEntry->update([
                 'entry_date' => $request->entry_date,
                 'week_number' => $request->week_number,
+                'log_type' => $request->log_type,
                 'task_description' => $request->task_description,
                 'status' => $request->has('save_draft') ? 'draft' : 'pending',
             ]);

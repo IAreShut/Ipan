@@ -169,9 +169,9 @@
                             </td>
                             <td>
                                 @if($pendingCount > 0)
-                                <span class="badge badge-status-pending">{{ $pendingCount }} Pending</span>
+                                <span class="badge-status pending">{{ $pendingCount }} Pending</span>
                                 @else
-                                <span class="badge badge-status-approved">Up to Date</span>
+                                <span class="badge-status approved">Up to Date</span>
                                 @endif
                             </td>
                             <td>

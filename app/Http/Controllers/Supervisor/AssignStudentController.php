@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Supervisor;
 
 use App\Http\Controllers\Controller;
-use App\Models\LogEntry;
 use App\Models\SupervisorAssignment;
 use App\Models\Task;
 use App\Models\User;
@@ -54,7 +53,7 @@ class AssignStudentController extends Controller
         }
 
         $tableStudents = [];
-        
+
         // Active students
         foreach ($students as $student) {
             $tAssigned = Task::where('user_id', $student->id)->where('created_by', $supervisor->id)->count();
@@ -62,7 +61,7 @@ class AssignStudentController extends Controller
             $tInProgress = Task::where('user_id', $student->id)->where('created_by', $supervisor->id)->whereNull('completed_at')->where('due_date', '>=', now())->count();
             $tOverdue = Task::where('user_id', $student->id)->where('created_by', $supervisor->id)->whereNull('completed_at')->where('due_date', '<', now())->count();
 
-            $tableStudents[] = (object)[
+            $tableStudents[] = (object) [
                 'registered' => true,
                 'user_id' => $student->id,
                 'name' => $student->name,
@@ -83,8 +82,8 @@ class AssignStudentController extends Controller
         // Pending students (from pre-assignment that haven't registered)
         foreach ($preAssigned as $pa) {
             $matchedUser = $students->firstWhere('matrix_id', $pa->student_matrix_id);
-            if (!$matchedUser) {
-                $tableStudents[] = (object)[
+            if (! $matchedUser) {
+                $tableStudents[] = (object) [
                     'registered' => false,
                     'user_id' => null,
                     'name' => $pa->student_name,

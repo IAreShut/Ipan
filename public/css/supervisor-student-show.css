@@ -37,6 +37,7 @@
 }
 
 /* Status Colors for Grid */
+.week-cell.completed,
 .week-cell.approved {
     background-color: #d1fae5;
     border-color: #10b981;
@@ -74,6 +75,7 @@
     height: 12px;
     border-radius: 50%;
 }
+.legend-color.completed,
 .legend-color.approved { background-color: #10b981; }
 .legend-color.pending { background-color: #f59e0b; }
 .legend-color.rejected { background-color: #ef4444; }

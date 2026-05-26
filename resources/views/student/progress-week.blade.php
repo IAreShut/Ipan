@@ -50,7 +50,14 @@
                 <!-- Title & Attachment -->
                 <div class="d-flex justify-content-between align-items-start flex-grow-1">
                     <div class="me-3">
-                        <h6 class="mb-1 fw-bold text-dark">Week {{ $log->week_number }} Log Entry</h6>
+                        <h6 class="mb-1 fw-bold text-dark">
+                            Week {{ $log->week_number }} Log Entry
+                            @if($log->log_type === 'holiday')
+                                <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle ms-1" style="font-size: 0.65rem; font-weight: 600;"><i class="fas fa-umbrella-beach me-1"></i>Holiday</span>
+                            @elseif($log->log_type === 'leave')
+                                <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle ms-1" style="font-size: 0.65rem; font-weight: 600;"><i class="fas fa-calendar-times me-1"></i>MC / Leave</span>
+                            @endif
+                        </h6>
                         <small class="text-muted d-block">{{ Str::limit($log->task_description, 100, '...') }}</small>
                     </div>
                     @if($log->attachments && $log->attachments->count() > 0)

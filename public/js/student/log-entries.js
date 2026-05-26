@@ -255,3 +255,38 @@ document.getElementById('imageModal')?.addEventListener('show.bs.modal', functio
     document.getElementById('modalImage').src = trigger.dataset.imgSrc;
     document.getElementById('imageModalLabel').textContent = trigger.dataset.imgName;
 });
+
+// ===== LOG TYPE AUTO-FILL & AI TOGGLE =====
+document.addEventListener('DOMContentLoaded', function() {
+    const logTypeSelect = document.getElementById('logTypeSelect');
+    const taskDescription = document.getElementById('taskDescription');
+    const btnGenerateSummary = document.getElementById('btnGenerateSummary');
+
+    if (logTypeSelect && taskDescription) {
+        function handleLogTypeChange() {
+            const val = logTypeSelect.value;
+            const currentDesc = taskDescription.value.trim();
+
+            if (val === 'holiday') {
+                if (currentDesc === '' || currentDesc === 'Medical Leave / Personal Leave - Excused from daily tasks.') {
+                    taskDescription.value = 'Public Holiday - Excused from daily tasks.';
+                }
+                if (btnGenerateSummary) btnGenerateSummary.style.display = 'none';
+            } else if (val === 'leave') {
+                if (currentDesc === '' || currentDesc === 'Public Holiday - Excused from daily tasks.') {
+                    taskDescription.value = 'Medical Leave / Personal Leave - Excused from daily tasks.';
+                }
+                if (btnGenerateSummary) btnGenerateSummary.style.display = 'none';
+            } else {
+                if (currentDesc === 'Public Holiday - Excused from daily tasks.' || currentDesc === 'Medical Leave / Personal Leave - Excused from daily tasks.') {
+                    taskDescription.value = '';
+                }
+                if (btnGenerateSummary) btnGenerateSummary.style.display = 'block';
+            }
+        }
+
+        logTypeSelect.addEventListener('change', handleLogTypeChange);
+        // Run once on load to set initial state (e.g. when editing)
+        handleLogTypeChange();
+    }
+});

@@ -35,7 +35,7 @@ class Task extends Model
 
     public function isCompleted()
     {
-        return !is_null($this->completed_at);
+        return ! is_null($this->completed_at);
     }
 
     public function markAsCompleted()

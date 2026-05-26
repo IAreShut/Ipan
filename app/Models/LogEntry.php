@@ -14,6 +14,7 @@ class LogEntry extends Model
         'internship_id',
         'entry_date',
         'week_number',
+        'log_type',
         'task_description',
         'ai_summary',
         'status',

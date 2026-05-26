@@ -44,9 +44,10 @@ class DashboardController extends Controller
             ->get();
 
         // Identify At-Risk Students (has rejected logs or >2 pending logs)
-        $atRiskStudents = $students->filter(function($student) {
+        $atRiskStudents = $students->filter(function ($student) {
             $rejectedCount = $student->logEntries->where('status', 'rejected')->count();
             $pendingCount = $student->logEntries->where('status', 'pending')->count();
+
             return $rejectedCount > 0 || $pendingCount >= 2;
         });
 
@@ -103,30 +104,36 @@ class DashboardController extends Controller
         }
 
         for ($w = 1; $w <= $totalWeeks; $w++) {
-            if (!$weeklyLogs->has($w)) {
+            if (! $weeklyLogs->has($w)) {
                 $weeklyProgress[$w] = 'empty';
+
                 continue;
             }
 
             $weekLogs = $weeklyLogs[$w];
-            if ($weekLogs->where('status', 'rejected')->count() > 0) {
+            $approvedCountInWeek = $weekLogs->where('status', 'approved')->count();
+            $rejectedCountInWeek = $weekLogs->where('status', 'rejected')->count();
+            $pendingCountInWeek = $weekLogs->where('status', 'pending')->count();
+
+            if ($approvedCountInWeek >= 5) {
+                $weeklyProgress[$w] = 'completed';
+            } elseif ($rejectedCountInWeek > 0) {
                 $weeklyProgress[$w] = 'rejected';
-            } elseif ($weekLogs->where('status', 'pending')->count() == $weekLogs->count()) {
+            } elseif ($approvedCountInWeek > 0) {
+                $weeklyProgress[$w] = 'mixed'; // Labeled as "In Progress"
+            } elseif ($pendingCountInWeek > 0) {
                 $weeklyProgress[$w] = 'pending';
-            } elseif ($weekLogs->where('status', 'approved')->count() == $weekLogs->count()) {
-                $weeklyProgress[$w] = 'approved';
             } else {
-                $weeklyProgress[$w] = 'mixed';
+                $weeklyProgress[$w] = 'empty';
             }
         }
 
         $progressPct = $totalWeeks > 0 ? min(100, round(($approvedCount / ($totalWeeks * 5)) * 100)) : 0;
 
         return view('supervisor.student-show', compact(
-            'supervisor', 'student', 'internship', 'logEntries', 'tasks', 
+            'supervisor', 'student', 'internship', 'logEntries', 'tasks',
             'totalLogs', 'approvedCount', 'pendingCount', 'rejectedCount',
             'weeklyProgress', 'totalWeeks', 'progressPct'
         ));
     }
-
 }

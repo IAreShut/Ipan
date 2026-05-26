@@ -9,8 +9,8 @@ use App\Http\Controllers\Student\ProfileController as StudentProfileController;
 use App\Http\Controllers\Student\ProgressController;
 use App\Http\Controllers\Supervisor\AnalyticsController;
 // Supervisor Controllers
-use App\Http\Controllers\Supervisor\DashboardController as SupervisorDashboardController;
 use App\Http\Controllers\Supervisor\AssignStudentController;
+use App\Http\Controllers\Supervisor\DashboardController as SupervisorDashboardController;
 use App\Http\Controllers\Supervisor\ProfileController as SupervisorProfileController;
 use App\Http\Controllers\Supervisor\ReviewController;
 use App\Http\Controllers\Supervisor\TaskController;

@@ -92,29 +92,34 @@
                     $status=$weeklyProgress[$w] ?? 'empty' ;
                     $statusClass='empty' ;
                     $icon='fa-circle' ;
-                    if ($status=='approved' ) { $statusClass='approved' ; $icon='fa-check' ; }
-                    if ($status=='pending' ) { $statusClass='pending' ; $icon='fa-clock' ; }
-                    if ($status=='rejected' ) { $statusClass='rejected' ; $icon='fa-times' ; }
-                    if ($status=='mixed' ) { $statusClass='mixed' ; $icon='fa-spinner' ; }
+                    if ($status=='completed') { $statusClass='completed'; $icon='fa-check-double'; }
+                    if ($status=='pending') { $statusClass='pending'; $icon='fa-clock'; }
+                    if ($status=='rejected') { $statusClass='rejected'; $icon='fa-times'; }
+                    if ($status=='mixed') { $statusClass='mixed'; $icon='fa-spinner'; }
                     @endphp
-                    <div class="week-cell {{ $statusClass }}" data-week="{{ $w }}" title="Week {{ $w }}: {{ ucfirst($status) }}">
-                    <div class="week-label">W{{ $w }}</div>
-                    <i class="fas {{ $icon }}"></i>
+                    <div class="week-cell {{ $statusClass }}" data-week="{{ $w }}" title="Week {{ $w }}: {{ $status === 'mixed' ? 'In Progress' : ucfirst($status) }}">
+                        <div class="week-label">W{{ $w }}</div>
+                        <i class="fas {{ $icon }}"></i>
+                    </div>
+                @endfor
             </div>
-            @endfor
-        </div>
-        <div class="d-flex justify-content-center gap-3 mt-3 flex-wrap" style="font-size: 0.75rem;">
-            <div class="d-flex align-items-center gap-1"><span class="legend-color approved"></span> Approved</div>
-            <div class="d-flex align-items-center gap-1"><span class="legend-color pending"></span> Pending</div>
-            <div class="d-flex align-items-center gap-1"><span class="legend-color rejected"></span> Rejected</div>
-            <div class="d-flex align-items-center gap-1"><span class="legend-color mixed"></span> In Progress</div>
-            <div class="d-flex align-items-center gap-1"><span class="legend-color empty"></span> Empty</div>
-        </div>
+            <div class="d-flex justify-content-center gap-3 mt-3 flex-wrap" style="font-size: 0.75rem;">
+                <div class="d-flex align-items-center gap-1"><span class="legend-color completed"></span> Completed (5/5)</div>
+                <div class="d-flex align-items-center gap-1"><span class="legend-color mixed"></span> In Progress</div>
+                <div class="d-flex align-items-center gap-1"><span class="legend-color pending"></span> Pending</div>
+                <div class="d-flex align-items-center gap-1"><span class="legend-color rejected"></span> Rejected</div>
+                <div class="d-flex align-items-center gap-1"><span class="legend-color empty"></span> Empty</div>
+            </div>
     </div>
 
     <!-- Chronological Timeline -->
     <div class="card premium-card p-4">
-        <h5 class="fw-bold mb-4"><i class="fas fa-history text-primary me-2"></i> Logbook Feed</h5>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h5 class="fw-bold m-0"><i class="fas fa-history text-primary me-2"></i> Logbook Feed</h5>
+            <button id="showAllBtn" class="btn btn-sm btn-outline-secondary rounded-pill d-none" onclick="resetFeedFilter()">
+                <i class="fas fa-list me-1"></i> Show All
+            </button>
+        </div>
 
         <div class="timeline-modern" id="logbookFeed">
             @forelse($logEntries as $log)
@@ -123,10 +128,18 @@
                 <div class="timeline-content w-100">
                     <div class="d-flex justify-content-between align-items-start mb-2">
                         <div>
-                            <h6 class="fw-bold mb-1">Week {{ $log->week_number }} <span class="text-muted fw-normal" style="font-size: 0.85rem;">| Day {{ \Carbon\Carbon::parse($log->entry_date)->dayOfWeekIso }}</span></h6>
+                            <h6 class="fw-bold mb-1">
+                                Week {{ $log->week_number }} 
+                                <span class="text-muted fw-normal" style="font-size: 0.85rem;">| Day {{ \Carbon\Carbon::parse($log->entry_date)->dayOfWeekIso }}</span>
+                                @if($log->log_type === 'holiday')
+                                    <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle ms-2" style="font-size: 0.7rem; font-weight: 600;"><i class="fas fa-umbrella-beach me-1"></i>Holiday</span>
+                                @elseif($log->log_type === 'leave')
+                                    <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle ms-2" style="font-size: 0.7rem; font-weight: 600;"><i class="fas fa-calendar-times me-1"></i>MC / Leave</span>
+                                @endif
+                            </h6>
                             <p class="text-muted small mb-0">{{ \Carbon\Carbon::parse($log->entry_date)->format('l, d M Y') }}</p>
                         </div>
-                        <span class="badge badge-status-{{ $log->status === 'approved' ? 'approved' : ($log->status === 'rejected' ? 'rejected' : 'pending') }}">
+                        <span class="badge-status {{ $log->status === 'approved' ? 'approved' : ($log->status === 'rejected' ? 'rejected' : 'pending') }}">
                             {{ ucfirst($log->status) }}
                         </span>
                     </div>
@@ -190,6 +203,17 @@
                 <p class="mb-0">No log entries found for this student.</p>
             </div>
             @endforelse
+        </div>
+
+        {{-- Empty state shown by JS when a week with no logs is selected --}}
+        <div id="weekEmptyState" class="d-none mb-2">
+            <div class="text-center py-5 text-muted bg-white rounded-4 border shadow-sm">
+                <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3 shadow-sm" style="width: 80px; height: 80px;">
+                    <i class="fas fa-calendar-times fs-2 text-secondary opacity-75"></i>
+                </div>
+                <h6 class="fw-bold text-dark">No Logs Found</h6>
+                <p class="small mb-0">This student has not submitted any logs for this week.</p>
+            </div>
         </div>
     </div>
 </div>

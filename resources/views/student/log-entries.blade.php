@@ -39,7 +39,7 @@
                     @method('PUT')
                 @endif
                 <div class="row mb-3">
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <label class="form-label fw-bold">Date</label>
                         <input type="date" id="entryDate" name="entry_date" class="form-control @error('entry_date') is-invalid @enderror" 
                                value="{{ old('entry_date', isset($logEntry) ? $logEntry->entry_date->format('Y-m-d') : date('Y-m-d')) }}"
@@ -52,14 +52,23 @@
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <label class="form-label fw-bold">Week</label>
                         <select id="weekSelect" class="form-select" name="week_number" style="pointer-events: none; background-color: #e9ecef;">
                             @for($i = 1; $i <= ($internship->total_weeks ?? 12); $i++)
                                 <option value="{{ $i }}" {{ old('week_number', isset($logEntry) ? $logEntry->week_number : '') == $i ? 'selected' : '' }}>Week {{ $i }}</option>
                             @endfor
                         </select>
-                        <small class="text-muted d-block mt-1"><i class="fas fa-info-circle"></i> Week is auto-calculated based on Date.</small>
+                        <small class="text-muted d-block mt-1"><i class="fas fa-info-circle"></i> Auto-calculated.</small>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Log Type</label>
+                        <select id="logTypeSelect" class="form-select" name="log_type">
+                            <option value="work" {{ old('log_type', isset($logEntry) ? $logEntry->log_type : 'work') == 'work' ? 'selected' : '' }}>Work Day</option>
+                            <option value="holiday" {{ old('log_type', isset($logEntry) ? $logEntry->log_type : 'work') == 'holiday' ? 'selected' : '' }}>Public Holiday</option>
+                            <option value="leave" {{ old('log_type', isset($logEntry) ? $logEntry->log_type : 'work') == 'leave' ? 'selected' : '' }}>MC / Leave</option>
+                        </select>
+                        <small class="text-muted d-block mt-1"><i class="fas fa-calendar-alt"></i> Select log category.</small>
                     </div>
                 </div>
 
