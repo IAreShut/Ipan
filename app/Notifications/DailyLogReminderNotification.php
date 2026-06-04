@@ -6,8 +6,9 @@ use App\Channels\LimsDatabaseChannel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
-class DailyLogReminderNotification extends Notification
+class DailyLogReminderNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 

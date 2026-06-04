@@ -7,8 +7,9 @@ use App\Models\Task;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
-class PersonalReminderNotification extends Notification
+class PersonalReminderNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
