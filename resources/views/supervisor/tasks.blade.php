@@ -104,6 +104,21 @@
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Assign To</label>
+                        <select class="form-select @error('assign_to') is-invalid @enderror" name="assign_to" required>
+                            <option value="all" {{ old('assign_to') == 'all' ? 'selected' : '' }}>All Students</option>
+                            @foreach($students as $student)
+                                <option value="{{ $student->id }}" {{ old('assign_to') == $student->id ? 'selected' : '' }}>
+                                    {{ $student->name }} ({{ $student->programme_code ?? 'N/A' }}-{{ $student->class ?? 'N/A' }})
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('assign_to')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
                     
                     <div class="row">
                         <div class="col-md-6 mb-3">
@@ -117,7 +132,7 @@
                             <label class="form-label fw-bold">Time (Optional)</label>
                             <input type="time" class="form-control" name="due_time" value="{{ old('due_time', '23:59') }}">
                         </div>
-                        <small class="text-muted d-block"><i class="fas fa-info-circle me-1"></i> This will notify all students in the selected programme(s) via app notification and email.</small>
+                        <small class="text-muted d-block"><i class="fas fa-info-circle me-1"></i> This will notify the assigned student(s) via app notification and email.</small>
                     </div>
                 </div>
                 <div class="modal-footer border-top-0 bg-light">

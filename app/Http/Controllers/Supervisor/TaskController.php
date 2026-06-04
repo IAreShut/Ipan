@@ -34,7 +34,7 @@ class TaskController extends Controller
     }
 
     /**
-     * Store task(s) for all students under this supervisor
+     * Store task(s) for all or a specific student under this supervisor
      */
     public function store(Request $request)
     {
@@ -42,17 +42,25 @@ class TaskController extends Controller
             'title' => 'required|string|max:255',
             'due_date' => 'required|date',
             'due_time' => 'nullable|date_format:H:i',
+            'assign_to' => 'required|string',
         ]);
 
         $supervisor = Auth::user();
 
-        $students = User::where('supervisor_id', $supervisor->id)
-            ->where('role', 'student')
-            ->get();
+        if ($request->assign_to === 'all') {
+            $students = User::where('supervisor_id', $supervisor->id)
+                ->where('role', 'student')
+                ->get();
+        } else {
+            $students = User::where('supervisor_id', $supervisor->id)
+                ->where('role', 'student')
+                ->where('id', $request->assign_to)
+                ->get();
+        }
 
         if ($students->isEmpty()) {
             return redirect()->route('supervisor.tasks')
-                ->with('error', 'No students found under your supervision.');
+                ->with('error', 'No students found.');
         }
 
         $time = $request->due_time ? ' '.$request->due_time : ' 23:59:00';
@@ -96,7 +104,12 @@ class TaskController extends Controller
             }
         }
 
+        $count = $students->count();
+        $successMessage = $count === 1
+            ? 'Task assigned to ' . $students->first()->name . ' and notification sent!'
+            : 'Task assigned to ' . $count . ' students and notifications sent!';
+
         return redirect()->route('supervisor.tasks')
-            ->with('success', 'Task assigned to '.$students->count().' students and notifications sent!');
+            ->with('success', $successMessage);
     }
 }
