@@ -62,15 +62,23 @@ class LogEntry extends Model
             return 'empty';
         }
 
-        $approvedCount = $weekLogs->where('status', 'approved')->count();
+        $approvedLogs = $weekLogs->where('status', 'approved');
+
+        $approvedUniqueDaysCount = $approvedLogs->pluck('entry_date')
+            ->map(function ($date) {
+                return $date instanceof \Carbon\Carbon ? $date->format('Y-m-d') : $date;
+            })
+            ->unique()
+            ->count();
+
         $rejectedCount = $weekLogs->where('status', 'rejected')->count();
         $pendingCount = $weekLogs->where('status', 'pending')->count();
 
-        if ($approvedCount >= 5) {
+        if ($approvedUniqueDaysCount >= 5) {
             return 'completed';
         } elseif ($rejectedCount > 0) {
             return 'rejected';
-        } elseif ($approvedCount > 0) {
+        } elseif ($approvedLogs->count() > 0) {
             return 'mixed';
         } elseif ($pendingCount > 0) {
             return 'pending';
