@@ -14,61 +14,68 @@
 ## 2. Tech Stack (Pinned Versions)
 
 ### Backend
-| Technology | Version | Role |
-|---|---|---|
-| PHP | 8.2+ | Server-side language |
-| Laravel | 12.x | Core MVC framework, Eloquent ORM, auth, middleware, migrations |
-| Composer | Latest | PHP dependency manager |
+
+| Technology | Version | Role                                                           |
+| ---------- | ------- | -------------------------------------------------------------- |
+| PHP        | 8.2+    | Server-side language                                           |
+| Laravel    | 12.x    | Core MVC framework, Eloquent ORM, auth, middleware, migrations |
+| Composer   | Latest  | PHP dependency manager                                         |
 
 ### Database
-| Technology | Version | Role |
-|---|---|---|
-| MySQL | 5.7+ / 8.0 | Primary database |
-| MySQL | 5.7+ / 8.0 | Primary database |
-| XAMPP | Latest | Local dev server (Apache + MySQL) |
-| MySQL | 8.0+ | Production database on DigitalOcean |
+
+| Technology | Version    | Role                                |
+| ---------- | ---------- | ----------------------------------- |
+| MySQL      | 5.7+ / 8.0 | Primary database                    |
+| MySQL      | 5.7+ / 8.0 | Primary database                    |
+| XAMPP      | Latest     | Local dev server (Apache + MySQL)   |
+| MySQL      | 8.0+       | Production database on DigitalOcean |
 
 ### Frontend
-| Technology | Version | Role |
-|---|---|---|
-| Blade | Built-in Laravel | Server-side template engine |
-| Bootstrap | 5.3.0 | Main CSS framework — grid, components, responsive layout |
-| Tailwind CSS | 4.0 | Utility CSS (via Vite build pipeline) |
-| jQuery | 3.7.0 | DOM manipulation, AJAX |
-| DataTables | 1.13.7 | Table sorting, pagination, search |
-| SweetAlert2 | 11.x | Popup dialogs (success, error, confirmation) |
-| Font Awesome | 6.4.0 | Icon library |
-| Animate.css | 4.x | CSS animations |
+
+| Technology   | Version          | Role                                                     |
+| ------------ | ---------------- | -------------------------------------------------------- |
+| Blade        | Built-in Laravel | Server-side template engine                              |
+| Bootstrap    | 5.3.0            | Main CSS framework — grid, components, responsive layout |
+| Tailwind CSS | 4.0              | Utility CSS (via Vite build pipeline)                    |
+| jQuery       | 3.7.0            | DOM manipulation, AJAX                                   |
+| DataTables   | 1.13.7           | Table sorting, pagination, search                        |
+| SweetAlert2  | 11.x             | Popup dialogs (success, error, confirmation)             |
+| Font Awesome | 6.4.0            | Icon library                                             |
+| Animate.css  | 4.x              | CSS animations                                           |
 
 ### Build Tools
-| Technology | Version | Role |
-|---|---|---|
-| Node.js | 18+ | JS runtime for build tools |
-| Vite | 7.x | Build tool & dev server (HMR, CSS/JS bundling) |
-| Laravel Vite Plugin | 2.0 | Vite ↔ Laravel integration |
-| Axios | 1.11+ | HTTP client for AJAX |
-| Concurrently | 9.x | Runs multiple dev commands simultaneously |
+
+| Technology          | Version | Role                                           |
+| ------------------- | ------- | ---------------------------------------------- |
+| Node.js             | 18+     | JS runtime for build tools                     |
+| Vite                | 7.x     | Build tool & dev server (HMR, CSS/JS bundling) |
+| Laravel Vite Plugin | 2.0     | Vite ↔ Laravel integration                     |
+| Axios               | 1.11+   | HTTP client for AJAX                           |
+| Concurrently        | 9.x     | Runs multiple dev commands simultaneously      |
 
 ### External APIs & Services
-| Service | Package | Role |
-|---|---|---|
-| Gemini API | `google-gemini-php/laravel` ^2.0 | AI-powered summary generation |
-| Cloudinary | `cloudinary-labs/cloudinary-laravel` ^3.0 | Cloud image storage (production) |
-| jsDelivr CDN | — | Hosts Bootstrap, SweetAlert2, Animate.css, DataTables |
-| cdnjs CDN | — | Hosts Font Awesome |
-| UI Avatars API | — | Avatar placeholder generation |
+
+| Service        | Package                                   | Role                                                  |
+| -------------- | ----------------------------------------- | ----------------------------------------------------- |
+| Gemini API     | `google-gemini-php/laravel` ^2.0          | AI-powered summary generation                         |
+| Cloudinary     | `cloudinary-labs/cloudinary-laravel` ^3.0 | Cloud image storage (production)                      |
+| jsDelivr CDN   | —                                         | Hosts Bootstrap, SweetAlert2, Animate.css, DataTables |
+| cdnjs CDN      | —                                         | Hosts Font Awesome                                    |
+| UI Avatars API | —                                         | Avatar placeholder generation                         |
 
 ---
 
 ## 3. Architecture & Conventions
 
 ### MVC Structure
+
 - **Controller-per-role** pattern: `AuthController`, `StudentController`, `SupervisorController`
 - No dedicated Form Request classes — validation is inline in controller methods
 - No role-based middleware — authorization checks are done inside controller methods using `Auth::user()->role` or ownership checks
 - `AppServiceProvider` forces HTTPS in production via `URL::forceScheme('https')`
 
 ### Route Organisation
+
 Routes are grouped by role prefix with named route convention:
 
 ```
@@ -83,17 +90,18 @@ All authenticated routes use `middleware(['auth'])`.
 
 ### Eloquent Models (7 total)
 
-| Model | Table | Key Relationships |
-|------|-------|-----------------|
-| `User` | `users` | hasMany LogEntry, hasMany Internship, belongsTo User (supervisor), hasMany User (students) |
-| `Internship` | `internships` | belongsTo User (student), hasMany LogEntry |
-| `LogEntry` | `log_entries` | belongsTo User (student), belongsTo Internship, hasMany LogAttachment |
-| `LogAttachment` | `log_attachments` | belongsTo LogEntry |
-| `Notification` | `notifications` | belongsTo User |
-| `Task` | `tasks` | belongsTo User (user), belongsTo User (creator) |
-| `SupervisorAssignment` | `supervisor_assignments` | Lookup table for pre-assigned student-supervisor matching |
+| Model                  | Table                    | Key Relationships                                                                          |
+| ---------------------- | ------------------------ | ------------------------------------------------------------------------------------------ |
+| `User`                 | `users`                  | hasMany LogEntry, hasMany Internship, belongsTo User (supervisor), hasMany User (students) |
+| `Internship`           | `internships`            | belongsTo User (student), hasMany LogEntry                                                 |
+| `LogEntry`             | `log_entries`            | belongsTo User (student), belongsTo Internship, hasMany LogAttachment                      |
+| `LogAttachment`        | `log_attachments`        | belongsTo LogEntry                                                                         |
+| `Notification`         | `notifications`          | belongsTo User                                                                             |
+| `Task`                 | `tasks`                  | belongsTo User (user), belongsTo User (creator)                                            |
+| `SupervisorAssignment` | `supervisor_assignments` | Lookup table for pre-assigned student-supervisor matching                                  |
 
 ### Blade View Structure
+
 ```
 resources/views/
 ├── auth/
@@ -122,17 +130,20 @@ resources/views/
 ## 4. Database Schema
 
 ### users
+
 - `id`, `name`, `email`, `password`, `role` (student/supervisor/admin)
 - `company`, `supervisor_id` (self-referencing FK → users.id)
 - `matrix_id`, `phone` (+60 format), `faculty`, `class`, `programme_code`, `location`, `about`, `avatar`
 - `email_verified_at`, `remember_token`, timestamps
 
 ### internships
+
 - `id`, `student_id` (FK → users.id)
 - `company_name`, `company_address`, `start_date`, `end_date`, `total_weeks`
 - timestamps
 
 ### log_entries
+
 - `id`, `student_id` (FK → users.id), `internship_id` (FK → internships.id)
 - `entry_date` (date), `week_number` (integer)
 - `task_description` (text), `ai_summary` (text, nullable)
@@ -141,16 +152,19 @@ resources/views/
 - timestamps
 
 ### log_attachments
+
 - `id`, `log_entry_id` (FK → log_entries.id)
 - `file_path` (Cloudinary URL or local asset URL), `file_name`, `file_type`
 - timestamps
 
 ### notifications (custom — NOT Laravel's default)
+
 - `id`, `user_id` (FK → users.id)
 - `title`, `message`, `type` (info/reminder/milestone/etc.), `is_read` (boolean)
 - timestamps
 
 ### supervisor_assignments
+
 - `student_matrix_id` (string, unique), `student_name`, `supervisor_matrix_id`
 - `faculty`, `programme_code`, `class` — academic info for auto-fill during registration
 - timestamps
@@ -163,17 +177,20 @@ resources/views/
 ## 5. Key Coding Patterns
 
 ### Authentication
+
 ```php
 $user = Auth::user();       // Get current user
 $userId = Auth::id();       // Get current user ID
 ```
 
 ### Internship Lookup (per-request, not via relationship)
+
 ```php
 $internship = Internship::where('student_id', $user->id)->first();
 ```
 
 ### Database Transactions (multi-step writes)
+
 ```php
 \DB::beginTransaction();
 try {
@@ -186,6 +203,7 @@ try {
 ```
 
 ### Response Patterns
+
 ```php
 // Web: redirect with flash message
 return redirect()->route('student.log-entries')->with('success', 'Log entry submitted!');
@@ -196,6 +214,7 @@ return response()->json(['error' => 'AI Error'], 500);
 ```
 
 ### Validation (inline in controllers)
+
 ```php
 $request->validate([
     'entry_date' => 'required|date',
@@ -206,6 +225,7 @@ $request->validate([
 ```
 
 ### Phone Normalization (Malaysian +60 format)
+
 ```php
 $rawPhone = preg_replace('/[^0-9]/', '', $request->phone);
 $rawPhone = ltrim($rawPhone, '0');
@@ -213,10 +233,12 @@ $request->merge(['phone' => '+60' . $rawPhone]);
 ```
 
 ### LogEntry Status Flow
+
 ```
 draft → pending → approved
                 → rejected
 ```
+
 - `save_draft` button → status = `draft`
 - Submit button → status = `pending`
 - Only `draft` entries can be edited by student
@@ -239,10 +261,12 @@ if (env('CLOUDINARY_URL')) {
 ```
 
 ### Cloudinary Folder Structure
+
 - Log attachments: `lims/log-attachments/{logEntryId}/`
 - Avatars: `lims/avatars/`
 
 ### Delete Pattern
+
 ```php
 if (str_contains($path, 'cloudinary')) {
     $publicId = pathinfo(parse_url($path, PHP_URL_PATH), PATHINFO_FILENAME);
@@ -257,6 +281,7 @@ if (str_contains($path, 'cloudinary')) {
 ## 7. UI Design Conventions
 
 ### Global Aesthetic (Premium Design)
+
 - **Cards**: All cards must use the `.card` class which is globally styled in `public/css/style.css` to have a `1.5rem` border-radius, soft shadow (`0 10px 25px rgba(0, 0, 0, 0.03)`), and a subtle `1px solid #cbd5e1` outline that turns primary blue on hover. **Do NOT add custom borders or shadows inline unless explicitly requested.**
 - **Tables**: All tables must use the `.table` class. It has been globally overridden to remove vertical borders, use uppercase light-grey headers, and rounded pagination buttons for DataTables. Avoid inline table styles.
 - **Buttons**: Use rounded-pill or `1rem` radius buttons (`.btn-premium`) with icons to maintain the modern SaaS aesthetic.
@@ -266,9 +291,11 @@ if (str_contains($path, 'cloudinary')) {
 ## 8. AI Integration (Gemini API)
 
 ### Endpoint
+
 `POST /student/ai-generate-summary` (AJAX, returns JSON)
 
 ### SDK Usage
+
 ```php
 $result = \Gemini\Laravel\Facades\Gemini::generativeModel('models/gemini-2.5-flash-lite')
     ->generateContent($parts);
@@ -276,7 +303,9 @@ $summary = $result->text();
 ```
 
 ### Multimodal Support
+
 Images are sent as `\Gemini\Data\Blob` objects with base64-encoded data:
+
 ```php
 $parts[] = new \Gemini\Data\Blob(
     mimeType: \Gemini\Enums\MimeType::IMAGE_JPEG,
@@ -285,6 +314,7 @@ $parts[] = new \Gemini\Data\Blob(
 ```
 
 ### System Prompt Rules
+
 - Act as professional internship student
 - Use professional verbs: Assisted, Analyzed, Developed, Implemented, Configured, Monitored
 - Minimum 50 words, 1 paragraph, can use bullet points
@@ -296,30 +326,35 @@ $parts[] = new \Gemini\Data\Blob(
 ## 8. Notification & Mail System
 
 ### Architecture
+
 - Custom `App\Channels\LimsDatabaseChannel` → writes to custom `notifications` table via `App\Models\Notification`
 - Does NOT use Laravel's built-in `DatabaseChannel` or `notifications` table format
 
 ### Notification Classes (3)
-| Class | Trigger | Type |
-|---|---|---|
-| `DailyLogReminderNotification` | Scheduled (weekday 5:00 PM) | reminder |
-| `MilestoneSetNotification` | Supervisor assigns milestone | milestone |
+
+| Class                          | Trigger                           | Type              |
+| ------------------------------ | --------------------------------- | ----------------- |
+| `DailyLogReminderNotification` | Scheduled (weekday 5:00 PM)       | reminder          |
+| `MilestoneSetNotification`     | Supervisor assigns milestone      | milestone         |
 | `PersonalReminderNotification` | Student creates personal reminder | personal_reminder |
 
 ### Channels Used
+
 All notification classes use: `[LimsDatabaseChannel::class, 'mail']`
 
 ### Email Configuration (Local vs Production)
+
 - **Local Environment (Mailtrap SDK):**
-  - Uses the **Mailtrap SDK via HTTP API** (`mailtrap+sdk` transport driver, installed via package `railsware/mailtrap-php` over port 443).
-  - Configured in `.env` via `MAIL_MAILER=mailtrap`, `MAILTRAP_API_TOKEN`, and `MAILTRAP_INBOX_ID`.
-  - **Do NOT use SMTP mailer (ports 2525, 587, 465) on local development** as these ports are blocked by the local ISP/router.
-  - Free Mailtrap plans restrict sending to **1 email per second**. Multi-recipient notifications have a **2-second stagger delay** added in `TaskController::store` which is wrapped in `app()->environment('local')` check.
+    - Uses the **Mailtrap SDK via HTTP API** (`mailtrap+sdk` transport driver, installed via package `railsware/mailtrap-php` over port 443).
+    - Configured in `.env` via `MAIL_MAILER=mailtrap`, `MAILTRAP_API_TOKEN`, and `MAILTRAP_INBOX_ID`.
+    - **Do NOT use SMTP mailer (ports 2525, 587, 465) on local development** as these ports are blocked by the local ISP/router.
+    - Free Mailtrap plans restrict sending to **1 email per second**. Multi-recipient notifications have a **2-second stagger delay** added in `TaskController::store` which is wrapped in `app()->environment('local')` check.
 - **Production Environment (Brevo SMTP):**
-  - Uses standard **Brevo SMTP** (`smtp` transport driver) configured in production `.env` (`MAIL_MAILER=smtp`, host, port, credentials).
-  - Stagger delay is bypassed/ignored in production to process queue jobs immediately.
+    - Uses standard **Brevo SMTP** (`smtp` transport driver) configured in production `.env` (`MAIL_MAILER=smtp`, host, port, credentials).
+    - Stagger delay is bypassed/ignored in production to process queue jobs immediately.
 
 ### Scheduled Task
+
 ```php
 // routes/console.php
 Schedule::call(function () {
@@ -331,6 +366,7 @@ Schedule::call(function () {
 ```
 
 ### Real-Time Polling (AJAX)
+
 - Endpoint: `GET /student/notifications/unread`
 - Returns: `{ count: N, notifications: [...] }`
 - Frontend uses SweetAlert2 popups for new notifications
@@ -340,6 +376,7 @@ Schedule::call(function () {
 ## 9. Deployment (DigitalOcean)
 
 ### Configuration
+
 - **Server:** Ubuntu 24.04 LTS Droplet
 - **Web Server:** Nginx
 - **PHP:** PHP 8.3-FPM
@@ -348,6 +385,7 @@ Schedule::call(function () {
 - **SSL:** Let's Encrypt (Certbot)
 
 ### HTTPS Enforcement
+
 ```php
 // AppServiceProvider::boot()
 if (app()->environment('production')) {
@@ -356,7 +394,9 @@ if (app()->environment('production')) {
 ```
 
 ### Deploy Commands (Server)
+
 To update the live server after pushing to GitHub:
+
 ```bash
 cd /var/www/Ipan
 git pull origin main
@@ -364,13 +404,29 @@ composer install --no-dev
 php artisan migrate --force
 php artisan config:clear
 php artisan view:clear
+php artisan config:cache
+sudo supervisorctl restart laravel-worker:*
 ```
-*(Or use `./deploy.sh` if configured)*
+
+_(Or use `./deploy.sh` if configured)_
+
+### Scheduler & Queue (Supervisor) Configuration
+
+1. **Laravel Scheduler (Cron Job)**: Runs every minute to trigger reminders and scheduled tasks. Registered via `crontab -e`:
+    ```cron
+    * * * * * cd /var/www/Ipan && php artisan schedule:run >> /dev/null 2>&1
+    ```
+2. **Queue Worker (Supervisor)**: Automatically handles background jobs using configurations at `/etc/supervisor/conf.d/laravel-worker.conf`. Run to restart or start:
+    ```bash
+    sudo supervisorctl restart laravel-worker:*
+    ```
 
 ### Useful Server Commands
+
 ```bash
 systemctl restart nginx                   # Restart web server
 systemctl restart php8.3-fpm              # Restart PHP process
+sudo supervisorctl restart laravel-worker:* # Restart queue worker
 tail -f storage/logs/laravel.log          # View Laravel logs
 ```
 
@@ -379,36 +435,43 @@ tail -f storage/logs/laravel.log          # View Laravel logs
 ## 10. Development Workflow
 
 ### Start Development (All-in-One)
+
 ```bash
 composer dev
 ```
+
 Runs 4 processes concurrently:
+
 1. `php artisan serve` — Laravel dev server
 2. `php artisan queue:listen` — Queue worker
 3. `php artisan pail` — Real-time log viewer
 4. `npm run dev` — Vite dev server with HMR
 
 ### First-Time Setup
+
 ```bash
 composer setup
 ```
 
 ### Test Accounts (from DatabaseSeeder + SupervisorAssignmentSeeder)
-| Role | Email | Password |
-|------|-------|----------|
-| Supervisor (Dr. Hidayah) | supervisor@test.com | password123 |
-| Supervisor (Dr. Ahmad Fauzi) | sv1@sv.my | password123 |
-| Supervisor (Prof. Nurul Huda) | sv2@sv.my | password123 |
-| Supervisor (Dr. Ramesh Kumar) | sv3@sv.my | password123 |
-| Supervisor (Dr. Siti Fatimah) | sv4@sv.my | password123 |
-| Supervisor (Prof. Tan Wei Ming) | sv5@sv.my | password123 |
-| Student | student@test.com | password123 |
-| Student | siti@test.com | password123 |
-| Admin | admin@test.com | password123 |
+
+| Role                            | Email               | Password    |
+| ------------------------------- | ------------------- | ----------- |
+| Supervisor (Dr. Hidayah)        | supervisor@test.com | password123 |
+| Supervisor (Dr. Ahmad Fauzi)    | sv1@sv.my           | password123 |
+| Supervisor (Prof. Nurul Huda)   | sv2@sv.my           | password123 |
+| Supervisor (Dr. Ramesh Kumar)   | sv3@sv.my           | password123 |
+| Supervisor (Dr. Siti Fatimah)   | sv4@sv.my           | password123 |
+| Supervisor (Prof. Tan Wei Ming) | sv5@sv.my           | password123 |
+| Student                         | student@test.com    | password123 |
+| Student                         | siti@test.com       | password123 |
+| Admin                           | admin@test.com      | password123 |
+
 - 25 pre-assigned student records in `supervisor_assignments` (5 per supervisor)
 - Use `php artisan db:seed --class=SupervisorAssignmentSeeder` to populate
 
 ### Local Database
+
 - Server: XAMPP MySQL
 - Database name: `lims_db`
 - Username: `root`, Password: (empty)
@@ -501,20 +564,24 @@ Ipan/
 ## 14. Agent Operational Guidelines
 
 ### Efficiency & Token Saving
+
 - **Partial Updates:** Only provide the code snippets that need changes. Do not output unchanged parts of a file.
 - **Short Summaries:** Provide a brief 1-sentence summary of what you did after every task.
 
 ### Refactoring Standard (Laravel 12)
+
 - Follow **DRY (Don't Repeat Yourself)** principles.
 - Use **Form Requests** for complex validation logic to keep Controllers thin.
 - Utilize **Laravel Collections** for data manipulation instead of manual loops.
 
 ### Security Protocol
+
 - **Input Sanitization:** Always validate and sanitize user inputs.
 - **XSS Prevention:** Ensure all data displayed in Blade uses `{{ }}` escaping.
 - **API Security:** Use CSRF protection for all forms and AJAX requests (Axios).
 - **Sensitive Data:** Never hardcode API keys (Gemini/Cloudinary). Always refer to `.env` variables.
 
 ### Database Integrity
+
 - Strictly use **MySQL** syntax.
 - All table changes must be done via **Migrations**, never manual SQL execution.

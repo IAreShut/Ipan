@@ -1110,6 +1110,8 @@ composer install --no-dev
 php artisan migrate --force
 php artisan config:clear
 php artisan view:clear
+php artisan config:cache
+sudo supervisorctl restart laravel-worker:*
 ```
 
 ### Cara Pantas (Gunakan Script Deployment)
@@ -1119,6 +1121,14 @@ cd /var/www/Ipan
 ./deploy.sh
 ```
 
+### Scheduler & Queue (Supervisor) Configuration
+
+1. **Laravel Scheduler (Cron Job)**: Runs every minute. Sila daftar dalam crontab server (`crontab -e`):
+   ```cron
+   * * * * * cd /var/www/Ipan && php artisan schedule:run >> /dev/null 2>&1
+   ```
+2. **Queue Worker (Supervisor)**: Mengendalikan database queue. Konfigurasi diletakkan di `/etc/supervisor/conf.d/laravel-worker.conf`.
+
 ### Server Useful Commands
 
 | Command | Description |
@@ -1126,6 +1136,7 @@ cd /var/www/Ipan
 | `tail -f storage/logs/laravel.log` | View live Laravel logs |
 | `systemctl restart nginx` | Restart Nginx web server |
 | `systemctl restart php8.3-fpm` | Restart PHP processor |
+| `sudo supervisorctl restart laravel-worker:*` | Restart queue worker |
 | `mysql -u lims_user -p` | Masuk ke database MySQL |
 | `nano .env` | Edit environment variables |
 
