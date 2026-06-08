@@ -48,4 +48,34 @@ class LogEntry extends Model
     {
         return $this->hasMany(LogAttachment::class);
     }
+
+    /**
+     * Determine the overall status of a week based on its log entries.
+     * Enforces the '5 logs per week' rule.
+     * 
+     * @param \Illuminate\Support\Collection $weekLogs
+     * @return string (completed, rejected, mixed, pending, empty)
+     */
+    public static function getWeeklyStatus($weekLogs)
+    {
+        if ($weekLogs->isEmpty()) {
+            return 'empty';
+        }
+
+        $approvedCount = $weekLogs->where('status', 'approved')->count();
+        $rejectedCount = $weekLogs->where('status', 'rejected')->count();
+        $pendingCount = $weekLogs->where('status', 'pending')->count();
+
+        if ($approvedCount >= 5) {
+            return 'completed';
+        } elseif ($rejectedCount > 0) {
+            return 'rejected';
+        } elseif ($approvedCount > 0) {
+            return 'mixed';
+        } elseif ($pendingCount > 0) {
+            return 'pending';
+        } else {
+            return 'empty';
+        }
+    }
 }

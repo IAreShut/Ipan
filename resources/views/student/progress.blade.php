@@ -48,30 +48,30 @@
         $currentWeek = $logs->max('week_number') ?? 1;
     @endphp
 
-    <!-- Grid of Interactive Cards -->
+    <!-- Weekly Progress Cards -->
     <div class="row g-4" id="weeklyGrid">
         @for($week = 1; $week <= $internship->total_weeks; $week++)
             @php
                 $weekLogs = $logs->where('week_number', $week);
                 $logCount = $weekLogs->count();
-                $approvedCount = $weekLogs->where('status', 'approved')->count();
-                $pendingCount = $weekLogs->where('status', 'pending')->count();
                 $rejectedCount = $weekLogs->where('status', 'rejected')->count();
                 
                 $isActive = ($week == $currentWeek);
                 $progressPercent = min(100, ($logCount / 5) * 100); // Assume 5 logs make a full week
                 
+                $statusKey = \App\Models\LogEntry::getWeeklyStatus($weekLogs);
+
                 // Status Determination
-                if ($logCount == 0) {
+                if ($statusKey === 'empty') {
                     $statusStr = '0% Started';
                     $statusIcon = 'fas fa-minus-circle text-secondary';
-                } elseif ($rejectedCount > 0) {
+                } elseif ($statusKey === 'rejected') {
                     $statusStr = $rejectedCount . ' Issues Found';
                     $statusIcon = 'fas fa-times-circle text-danger';
-                } elseif ($pendingCount > 0) {
+                } elseif ($statusKey === 'pending') {
                     $statusStr = 'Awaiting Feedback';
                     $statusIcon = 'fas fa-clock text-warning';
-                } elseif ($approvedCount == $logCount) {
+                } elseif ($statusKey === 'completed') {
                     $statusStr = '100% Completed';
                     $statusIcon = 'fas fa-check-circle text-success';
                 } else {

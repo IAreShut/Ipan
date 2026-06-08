@@ -111,21 +111,7 @@ class DashboardController extends Controller
             }
 
             $weekLogs = $weeklyLogs[$w];
-            $approvedCountInWeek = $weekLogs->where('status', 'approved')->count();
-            $rejectedCountInWeek = $weekLogs->where('status', 'rejected')->count();
-            $pendingCountInWeek = $weekLogs->where('status', 'pending')->count();
-
-            if ($approvedCountInWeek >= 5) {
-                $weeklyProgress[$w] = 'completed';
-            } elseif ($rejectedCountInWeek > 0) {
-                $weeklyProgress[$w] = 'rejected';
-            } elseif ($approvedCountInWeek > 0) {
-                $weeklyProgress[$w] = 'mixed'; // Labeled as "In Progress"
-            } elseif ($pendingCountInWeek > 0) {
-                $weeklyProgress[$w] = 'pending';
-            } else {
-                $weeklyProgress[$w] = 'empty';
-            }
+            $weeklyProgress[$w] = \App\Models\LogEntry::getWeeklyStatus($weekLogs);
         }
 
         $progressPct = $totalWeeks > 0 ? min(100, round(($approvedCount / ($totalWeeks * 5)) * 100)) : 0;
