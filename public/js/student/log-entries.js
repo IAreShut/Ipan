@@ -23,38 +23,60 @@ $(document).ready(function() {
 
     if (window.LIMS && window.LIMS.internshipStartDate) {
         const internshipStartDate = new Date(window.LIMS.internshipStartDate);
+        internshipStartDate.setHours(0,0,0,0);
 
-        function calculateWeek() {
-            if (!entryDateInput || !entryDateInput.value) return;
-            const selectedDate = new Date(entryDateInput.value);
-
-            // Set time to 00:00:00 to avoid timezone calculation issues
+        function getInternshipWeek(dateStr) {
+            if (!dateStr) return null;
+            const selectedDate = new Date(dateStr);
             selectedDate.setHours(0,0,0,0);
-            const startDate = new Date(internshipStartDate);
-            startDate.setHours(0,0,0,0);
-
-            // Calculate difference in days
-            const diffTime = selectedDate.getTime() - startDate.getTime();
+            
+            const diffTime = selectedDate.getTime() - internshipStartDate.getTime();
             const diffDays = Math.floor(diffTime / (1000 * 3600 * 24));
-
-            // Calculate week number (1-based)
+            
             let weekNum = Math.floor(diffDays / 7) + 1;
-
-            // Ensure week number doesn't go below 1 or above total weeks
             const maxWeeks = window.LIMS.maxWeeks || 12;
             if (weekNum < 1) weekNum = 1;
             if (weekNum > maxWeeks) weekNum = maxWeeks;
+            return weekNum;
+        }
 
-            // Update select dropdown
-            if (weekSelect) {
+        function calculateWeek(dateStr) {
+            const weekNum = getInternshipWeek(dateStr);
+            if (weekSelect && weekNum) {
                 weekSelect.value = weekNum;
             }
         }
 
-        // Calculate on load and on change
-        calculateWeek();
-        if (entryDateInput) {
-            entryDateInput.addEventListener('change', calculateWeek);
+        // Initialize Flatpickr
+        const minDate = entryDateInput.dataset.minDate || null;
+        const maxDate = entryDateInput.dataset.maxDate || null;
+        
+        flatpickr(entryDateInput, {
+            dateFormat: "Y-m-d",
+            minDate: minDate,
+            maxDate: maxDate,
+            disableMobile: "true", // Force custom UI to ensure highlights work
+            onChange: function(selectedDates, dateStr, instance) {
+                calculateWeek(dateStr);
+                instance.redraw(); // Redraw to update the week highlight based on new selection
+            },
+            onDayCreate: function(dObj, dStr, fp, dayElem) {
+                const currentDateStr = entryDateInput.value;
+                if (!currentDateStr) return;
+                
+                const selectedWeek = getInternshipWeek(currentDateStr);
+                const dayWeek = getInternshipWeek(dayElem.dateObj);
+                
+                // Highlight if this day belongs to the same internship week
+                if (selectedWeek === dayWeek && dayWeek !== null) {
+                    dayElem.classList.add('same-week');
+                }
+            }
+        });
+
+        // Calculate on load
+        if (entryDateInput.value) {
+            calculateWeek(entryDateInput.value);
         }
     }
 });

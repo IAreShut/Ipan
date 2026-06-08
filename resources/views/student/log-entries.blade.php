@@ -4,6 +4,8 @@
 
 @push('styles')
 <link rel="stylesheet" href="{{ asset('css/student-log-entries.css') }}">
+<!-- Flatpickr CSS for Custom Calendar -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 @endpush
 
 @section('sidebar-menu')
@@ -41,15 +43,19 @@
                 <div class="row mb-3">
                     <div class="col-md-4">
                         <label class="form-label fw-bold">Date</label>
-                        <input type="date" id="entryDate" name="entry_date" class="form-control @error('entry_date') is-invalid @enderror" 
-                               value="{{ old('entry_date', isset($logEntry) ? $logEntry->entry_date->format('Y-m-d') : date('Y-m-d')) }}"
-                               @if($internship && $internship->start_date && $internship->end_date)
-                                   min="{{ $internship->start_date->format('Y-m-d') }}"
-                                   max="{{ $internship->end_date->format('Y-m-d') }}"
-                               @endif
-                               required>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white"><i class="fas fa-calendar-day"></i></span>
+                            <input type="text" id="entryDate" name="entry_date" class="form-control @error('entry_date') is-invalid @enderror" 
+                                   value="{{ old('entry_date', isset($logEntry) ? $logEntry->entry_date->format('Y-m-d') : date('Y-m-d')) }}"
+                                   @if($internship && $internship->start_date && $internship->end_date)
+                                       data-min-date="{{ $internship->start_date->format('Y-m-d') }}"
+                                       data-max-date="{{ $internship->end_date->format('Y-m-d') }}"
+                                   @endif
+                                   placeholder="Select Date"
+                                   required style="background-color: #fff; cursor: pointer;">
+                        </div>
                         @error('entry_date')
-                            <div class="invalid-feedback">{{ $message }}</div>
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
                         @enderror
                     </div>
                     <div class="col-md-4">
@@ -68,7 +74,7 @@
                             <option value="holiday" {{ old('log_type', isset($logEntry) ? $logEntry->log_type : 'work') == 'holiday' ? 'selected' : '' }}>Public Holiday</option>
                             <option value="leave" {{ old('log_type', isset($logEntry) ? $logEntry->log_type : 'work') == 'leave' ? 'selected' : '' }}>MC / Leave</option>
                         </select>
-                        <small class="text-muted d-block mt-1"><i class="fas fa-calendar-alt"></i> Select log category.</small>
+                        <small class="text-muted d-block mt-1">Select log category.</small>
                     </div>
                 </div>
 
@@ -234,5 +240,7 @@
         aiSummaryUrl: '{{ route("student.ai-generate-summary") }}'
     };
 </script>
+<!-- Flatpickr JS -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="{{ asset('js/student/log-entries.js') }}"></script>
 @endpush

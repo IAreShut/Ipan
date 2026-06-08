@@ -250,3 +250,29 @@
     background-color: #f1f5f9;
     color: #64748b;
 }
+
+/* ===== Flatpickr Custom Styles for "Same Week" Highlight ===== */
+.flatpickr-day.same-week {
+    background: #f0fdf4; /* Light green background */
+    border-color: #bbf7d0;
+    font-weight: 600;
+    border-radius: 0; /* Make it look like a continuous bar */
+}
+.flatpickr-day.same-week:first-child {
+    border-top-left-radius: 50px;
+    border-bottom-left-radius: 50px;
+}
+.flatpickr-day.same-week:last-child {
+    border-top-right-radius: 50px;
+    border-bottom-right-radius: 50px;
+}
+.flatpickr-day.same-week.selected,
+.flatpickr-day.same-week.selected:hover {
+    background: #10B981 !important; /* Strong LIMS green */
+    border-color: #10B981 !important;
+    color: white !important;
+    border-radius: 50px !important;
+}
+.flatpickr-day.same-week:hover:not(.selected) {
+    background: #dcfce7;
+}
