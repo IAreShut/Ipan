@@ -49,7 +49,7 @@ class TaskSetNotification extends Notification implements ShouldQueue
             ->greeting('Hello '.$notifiable->name.',')
             ->line('Your supervisor has assigned a new task for you.')
             ->line('**Title:** '.$this->task->title)
-            ->line('**Due Date:** '.$this->task->due_date->format('d M Y, h:i A'))
+            ->line('**Due Date:** '.$this->task->due_date->format('d/m/Y, h:i A'))
             ->action('View Details', url('/student/notifications'))
             ->line('Please ensure you complete the required tasks before the deadline.');
     }
@@ -63,7 +63,7 @@ class TaskSetNotification extends Notification implements ShouldQueue
     {
         return [
             'title' => 'New Task: '.$this->task->title,
-            'message' => 'Due on '.$this->task->due_date->format('d M Y, h:i A').'.',
+            'message' => 'Due on '.$this->task->due_date->format('d/m/Y, h:i A').'.',
             'type' => 'info',
         ];
     }

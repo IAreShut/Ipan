@@ -109,7 +109,7 @@
                         <div class="d-flex align-items-center mb-3" style="font-size: 0.8rem;">
                             <i class="far fa-calendar-alt me-2 text-primary"></i>
                             <span class="{{ $task->due_date->isPast() && !$task->isCompleted() ? 'text-danger fw-bold' : 'text-muted' }}">
-                                Due: {{ $task->due_date->format('d M Y, h:i A') }}
+                                Due: {{ $task->due_date->format('d/m/Y, h:i A') }}
                             </span>
                         </div>
                         @if(!$task->isCompleted())

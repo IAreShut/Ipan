@@ -32,7 +32,7 @@
                         <span class="fw-bold text-dark fs-6">{{ $log->student->name ?? 'Unknown Student' }}</span>
                     </div>
                     <div class="text-muted small fw-medium">
-                        {{ $log->entry_date->format('d M Y') }}
+                        {{ $log->entry_date->format('d/m/Y') }}
                     </div>
                 </div>
 
@@ -128,7 +128,7 @@
                     </div>
                     <div class="ms-auto text-end">
                         <small class="text-muted d-block">Submitted:</small>
-                        <small class="text-dark fw-medium">{{ $log->entry_date->format('l, d M Y') }}</small>
+                        <small class="text-dark fw-medium">{{ $log->entry_date->format('l, d/m/Y') }}</small>
                     </div>
                 </div>
 

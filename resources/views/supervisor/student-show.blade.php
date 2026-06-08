@@ -66,7 +66,7 @@
                         <div class="col-md-6">
                             <h6 class="fw-bold mb-2" style="font-size: 0.85rem; color: #64748b; text-transform: uppercase;">Internship Profile</h6>
                             <p class="mb-1 fw-medium" style="font-size: 0.95rem;">{{ $internship->company_name ?? 'Not set' }}</p>
-                            <p class="mb-0 text-muted" style="font-size: 0.85rem;">{{ $internship ? $internship->start_date->format('M d, Y') . ' - ' . $internship->end_date->format('M d, Y') : 'Dates not set' }} ({{ $totalWeeks }} Weeks)</p>
+                            <p class="mb-0 text-muted" style="font-size: 0.85rem;">{{ $internship ? $internship->start_date->format('d/m/Y') . ' - ' . $internship->end_date->format('d/m/Y') : 'Dates not set' }} ({{ $totalWeeks }} Weeks)</p>
                         </div>
                     </div>
                 </div>
@@ -137,7 +137,7 @@
                                     <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle ms-2" style="font-size: 0.7rem; font-weight: 600;"><i class="fas fa-calendar-times me-1"></i>MC / Leave</span>
                                 @endif
                             </h6>
-                            <p class="text-muted small mb-0">{{ \Carbon\Carbon::parse($log->entry_date)->format('l, d M Y') }}</p>
+                            <p class="text-muted small mb-0">{{ \Carbon\Carbon::parse($log->entry_date)->format('l, d/m/Y') }}</p>
                         </div>
                         <span class="badge-status {{ $log->status === 'approved' ? 'approved' : ($log->status === 'rejected' ? 'rejected' : 'pending') }}">
                             {{ ucfirst($log->status) }}
@@ -242,7 +242,7 @@
                 <div class="d-flex align-items-center mb-3" style="font-size: 0.8rem;">
                     <i class="far fa-calendar-alt me-2 text-primary"></i>
                     <span class="{{ $task->due_date->isPast() && !$task->isCompleted() ? 'text-danger fw-bold' : 'text-muted' }}">
-                        Due: {{ $task->due_date->format('d M Y') }}
+                        Due: {{ $task->due_date->format('d/m/Y') }}
                     </span>
                 </div>
                 @if(!$task->isCompleted())
@@ -251,7 +251,7 @@
                 </button>
                 @else
                 <div class="text-success text-center fw-semibold" style="font-size: 0.75rem;">
-                    Completed on {{ $task->completed_at->format('d M Y') }}
+                    Completed on {{ $task->completed_at->format('d/m/Y') }}
                 </div>
                 @endif
             </div>

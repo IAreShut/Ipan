@@ -47,7 +47,7 @@ class PersonalReminderNotification extends Notification implements ShouldQueue
             ->greeting('Hello '.$notifiable->name.',')
             ->line('This is your scheduled reminder!')
             ->line('**Title:** '.$this->task->title)
-            ->line('**Due Date:** '.$this->task->due_date->format('d M Y, h:i A'))
+            ->line('**Due Date:** '.$this->task->due_date->format('d/m/Y, h:i A'))
             ->action('View Notifications', url('/student/notifications'))
             ->line('Make sure to complete it before the deadline!');
     }
@@ -56,7 +56,7 @@ class PersonalReminderNotification extends Notification implements ShouldQueue
     {
         return [
             'title' => 'Reminder: '.$this->task->title,
-            'message' => 'Due on '.$this->task->due_date->format('d M Y, h:i A').'.',
+            'message' => 'Due on '.$this->task->due_date->format('d/m/Y, h:i A').'.',
             'type' => 'warning',
         ];
     }

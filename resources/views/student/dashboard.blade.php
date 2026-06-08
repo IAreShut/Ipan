@@ -135,7 +135,7 @@
                         <tr>
                             <td>{{ $loop->iteration }}.</td>
                             <td class="fw-bold text-dark">W{{ $log->week_number }}</td>
-                            <td>{{ $log->entry_date->format('d M Y') }}</td>
+                            <td>{{ $log->entry_date->format('d/m/Y') }}</td>
                             <td>{{ Str::limit($log->task_description, 40) }}</td>
                             <td>
                                 @if($log->status === 'approved')
@@ -185,7 +185,7 @@
                 </div>
                 <div class="d-flex align-items-center text-muted small">
                     <i class="fas fa-flag-checkered me-2"></i>
-                    <span>Started: <span class="text-dark fw-semibold">{{ $internship ? $internship->start_date->format('M d, Y') : 'Not set' }}</span></span>
+                    <span>Started: <span class="text-dark fw-semibold">{{ $internship ? $internship->start_date->format('d/m/Y') : 'Not set' }}</span></span>
                 </div>
             </div>
         </a>
@@ -206,7 +206,7 @@
                     </div>
                     <div class="d-flex align-items-center text-muted mb-2" style="font-size: 0.8rem;">
                         <i class="far fa-calendar-alt me-2"></i>
-                        <span>{{ $alert->created_at->format('h:i a - d M Y') }}</span>
+                        <span>{{ $alert->created_at->format('h:i a - d/m/Y') }}</span>
                     </div>
                     <div class="d-flex align-items-center mt-2">
                         <div class="rounded-circle d-flex align-items-center justify-content-center text-white shadow-sm" style="width: 24px; height: 24px; font-size: 0.7rem; margin-right: 8px; background-color: {{ strtolower($alert->type) === 'warning' ? '#ef4444' : ($alert->type === 'reminder' ? '#f59e0b' : ($alert->type === 'milestone' ? '#3b82f6' : '#10b981')) }};">

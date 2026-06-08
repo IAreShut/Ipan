@@ -43,7 +43,7 @@
                         <span class="fw-bold text-dark fs-6">{{ $log->entry_date->format('l') }}</span>
                     </div>
                     <div class="text-muted small fw-medium">
-                        {{ $log->entry_date->format('d M Y') }}
+                        {{ $log->entry_date->format('d/m/Y') }}
                     </div>
                 </div>
 

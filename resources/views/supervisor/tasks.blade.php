@@ -63,7 +63,7 @@
                                 <td>{{ $task->title }}</td>
                                 <td>
                                     <span class="{{ $isOverdue ? 'text-secondary' : ($isToday ? 'text-warning fw-bold' : '') }}">
-                                        {{ $task->due_date->format('d M Y, h:i A') }}
+                                        {{ $task->due_date->format('d/m/Y, h:i A') }}
                                     </span>
                                 </td>
                                 <td>

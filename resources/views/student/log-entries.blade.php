@@ -31,7 +31,7 @@
             @if(isset($logEntry))
                 <div class="alert alert-info d-flex align-items-center mb-3">
                     <i class="fas fa-edit me-2"></i>
-                    <span>You are editing a draft entry from <strong>{{ $logEntry->entry_date->format('d M Y') }}</strong>.
+                    <span>You are editing a draft entry from <strong>{{ $logEntry->entry_date->format('d/m/Y') }}</strong>.
                     <!-- <a href="{{ route('student.log-entries') }}" class="ms-2">Cancel</a></span> -->
                 </div>
             @endif
@@ -162,7 +162,7 @@
                 <tr>
                     <td>{{ $loop->iteration }}.</td>
                     <td>W{{ $log->week_number }}</td>
-                    <td>{{ $log->entry_date->format('d M Y') }}</td>
+                    <td>{{ $log->entry_date->format('d/m/Y') }}</td>
                     <td>{{ Str::limit($log->task_description, 50) }}</td>
                     <td>
                         @if($log->attachments->count() > 0)

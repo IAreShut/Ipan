@@ -28,7 +28,7 @@
 <div class="detail-card bg-light-gradient">
     <div class="d-flex justify-content-between align-items-start mb-3 flex-wrap gap-2">
         <h4 class="fw-bold mb-0 text-dark">
-            Week {{ $logEntry->week_number }} — {{ $logEntry->entry_date->format('d F Y') }}
+            Week {{ $logEntry->week_number }} — {{ $logEntry->entry_date->format('d/m/Y') }}
         </h4>
         <div>
             @if($logEntry->status === 'approved')
