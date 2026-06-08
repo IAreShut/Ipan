@@ -293,7 +293,7 @@ $parts[] = new \Gemini\Data\Blob(
 
 ---
 
-## 8. Notification System
+## 8. Notification & Mail System
 
 ### Architecture
 - Custom `App\Channels\LimsDatabaseChannel` → writes to custom `notifications` table via `App\Models\Notification`
@@ -308,6 +308,16 @@ $parts[] = new \Gemini\Data\Blob(
 
 ### Channels Used
 All notification classes use: `[LimsDatabaseChannel::class, 'mail']`
+
+### Email Configuration (Local vs Production)
+- **Local Environment (Mailtrap SDK):**
+  - Uses the **Mailtrap SDK via HTTP API** (`mailtrap+sdk` transport driver, installed via package `railsware/mailtrap-php` over port 443).
+  - Configured in `.env` via `MAIL_MAILER=mailtrap`, `MAILTRAP_API_TOKEN`, and `MAILTRAP_INBOX_ID`.
+  - **Do NOT use SMTP mailer (ports 2525, 587, 465) on local development** as these ports are blocked by the local ISP/router.
+  - Free Mailtrap plans restrict sending to **1 email per second**. Multi-recipient notifications have a **2-second stagger delay** added in `TaskController::store` which is wrapped in `app()->environment('local')` check.
+- **Production Environment (Brevo SMTP):**
+  - Uses standard **Brevo SMTP** (`smtp` transport driver) configured in production `.env` (`MAIL_MAILER=smtp`, host, port, credentials).
+  - Stagger delay is bypassed/ignored in production to process queue jobs immediately.
 
 ### Scheduled Task
 ```php

@@ -282,6 +282,44 @@ Buka browser: **http://127.0.0.1:8000**
 
 ---
 
+## Email Configuration (Local vs Production)
+
+Sistem ini mempunyai tetapan e-mel yang berbeza mengikut persekitaran (environment) untuk memastikan kelancaran penghantaran dan keselamatan:
+
+### 1. Persekitaran Tempatan (Local Development)
+Disebabkan kebanyakan ISP/router menyekat port SMTP standard (2525, 587, 465) di Malaysia, persekitaran tempatan menggunakan **Mailtrap SDK (HTTP API)** berbanding SMTP biasa untuk menghantar e-mel ke inbox sandboxed.
+
+* **Pemandu (Mailer):** `mailtrap` (menggunakan driver `mailtrap+sdk` yang didaftarkan dalam `AppServiceProvider` melalui HTTP API port 443).
+* **Konfigurasi `.env` (Local):**
+  ```env
+  MAIL_MAILER=mailtrap
+  MAIL_FROM_ADDRESS="iareshut@gmail.com"
+  MAIL_FROM_NAME="${APP_NAME}"
+  MAILTRAP_API_TOKEN=8f3c23d6e78df60f4937481f143f1230
+  MAILTRAP_INBOX_ID=4694915
+  ```
+* **Had Kadar (Rate Limit) Mailtrap Percuma:**
+  Mailtrap pelan percuma mengehadkan penghantaran kepada **1 e-mel sesaat**. Oleh itu, sistem telah dilengkapi dengan kelewatan berperingkat (*stagger delay*) sebanyak **2 saat** bagi setiap pelajar semasa supervisor menetapkan tugas (hanya aktif di persekitaran `local`).
+
+### 2. Persekitaran Pelayan (Production Server)
+Di pelayan production (DigitalOcean), sekatan port SMTP tidak berlaku dan had kadar e-mel adalah lebih tinggi. Oleh itu, sistem menggunakan **Brevo (SMTP)** untuk penghantaran e-mel sebenar.
+
+* **Pemandu (Mailer):** `smtp`
+* **Konfigurasi `.env` (Production):**
+  ```env
+  MAIL_MAILER=smtp
+  MAIL_HOST=smtp-relay.brevo.com
+  MAIL_PORT=587
+  MAIL_USERNAME=your_brevo_username
+  MAIL_PASSWORD=your_brevo_password
+  MAIL_ENCRYPTION=tls
+  MAIL_FROM_ADDRESS="no-reply@lim-system.my"
+  MAIL_FROM_NAME="${APP_NAME}"
+  ```
+* **Nota Prestasi:** Kelewatan berperingkat (stagger delay) 2 saat dinyahaktifkan secara automatik di production, membolehkan e-mel dihantar serta-merta ke database queue.
+
+---
+
 ## Useful Commands
 
 | Command | Description |
