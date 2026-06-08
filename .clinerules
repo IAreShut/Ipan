@@ -25,10 +25,8 @@
 
 | Technology | Version    | Role                                |
 | ---------- | ---------- | ----------------------------------- |
-| MySQL      | 5.7+ / 8.0 | Primary database                    |
-| MySQL      | 5.7+ / 8.0 | Primary database                    |
+| MySQL      | 8.0+       | Primary database & production (DO)  |
 | XAMPP      | Latest     | Local dev server (Apache + MySQL)   |
-| MySQL      | 8.0+       | Production database on DigitalOcean |
 
 ### Frontend
 
@@ -69,10 +67,27 @@
 
 ### MVC Structure
 
-- **Controller-per-role** pattern: `AuthController`, `StudentController`, `SupervisorController`
+- **Controller-per-role** pattern: `AuthController`, `Student\*`, `Supervisor\*`
 - No dedicated Form Request classes — validation is inline in controller methods
 - No role-based middleware — authorization checks are done inside controller methods using `Auth::user()->role` or ownership checks
 - `AppServiceProvider` forces HTTPS in production via `URL::forceScheme('https')`
+
+### Controllers (Full List)
+
+| Controller | Location | Key Methods |
+|---|---|---|
+| AuthController | `app/Http/Controllers` | login, register, logout, checkAssignment |
+| Student\DashboardController | `Controllers/Student` | dashboard |
+| Student\LogEntryController | `Controllers/Student` | index, store, show, edit, update, deleteAttachment, generateAiSummary |
+| Student\NotificationController | `Controllers/Student` | index, storeReminder, markRead, unread, completeTask |
+| Student\ProfileController | `Controllers/Student` | show, update |
+| Student\ProgressController | `Controllers/Student` | index, week |
+| Supervisor\DashboardController | `Controllers/Supervisor` | dashboard, showStudent |
+| Supervisor\ReviewController | `Controllers/Supervisor` | index, approve, reject |
+| Supervisor\TaskController | `Controllers/Supervisor` | index, store |
+| Supervisor\AnalyticsController | `Controllers/Supervisor` | index, generateAiSummary, identifyAtRisk, askData |
+| Supervisor\ProfileController | `Controllers/Supervisor` | show, update |
+| Supervisor\AssignStudentController | `Controllers/Supervisor` | assignedStudents |
 
 ### Route Organisation
 
@@ -101,7 +116,6 @@ All authenticated routes use `middleware(['auth'])`.
 | `SupervisorAssignment` | `supervisor_assignments` | Lookup table for pre-assigned student-supervisor matching                                  |
 
 ### Blade View Structure
-
 ```
 resources/views/
 ├── auth/
@@ -119,9 +133,12 @@ resources/views/
 │   └── progress-week.blade.php
 ├── supervisor/
 │   ├── analytics.blade.php
+│   ├── assign-student.blade.php
 │   ├── dashboard.blade.php
-│   ├── milestones.blade.php
-│   └── review-logbook.blade.php
+│   ├── profile.blade.php
+│   ├── review-logbook.blade.php
+│   ├── student-show.blade.php
+│   └── tasks.blade.php
 └── welcome.blade.php
 ```
 
@@ -168,8 +185,12 @@ resources/views/
 - `student_matrix_id` (string, unique), `student_name`, `supervisor_matrix_id`
 - `faculty`, `programme_code`, `class` — academic info for auto-fill during registration
 - timestamps
+
+### tasks
+
 - `id`, `user_id` (FK → users.id), `created_by` (FK → users.id)
-- `title`, `due_date` (datetime), `type` (sv_milestone / personal_reminder)
+- `title`, `due_date` (datetime), `type` (sv_task / personal_reminder)
+- `completed_at` (timestamp, nullable)
 - timestamps
 
 ---
@@ -323,7 +344,7 @@ $parts[] = new \Gemini\Data\Blob(
 
 ---
 
-## 8. Notification & Mail System
+## 9. Notification & Mail System
 
 ### Architecture
 
@@ -335,7 +356,7 @@ $parts[] = new \Gemini\Data\Blob(
 | Class                          | Trigger                           | Type              |
 | ------------------------------ | --------------------------------- | ----------------- |
 | `DailyLogReminderNotification` | Scheduled (weekday 5:00 PM)       | reminder          |
-| `MilestoneSetNotification`     | Supervisor assigns milestone      | milestone         |
+| `TaskSetNotification`          | Supervisor assigns task           | task              |
 | `PersonalReminderNotification` | Student creates personal reminder | personal_reminder |
 
 ### Channels Used
@@ -373,7 +394,7 @@ Schedule::call(function () {
 
 ---
 
-## 9. Deployment (DigitalOcean)
+## 10. Deployment (DigitalOcean)
 
 ### Configuration
 
@@ -432,7 +453,7 @@ tail -f storage/logs/laravel.log          # View Laravel logs
 
 ---
 
-## 10. Development Workflow
+## 11. Development Workflow
 
 ### Start Development (All-in-One)
 
@@ -478,13 +499,13 @@ composer setup
 
 ---
 
-## 11. Key Directories
+## 12. Key Directories
 
 ```
 Ipan/
 ├── app/
 │   ├── Channels/             # Custom notification channel (LimsDatabaseChannel)
-│   ├── Http/Controllers/     # AuthController, StudentController, SupervisorController
+│   ├── Http/Controllers/     # AuthController, Student/*, Supervisor/*
 │   ├── Models/               # User, Internship, LogEntry, LogAttachment, Notification, Task, SupervisorAssignment
 │   ├── Notifications/        # DailyLogReminder, TaskSet, PersonalReminder
 │   └── Providers/            # AppServiceProvider (HTTPS forcing)
@@ -511,23 +532,23 @@ Ipan/
 
 ---
 
-## 12. Known Patterns & Gotchas
+## 13. Known Patterns & Gotchas
 
 1. **No role middleware** — All authorization is controller-level. Any new protected route must manually check `Auth::user()->role`.
 
 2. **Admin module is a placeholder** — Returns a string, not a view. Do not build on it without discussing scope.
 
-3. **MySQL-specific SQL** — `FIELD(status, 'draft') DESC` in StudentController dashboard query. Won't work on SQLite.
+3. **MySQL-specific SQL** — `FIELD(status, 'draft') DESC` in Student dashboard query. Won't work on SQLite.
 
-4. **`env()` in controllers** — `env('CLOUDINARY_URL')` is called directly in controllers instead of through config. This works but breaks if config is cached (`php artisan config:cache`).
+4. **`env()` in controllers** — `env('CLOUDINARY_URL')` called directly. Breaks if config is cached.
 
 5. **Custom Notification table** — `App\Models\Notification` is completely separate from Laravel's built-in notification system. Do not mix them.
 
-6. **LogEntry status enum is string-based** — Not a PHP enum or DB enum. Values: `draft`, `pending`, `approved`, `rejected`.
+6. **LogEntry status is string-based** — Values: `draft`, `pending`, `approved`, `rejected` (not PHP/DB enum).
 
-7. **Internship auto-creation** — If a student submits a log entry without an internship record, one is auto-created with default values (`company_name: 'Not Set'`).
+7. **Internship auto-creation** — If a student submits a log entry without an internship record, one is auto-created with defaults (`company_name: 'Not Set'`).
 
-8. **CSS is NOT fully Vite-bundled** — Page-specific CSS/JS files live in `public/css/` and `public/js/`, loaded directly in Blade templates (not through Vite). Only `resources/css/app.css` and `resources/js/app.js` go through Vite.
+8. **CSS is NOT fully Vite-bundled** — Page-specific files in `public/css/` & `public/js/` loaded directly. Only `resources/css/app.css` & `resources/js/app.js` go through Vite.
 
 9. **Two layout files** — `layouts/app.blade.php` and `layouts/master.blade.php`. Check which one each view extends before modifying.
 
@@ -539,7 +560,7 @@ Ipan/
 
 ---
 
-## 13. DO NOT Rules
+## 14. DO NOT Rules
 
 > **These are hard constraints. Violating them will break the system or go against project decisions.**
 
@@ -561,7 +582,7 @@ Ipan/
 
 ---
 
-## 14. Agent Operational Guidelines
+## 15. Agent Operational Guidelines
 
 ### Efficiency & Token Saving
 
