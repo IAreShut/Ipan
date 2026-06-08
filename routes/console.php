@@ -24,3 +24,12 @@ Schedule::call(function () {
         $student->notify(new DailyLogReminderNotification);
     }
 })->weekdays()->at('17:00')->name('daily-log-reminder');
+
+/*
+|--------------------------------------------------------------------------
+| Scheduled Task: Personal Reminder Emails
+|--------------------------------------------------------------------------
+| Runs every minute to check for personal reminders that are due.
+| Sends email notifications at the exact date & time the student set.
+*/
+Schedule::command('reminders:send')->everyMinute()->name('personal-reminders');

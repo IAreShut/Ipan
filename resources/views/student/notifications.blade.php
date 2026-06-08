@@ -148,11 +148,11 @@
                         <input type="text" name="title" class="form-control" placeholder="e.g. Update logbook for Week 4" required>
                     </div>
                     <div class="row">
-                        <div class="col-md-6 mb-3">
+                        <div class="col-md-6">
                             <label class="form-label fw-bold">Date</label>
                             <input type="date" name="due_date" id="reminder_date" class="form-control" required>
                         </div>
-                        <div class="col-md-6 mb-3">
+                        <div class="col-md-6">
                             <label class="form-label fw-bold">Time</label>
                             <input type="time" name="due_time" id="reminder_time" class="form-control" value="17:00" required>
                         </div>

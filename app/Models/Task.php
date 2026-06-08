@@ -16,11 +16,13 @@ class Task extends Model
         'due_date',
         'type',
         'completed_at',
+        'reminder_sent',
     ];
 
     protected $casts = [
         'due_date' => 'datetime',
         'completed_at' => 'datetime',
+        'reminder_sent' => 'boolean',
     ];
 
     public function user()
