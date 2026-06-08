@@ -8,6 +8,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Support\Facades\Mail;
 
 class TaskSetNotification extends Notification implements ShouldQueue
 {
@@ -21,6 +22,7 @@ class TaskSetNotification extends Notification implements ShouldQueue
     public function __construct(Task $task)
     {
         $this->task = $task;
+        $this->onConnection('database');
     }
 
     /**
@@ -38,6 +40,10 @@ class TaskSetNotification extends Notification implements ShouldQueue
      */
     public function toMail(object $notifiable): MailMessage
     {
+        // Force a fresh SMTP connection each time to prevent
+        // "Connection closed unexpectedly" when sending to multiple recipients.
+        Mail::purge('smtp');
+
         return (new MailMessage)
             ->subject('New Task Assigned: '.$this->task->title)
             ->greeting('Hello '.$notifiable->name.',')

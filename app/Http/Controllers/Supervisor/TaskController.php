@@ -92,11 +92,21 @@ class TaskController extends Controller
             ->get()
             ->keyBy('user_id');
 
+        $delaySeconds = 0;
+        $isLocal = app()->environment('local');
         foreach ($students as $student) {
             try {
                 $task = $createdTasks->get($student->id);
                 if ($task) {
-                    $student->notify(new \App\Notifications\TaskSetNotification($task));
+                    $notification = new \App\Notifications\TaskSetNotification($task);
+                    if ($isLocal && $delaySeconds > 0) {
+                        $notification->delay(now()->addSeconds($delaySeconds));
+                    }
+                    $student->notify($notification);
+
+                    if ($isLocal) {
+                        $delaySeconds += 2; // stagger 2s apart to respect Mailtrap rate limit
+                    }
                 }
             } catch (\Exception $e) {
                 \Log::warning('TaskController@store notify failed for user '.$student->id.': '.$e->getMessage());
