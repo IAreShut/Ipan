@@ -68,7 +68,7 @@
 
 /* Positions relative to center */
 .fw-1 { top: 12%; left: calc(50% - 600px); animation: float 6s ease-in-out infinite; }
-.fw-2 { top: 10%; right: calc(50% - 580px); animation: float 7s ease-in-out infinite 1s; }
+.fw-2 { top: 8%; right: calc(50% - 580px); animation: float 7s ease-in-out infinite 1s; }
 .fw-3 { bottom: 15%; left: calc(50% - 560px); animation: float 8s ease-in-out infinite 2s; }
 .fw-4 { bottom: 12%; right: calc(50% - 620px); animation: float 6.5s ease-in-out infinite 1.5s; }
 

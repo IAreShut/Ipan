@@ -6,7 +6,7 @@
 
 @section('content')
 <!-- Navigation -->
-<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm fixed-top">
+<!-- <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm fixed-top">
     <div class="container">
         <a class="navbar-brand fw-bold text-primary-custom" href="#">
             <i class="fas fa-book-reader me-2"></i>LIMS
@@ -37,7 +37,7 @@
             </ul>
         </div>
     </div>
-</nav>
+</nav> -->
 
 <!-- Hero Section -->
 <section class="hero-section dotted-bg">
@@ -133,13 +133,16 @@
 
     <div class="container hero-content text-center pb-5">
         <!-- Center Icon -->
-        <div class="mx-auto mb-4 d-flex align-items-center justify-content-center bg-white shadow" style="width: 72px; height: 72px; border-radius: 1.25rem; border: 1px solid #e2e8f0;">
-            <div class="row g-1" style="width: 32px;">
+        <div class="mx-auto mb-4 d-flex align-items-center justify-content-center">
+            <a class="navbar-brand fw-bold text-primary-custom" href="#">
+                <i class="fas fa-book-reader text-primary-custom" style="font-size: 50px;"></i>
+            </a>
+            <!-- <div class="row g-1" style="width: 32px;">
                 <div class="col-6"><div class="bg-primary-custom rounded-circle" style="width:12px; height:12px;"></div></div>
                 <div class="col-6"><div class="bg-dark rounded-circle" style="width:12px; height:12px;"></div></div>
                 <div class="col-6"><div class="bg-dark rounded-circle" style="width:12px; height:12px;"></div></div>
                 <div class="col-6"><div class="bg-dark rounded-circle" style="width:12px; height:12px;"></div></div>
-            </div>
+            </div> -->
         </div>
 
         <h1 class="hero-title mb-3">
