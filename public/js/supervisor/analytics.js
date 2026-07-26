@@ -90,12 +90,12 @@ $(document).ready(function() {
                     var x1 = element.x + cosA * (outerR + 2);
                     var y1 = element.y + sinA * (outerR + 2);
 
-                    var lineLength = 16;
+                    var lineLength = 10;
                     var x2 = element.x + cosA * (outerR + lineLength);
                     var y2 = element.y + sinA * (outerR + lineLength);
 
                     var isRight = cosA >= 0;
-                    var elbowLength = 12;
+                    var elbowLength = 8;
                     var x3 = x2 + (isRight ? elbowLength : -elbowLength);
                     var y3 = y2;
 
@@ -121,7 +121,7 @@ $(document).ready(function() {
                     ctx.fillStyle = '#3B82F6';
                     ctx.textAlign = isRight ? 'left' : 'right';
                     ctx.textBaseline = 'middle';
-                    var textX = x3 + (isRight ? 5 : -5);
+                    var textX = x3 + (isRight ? 4 : -4);
                     ctx.fillText(labelText, textX, y3);
                 });
                 ctx.restore();
@@ -146,10 +146,10 @@ $(document).ready(function() {
                 maintainAspectRatio: false,
                 layout: {
                     padding: {
-                        top: 25,
-                        bottom: 25,
-                        left: 55,
-                        right: 55
+                        top: 20,
+                        bottom: 20,
+                        left: 85,
+                        right: 85
                     }
                 },
                 plugins: {
