@@ -116,8 +116,14 @@
     </div>
     <div class="col-md-4">
         <div class="card card-custom p-4 h-100 d-flex flex-column">
-            <h5 class="fw-bold mb-4 w-100 text-start">Logbook Breakdown</h5>
-            <div class="d-flex flex-column align-items-center justify-content-center flex-grow-1 py-3">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h5 class="fw-bold m-0">Logbook Breakdown</h5>
+                <span class="badge bg-light text-dark border px-3 py-2 rounded-pill fw-semibold" style="font-size: 0.85rem;">
+                    Total: <strong class="text-primary-custom fs-6 ms-1">{{ $totalLogbooks }}</strong>
+                </span>
+            </div>
+            
+            <div class="d-flex flex-column align-items-center justify-content-center flex-grow-1 my-2">
                 @php
                     $total = $totalLogbooks > 0 ? $totalLogbooks : 1;
                     $pctApproved = round(($approvedLogbooks / $total) * 100);
@@ -125,27 +131,23 @@
                     $pctRejected = round(($rejectedLogbooks / $total) * 100);
                 @endphp
                 
-                <div class="position-relative mx-auto mt-2 mb-4" style="width: 200px; height: 200px;">
+                <div class="position-relative w-100" style="height: 250px;">
                     <canvas id="breakdownChart"></canvas>
-                    <div class="position-absolute top-50 start-50 translate-middle text-center w-100">
-                        <h2 class="fw-bold mb-0" style="font-size: 2.5rem; line-height: 1;">{{ $totalLogbooks }}</h2>
-                        <span class="text-muted" style="font-size: 0.85rem; font-weight: 500;">Total</span>
-                    </div>
                 </div>
             </div>
             
-            <ul class="list-unstyled mb-0">
-                <li class="d-flex justify-content-between align-items-center mb-4">
-                    <div class="fs-6"><i class="fas fa-circle text-success small me-2"></i> Approved</div>
-                    <div class="fw-bold fs-6">{{ $pctApproved }}% <span class="text-muted ms-2">{{ $approvedLogbooks }}</span></div>
+            <ul class="list-unstyled mb-0 mt-2">
+                <li class="breakdown-legend-item d-flex justify-content-between align-items-center p-2 mb-2 rounded transition-all" data-index="0">
+                    <div class="fs-6 d-flex align-items-center"><i class="fas fa-circle me-2" style="color: #1E3A8A;"></i> <span>Approved</span></div>
+                    <div class="fw-bold fs-6">{{ $pctApproved }}% <span class="text-muted ms-2 fw-normal">({{ $approvedLogbooks }})</span></div>
                 </li>
-                <li class="d-flex justify-content-between align-items-center mb-4">
-                    <div class="fs-6"><i class="fas fa-circle text-warning small me-2"></i> Pending</div>
-                    <div class="fw-bold fs-6">{{ $pctPending }}% <span class="text-muted ms-2">{{ $pendingReviews }}</span></div>
+                <li class="breakdown-legend-item d-flex justify-content-between align-items-center p-2 mb-2 rounded transition-all" data-index="1">
+                    <div class="fs-6 d-flex align-items-center"><i class="fas fa-circle me-2" style="color: #3B82F6;"></i> <span>Pending</span></div>
+                    <div class="fw-bold fs-6">{{ $pctPending }}% <span class="text-muted ms-2 fw-normal">({{ $pendingReviews }})</span></div>
                 </li>
-                <li class="d-flex justify-content-between align-items-center">
-                    <div class="fs-6"><i class="fas fa-circle text-danger small me-2"></i> Rejected</div>
-                    <div class="fw-bold fs-6">{{ $pctRejected }}% <span class="text-muted ms-2">{{ $rejectedLogbooks }}</span></div>
+                <li class="breakdown-legend-item d-flex justify-content-between align-items-center p-2 rounded transition-all" data-index="2">
+                    <div class="fs-6 d-flex align-items-center"><i class="fas fa-circle me-2" style="color: #60A5FA;"></i> <span>Rejected</span></div>
+                    <div class="fw-bold fs-6">{{ $pctRejected }}% <span class="text-muted ms-2 fw-normal">({{ $rejectedLogbooks }})</span></div>
                 </li>
             </ul>
         </div>
@@ -209,7 +211,8 @@
     window.breakdownData = {
         approved: {{ $approvedLogbooks }},
         pending: {{ $pendingReviews }},
-        rejected: {{ $rejectedLogbooks }}
+        rejected: {{ $rejectedLogbooks }},
+        total: {{ $totalLogbooks }}
     };
 </script>
 <script src="{{ asset('js/supervisor/analytics.js') }}"></script>

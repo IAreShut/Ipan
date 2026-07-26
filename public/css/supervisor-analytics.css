@@ -38,3 +38,13 @@
     border-radius: 6px;
     margin-bottom: 20px;
 }
+
+.breakdown-legend-item {
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.breakdown-legend-item:hover {
+    background-color: #f1f5f9;
+    transform: translateX(4px);
+}

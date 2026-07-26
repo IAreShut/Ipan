@@ -1,35 +1,134 @@
-/* Login / Register Page Styles */
+/* ==========================================================================
+   LIMS Auth (Login / Register) Styles
+   Desktop Original Centered Card + Tablet/Mobile Responsive Flow
+   ========================================================================== */
 
-.auth-container {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
-}
-
-.auth-card {
-    background: white;
-    border-radius: 1rem;
-    padding: 2.5rem;
-    width: 100%;
-    max-width: 500px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-}
-
-/* Page-level overrides (was inline in auth/login.blade.php) */
 .auth-container {
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
     background: linear-gradient(135deg, #F3F4F6 0%, #E0E7FF 100%);
+    padding: 1.5rem 1rem;
 }
+
+/* Original Desktop Centered Auth Card */
 .auth-card {
-    background: white;
-    border-radius: 1rem;
-    padding: 2.5rem;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    background: #ffffff;
+    border-radius: 1.25rem;
+    padding: 2.25rem 1.75rem;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08), 0 2px 5px rgba(0, 0, 0, 0.04);
     width: 100%;
     max-width: 450px;
+    transition: max-width 0.3s ease, padding 0.3s ease;
+}
+
+@media (min-width: 768px) {
+    .auth-card {
+        padding: 2.5rem;
+        max-width: 460px;
+    }
+    
+    /* When user switches to Register tab on Tablet/Desktop, widen card slightly to 720px so 2-column grid fits cleanly without vertical squeezing */
+    .auth-card.register-mode {
+        max-width: 720px;
+    }
+}
+
+/* Tab Navigation Styling (Clean Bootstrap Pills without enclosed oval background) */
+.nav-pills .nav-link {
+    border-radius: 50px;
+    font-weight: 600;
+    color: #1E40AF;
+    padding: 0.5rem 1.5rem;
+    transition: all 0.2s ease;
+    background: transparent;
+}
+
+.nav-pills .nav-link.active {
+    background-color: #1E40AF !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(30, 64, 175, 0.25);
+}
+
+.nav-pills .nav-link:hover:not(.active) {
+    background-color: #eff6ff;
+    color: #1e3a8a;
+}
+
+/* Form Grid for Register on Tablet/Desktop */
+.reg-form-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+}
+
+@media (min-width: 768px) {
+    .reg-form-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 1.2rem;
+    }
+
+    .reg-grid-full {
+        grid-column: span 2;
+    }
+}
+
+/* Input Styling */
+.form-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #334155;
+    margin-bottom: 0.35rem;
+}
+
+.input-group .form-control,
+.input-group .form-select,
+.input-group-text {
+    border-color: #cbd5e1;
+}
+
+.form-control,
+.form-select {
+    border-radius: 0.6rem;
+    padding: 0.65rem 0.85rem;
+    font-size: 0.95rem;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.input-group-text {
+    background-color: #f8fafc;
+    color: #64748b;
+    border-radius: 0.6rem 0 0 0.6rem;
+}
+
+.text-primary-custom {
+    color: #1E40AF !important;
+}
+
+.btn-primary-custom {
+    background-color: #1E40AF !important;
+    border-color: #1E40AF !important;
+    color: white !important;
+    font-weight: 600;
+    padding: 0.75rem;
+    border-radius: 0.6rem;
+    transition: all 0.2s ease;
+}
+
+.btn-primary-custom:hover:not(:disabled) {
+    background-color: #1e3a8a !important;
+    border-color: #1e3a8a !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3);
+}
+
+.btn-primary-custom:disabled {
+    background-color: #94a3b8 !important;
+    border-color: #94a3b8 !important;
 }

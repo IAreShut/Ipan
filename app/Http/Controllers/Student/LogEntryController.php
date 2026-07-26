@@ -77,7 +77,7 @@ class LogEntryController extends Controller
                 'entry_date' => $request->entry_date,
                 'week_number' => $request->week_number,
                 'log_type' => $request->log_type,
-                'task_description' => str_replace('**', '', preg_replace('/\*\*(.*?)\*\*/', '$1', $request->task_description)),
+                'task_description' => $request->task_description,
                 'status' => $request->has('save_draft') ? 'draft' : 'pending',
             ]);
 
@@ -195,7 +195,7 @@ class LogEntryController extends Controller
                 'entry_date' => $request->entry_date,
                 'week_number' => $request->week_number,
                 'log_type' => $request->log_type,
-                'task_description' => str_replace('**', '', preg_replace('/\*\*(.*?)\*\*/', '$1', $request->task_description)),
+                'task_description' => $request->task_description,
                 'status' => $request->has('save_draft') ? 'draft' : 'pending',
             ]);
 
@@ -282,7 +282,7 @@ class LogEntryController extends Controller
         $systemPrompt = "Act as a professional internship student. Based on the student's raw task description and any attached images of their work, 
         generate an informal daily summary 1 paragraph minimum 50 words depends on the task description, can use bullet point if needed. 
         Use professional verbs like 'Assisted', 'Analyzed', 'Developed', 'Implemented', 'Configured', or 'Monitored'. Focus on the technical contribution. 
-        Do not include greetings or sign-offs. Do not use any markdown formatting such as bold asterisks (**), italics, or markdown markup. Output clean plain text only. Write using malaysian basic english level C1";
+        Do not include greetings or sign-offs. Output only the summary text. Write using malaysian basic english";
 
         try {
             // Build the parts array for the Gemini SDK
@@ -314,10 +314,6 @@ class LogEntryController extends Controller
             if (empty($summary)) {
                 return response()->json(['error' => 'AI did not return a valid summary. Please try again.'], 500);
             }
-
-            // Strip markdown bold asterisks and formatting symbols
-            $summary = preg_replace('/\*\*(.*?)\*\*/', '$1', $summary);
-            $summary = str_replace('**', '', $summary);
 
             return response()->json(['summary' => trim($summary)]);
 

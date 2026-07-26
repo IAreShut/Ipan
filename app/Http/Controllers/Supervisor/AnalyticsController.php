@@ -88,7 +88,7 @@ class AnalyticsController extends Controller
                 'rejected' => $logEntries->where('status', 'rejected')->count(),
             ];
 
-            $prompt = "As an AI assistant for an Internship Logbook System, provide a short 2-3 sentence performance summary based on these statistics: {$stats['total']} total logbooks submitted. {$stats['approved']} approved, {$stats['pending']} pending review, and {$stats['rejected']} rejected. Write in a professional, encouraging tone in English.";
+            $prompt = "As an AI assistant for an Internship Logbook System, provide a short 2-3 sentence using formal English Malaysian style language level C1 for performance summary based on these statistics: {$stats['total']} total logbooks submitted. {$stats['approved']} approved, {$stats['pending']} pending review, and {$stats['rejected']} rejected. Write in a professional, encouraging tone in English.";
 
             $result = Gemini::generativeModel('models/gemini-2.5-flash-lite')->generateContent($prompt);
 

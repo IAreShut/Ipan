@@ -307,6 +307,14 @@ if (str_contains($path, 'cloudinary')) {
 - **Tables**: All tables must use the `.table` class. It has been globally overridden to remove vertical borders, use uppercase light-grey headers, and rounded pagination buttons for DataTables. Avoid inline table styles.
 - **Buttons**: Use rounded-pill or `1rem` radius buttons (`.btn-premium`) with icons to maintain the modern SaaS aesthetic.
 
+### Responsive Design Standards (`responsive-design` Skill)
+
+- **Workspace Skill Active**: Installed at [.gemini/skills/responsive-design/SKILL.md](file:///c:/Users/User/FYP%20System/Ipan/.gemini/skills/responsive-design/SKILL.md).
+- **Mobile-First Layouts**: Always write media queries mobile-first (`min-width`).
+- **Container Queries**: Use `@container` for component-level responsive behavior (cards, widgets) independent of screen viewport.
+- **Fluid Typography**: Use `clamp()` for fluid text and element spacing.
+- **Responsive Tables**: Wrap tables in `.table-responsive` or use mobile card fallbacks on screens `< 576px`.
+
 ---
 
 ## 8. AI Integration (Gemini API)

@@ -390,12 +390,24 @@ Gunakan `:root` CSS custom properties untuk konsistensi:
 
 ---
 
+## 7. Responsive Design Standards (`responsive-design` Skill)
+
+### 7.1 Breakpoint Strategy
+- Mobile-first approach using `@media (min-width: ...)`
+- Standard breakpoints: `sm: 576px`, `md: 768px`, `lg: 992px`, `xl: 1200px`
+
+### 7.2 Container Queries & Fluid Layouts
+- Use `@container` on card components to ensure responsiveness independent of screen width.
+- Use `clamp()` for fluid font sizing and adaptive spacing across screen sizes.
+
+---
+
 ## Document Metadata
 
 | Field | Value |
 |-------|-------|
-| **Document Version** | 2.0 |
-| **Last Updated** | 2026-05-16 |
+| **Document Version** | 2.1 |
+| **Last Updated** | 2026-07-27 |
 | **Purpose** | UI Design System & Visual Conventions |
 | **Source** | `public/css/*.css`, `resources/views/layouts/*.blade.php`, `public/js/*.js` |
 | **Project** | LIMS — Logbook Internship Management System |
