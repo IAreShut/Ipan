@@ -3,6 +3,7 @@
 ## RESPONSES
 
 - Keep responses concise and to the point - unless the user asks otherwise
+- Always use English language Malaysian speaker level C1
 
 ## PLANNING MODE
 
