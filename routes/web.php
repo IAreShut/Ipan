@@ -42,6 +42,7 @@ Route::middleware(['auth'])->prefix('student')->name('student.')->group(function
     Route::get('/log-entries/{logEntry}', [LogEntryController::class, 'show'])->name('log-entries.show');
     Route::get('/log-entries/{logEntry}/edit', [LogEntryController::class, 'edit'])->name('log-entries.edit');
     Route::put('/log-entries/{logEntry}', [LogEntryController::class, 'update'])->name('log-entries.update');
+    Route::post('/log-entries/{logEntry}/unsubmit', [LogEntryController::class, 'unsubmit'])->name('log-entries.unsubmit');
     Route::delete('/log-attachments/{attachment}', [LogEntryController::class, 'deleteAttachment'])->name('log-attachments.destroy');
     Route::post('/ai-generate-summary', [LogEntryController::class, 'generateAiSummary'])->name('ai-generate-summary');
     Route::get('/profile', [StudentProfileController::class, 'show'])->name('profile');

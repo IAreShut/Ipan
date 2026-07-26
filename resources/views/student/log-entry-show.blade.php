@@ -40,9 +40,15 @@
                     <i class="fas fa-times-circle me-1"></i> Rejected
                 </span>
             @elseif($logEntry->status === 'pending')
-                <span class="badge rounded-pill bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 px-3 py-2 fs-6">
+                <span class="badge rounded-pill bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 px-3 py-2 fs-6 me-2">
                     <i class="fas fa-clock me-1"></i> Pending Review
                 </span>
+                <form action="{{ route('student.log-entries.unsubmit', $logEntry->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to recall this submission back to draft for editing?');">
+                    @csrf
+                    <button type="submit" class="btn btn-sm btn-outline-warning text-dark border-warning rounded-pill px-3 py-1 fw-semibold">
+                        <i class="fas fa-undo me-1"></i> Unsubmit to Draft
+                    </button>
+                </form>
             @else
                 <span class="badge rounded-pill bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25 px-3 py-2 fs-6">
                     <i class="fas fa-file-alt me-1"></i> Draft

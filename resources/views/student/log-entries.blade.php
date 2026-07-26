@@ -203,6 +203,13 @@
                             <a href="{{ route('student.log-entries.edit', $log->id) }}" class="btn-table-action action-edit" title="Edit Draft">
                                 <i class="fas fa-pen"></i> Edit
                             </a>
+                            @elseif($log->status === 'pending')
+                            <form action="{{ route('student.log-entries.unsubmit', $log->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Recall this submission back to draft for editing?');">
+                                @csrf
+                                <button type="submit" class="btn-table-action bg-warning bg-opacity-10 text-dark border border-warning border-opacity-25" title="Unsubmit to Draft">
+                                    <i class="fas fa-undo"></i> Unsubmit
+                                </button>
+                            </form>
                             @endif
                         </div>
                     </td>

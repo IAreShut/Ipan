@@ -21,6 +21,12 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     document.addEventListener('submit', function (e) {
+        // Skip if submission was cancelled by form's onsubmit (e.g., confirm() returned false)
+        if (e.defaultPrevented) {
+            clickedBtn = null;
+            return;
+        }
+
         const form = e.target;
 
         // Skip forms that opt-out (e.g. logout or inline delete forms)

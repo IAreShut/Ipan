@@ -237,6 +237,30 @@ class LogEntryController extends Controller
     }
 
     /**
+     * Unsubmit / recall a pending log entry back to draft
+     */
+    public function unsubmit(LogEntry $logEntry)
+    {
+        $user = Auth::user();
+
+        if ($logEntry->student_id !== $user->id) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        if ($logEntry->status !== 'pending') {
+            return redirect()->route('student.log-entries')
+                ->with('error', 'Only pending log entries can be unsubmitted.');
+        }
+
+        $logEntry->update([
+            'status' => 'draft',
+        ]);
+
+        return redirect()->route('student.log-entries.edit', $logEntry->id)
+            ->with('success', 'Log entry recalled and saved as draft. You may now edit and resubmit your entry.');
+    }
+
+    /**
      * Delete an attachment
      */
     public function deleteAttachment(LogAttachment $attachment)
