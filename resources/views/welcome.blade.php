@@ -1,14 +1,49 @@
 @extends('layouts.master')
 
 @push('styles')
+<!-- <link rel="stylesheet" href="{{ asset('css/index.css') }}?v={{ filemtime(public_path('css/index.css')) }}"> -->
 <link rel="stylesheet" href="{{ asset('css/index.css') }}">
 @endpush
 
 @section('content')
+<!-- Navigation -->
+<!-- <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm fixed-top">
+    <div class="container">
+        <a class="navbar-brand fw-bold text-primary-custom" href="#">
+            <i class="fas fa-book-reader me-2"></i>LIMS
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                @auth
+                    @if(Auth::user()->role === 'supervisor')
+                        <li class="nav-item">
+                            <a class="btn btn-primary-custom" href="{{ route('supervisor.dashboard') }}">Dashboard</a>
+                        </li>
+                    @else
+                        <li class="nav-item">
+                            <a class="btn btn-primary-custom" href="{{ route('student.dashboard') }}">Dashboard</a>
+                        </li>
+                    @endif
+                @else
+                    <li class="nav-item">
+                        <a class="btn btn-outline-primary me-2" href="{{ route('login') }}">Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="btn btn-primary-custom" href="{{ route('login') }}">Register</a>
+                    </li>
+                @endauth
+            </ul>
+        </div>
+    </div>
+</nav> -->
+
 <!-- Hero Section -->
 <section class="hero-section dotted-bg">
     
-    <!-- Floating Elements (Desktop Only: xl & above) -->
+    <!-- Floating Elements (Desktop Only) -->
     <!-- Card 1: Sticky Note (Left Top) -->
     <div class="floating-wrapper fw-1 d-none d-xl-block">
         <div class="ui-card sticky-note" style="width: 220px; transform: rotate(-4deg); padding: 1.5rem 1.25rem;">
@@ -100,9 +135,15 @@
     <div class="container hero-content text-center pb-5">
         <!-- Center Icon -->
         <div class="mx-auto mb-4 d-flex align-items-center justify-content-center">
-            <a class="navbar-brand fw-bold text-primary-custom" href="{{ route('home') }}">
+            <a class="navbar-brand fw-bold text-primary-custom" href="#">
                 <i class="fas fa-book-reader text-primary-custom" style="font-size: 50px;"></i>
             </a>
+            <!-- <div class="row g-1" style="width: 32px;">
+                <div class="col-6"><div class="bg-primary-custom rounded-circle" style="width:12px; height:12px;"></div></div>
+                <div class="col-6"><div class="bg-dark rounded-circle" style="width:12px; height:12px;"></div></div>
+                <div class="col-6"><div class="bg-dark rounded-circle" style="width:12px; height:12px;"></div></div>
+                <div class="col-6"><div class="bg-dark rounded-circle" style="width:12px; height:12px;"></div></div>
+            </div> -->
         </div>
 
         <h1 class="hero-title mb-3">
@@ -111,39 +152,39 @@
         </h1>
         
         <p class="hero-subtitle mb-4">
-            Streamlining the industrial training experience for Students, Supervisors, and Administrators. <br class="d-none d-md-inline">
+            Streamlining the industrial training experience for Students, Supervisors, and Administrators. <br>
             Efficiently manage daily logs, track progress, and ensure a seamless internship journey.
         </p>
         
         <div class="d-flex justify-content-center">
-            <a href="{{ route('login') }}" class="btn btn-hero-primary fs-6 fw-bold">Get Started</a>
+            <a href="{{ route('login') }}" class="btn btn-hero-primary">Get Started</a>
         </div>
     </div>
 </section>
 
-<!-- Mobile/Tablet Features Section (Hidden on XL desktop) -->
+<!-- Mobile Features Section (Hidden on xl since floating cards exist) -->
 <section class="py-5 bg-white d-xl-none border-top">
     <div class="container py-4">
         <div class="row g-4 text-center">
-            <div class="col-12 col-md-4">
-                <div class="feature-card-mobile h-100">
+            <div class="col-md-4">
+                <div class="p-4 border rounded-4 h-100 bg-light border-0">
                     <div class="text-primary-custom mb-3"><i class="fas fa-magic fa-2x"></i></div>
-                    <h5 class="fw-bold text-dark">AI Logbook</h5>
-                    <p class="text-muted small mb-0">Auto-generate summaries for your daily activities efficiently.</p>
+                    <h5 class="fw-bold">AI Logbook</h5>
+                    <p class="text-muted small">Auto-generate summaries for your daily activities efficiently.</p>
                 </div>
             </div>
-            <div class="col-12 col-md-4">
-                <div class="feature-card-mobile h-100">
+            <div class="col-md-4">
+                <div class="p-4 border rounded-4 h-100 bg-light border-0">
                     <div class="text-primary-custom mb-3"><i class="fas fa-check-circle fa-2x"></i></div>
-                    <h5 class="fw-bold text-dark">Approvals</h5>
-                    <p class="text-muted small mb-0">Seamless review and approval process for supervisors.</p>
+                    <h5 class="fw-bold">Approvals</h5>
+                    <p class="text-muted small">Seamless review and approval process for supervisors.</p>
                 </div>
             </div>
-            <div class="col-12 col-md-4">
-                <div class="feature-card-mobile h-100">
+            <div class="col-md-4">
+                <div class="p-4 border rounded-4 h-100 bg-light border-0">
                     <div class="text-primary-custom mb-3"><i class="far fa-clock fa-2x"></i></div>
-                    <h5 class="fw-bold text-dark">Reminders</h5>
-                    <p class="text-muted small mb-0">Never miss a submission deadline with automated tracking.</p>
+                    <h5 class="fw-bold">Reminders</h5>
+                    <p class="text-muted small">Never miss a submission deadline with automated tracking.</p>
                 </div>
             </div>
         </div>
@@ -151,7 +192,7 @@
 </section>
 
 <!-- Footer -->
-<footer class="py-4 bg-white border-top">
+<footer class="py-4 bg-white">
     <div class="container text-center">
         <div class="row">
             <div class="col-md-12">

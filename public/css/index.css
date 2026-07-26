@@ -1,6 +1,4 @@
-/* ==========================================================================
-   LIMS Index / Landing Page Styles - Desktop Original + Tablet/Mobile Responsive
-   ========================================================================== */
+/* Index Page Styles */
 
 /* Dotted Background */
 .dotted-bg {
@@ -16,7 +14,7 @@
     align-items: center;
     position: relative;
     overflow: hidden;
-    padding-top: 40px;
+    padding-top: 60px; /* offset for navbar */
 }
 
 /* Gradient fade at bottom to transition to footer */
@@ -37,41 +35,38 @@
     margin: 0 auto;
 }
 
-/* Responsive Headline (Fluid on Mobile, Original on Desktop) */
 .hero-title {
     font-weight: 800;
     color: #0f172a;
     letter-spacing: -0.04em;
-    line-height: 1.15;
-    font-size: clamp(1.85rem, 5.5vw, 3.2rem);
+    line-height: 1.1;
+    font-size: 3rem;
+}
+
+.hero-subtitle {
+    color: #475569;
+    font-size: 1.125rem;
+    line-height: 1.6;
+    max-width: 500px;
+    margin: 0 auto;
 }
 
 @media (min-width: 768px) {
-    .hero-title { font-size: 4rem; }
+    .hero-title { font-size: 4.5rem; }
+    .hero-subtitle { font-size: 1.25rem; }
 }
 
 @media (min-width: 1200px) {
     .hero-title { font-size: 5rem; }
 }
 
-.hero-subtitle {
-    color: #475569;
-    font-size: clamp(0.95rem, 2vw, 1.125rem);
-    line-height: 1.6;
-    max-width: 550px;
-    margin: 0 auto;
-}
-
-@media (min-width: 768px) {
-    .hero-subtitle { font-size: 1.25rem; }
-}
-
-/* Floating Elements for Desktop (Original) */
+/* Floating Elements */
 .floating-wrapper {
     position: absolute;
     z-index: 5;
 }
 
+/* Positions relative to center */
 .fw-1 { top: 12%; left: calc(50% - 600px); animation: float 6s ease-in-out infinite; }
 .fw-2 { top: 8%; right: calc(50% - 580px); animation: float 7s ease-in-out infinite 1s; }
 .fw-3 { bottom: 15%; left: calc(50% - 560px); animation: float 8s ease-in-out infinite 2s; }
@@ -94,6 +89,7 @@
     cursor: default;
 }
 
+/* Base rotations */
 .fw-1 .ui-card { transform: rotate(-5deg); }
 .fw-2 .ui-card { transform: rotate(4deg); }
 .fw-3 .ui-card { transform: rotate(3deg); }
@@ -106,10 +102,10 @@
     border-color: #cbd5e1;
 }
 
-/* Primary Button */
+/* Buttons */
 .btn-hero-primary {
     background-color: #1E40AF;
-    color: white !important;
+    color: white;
     padding: 0.875rem 2.5rem;
     border-radius: 0.75rem; 
     font-weight: 600;
@@ -119,9 +115,23 @@
 
 .btn-hero-primary:hover {
     background-color: #1e3a8a;
-    color: white !important;
+    color: white;
     transform: translateY(-2px);
     box-shadow: 0 10px 25px -5px rgba(30, 64, 175, 0.4);
+}
+
+.btn-hero-outline {
+    background-color: transparent;
+    color: #1E40AF;
+    padding: 0.875rem 2.5rem;
+    border-radius: 0.75rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.btn-hero-outline:hover {
+    background-color: #f8fafc;
+    color: #1e3a8a;
 }
 
 .text-primary-custom {
@@ -133,22 +143,7 @@
 
 /* Sticky note style for Card 1 */
 .sticky-note {
-    background-color: #fef08a !important;
+    background-color: #fef08a !important; /* yellow-300 */
     border: 1px solid #fde047 !important;
     box-shadow: 2px 4px 10px rgba(0,0,0,0.05) !important;
-}
-
-/* Mobile & Tablet Feature Card Overrides */
-@media (max-width: 1199.98px) {
-    .feature-card-mobile {
-        background: #ffffff;
-        border-radius: 1rem;
-        padding: 1.5rem;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-        border: 1px solid #e2e8f0;
-        transition: transform 0.2s ease;
-    }
-    .feature-card-mobile:hover {
-        transform: translateY(-3px);
-    }
 }
