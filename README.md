@@ -154,22 +154,45 @@ CLIENT (Browser) ─── HTTPS ───▶ Laravel 12 Application ───�
 
 ## Deployment
 
-### DigitalOcean (Current)
+### Azure Docker (Current Production)
+
+* **Server IP:** `40.80.80.249`
+* **SSH Login:** `ssh azureuser@40.80.80.249`
+
+#### Essential Docker Commands (Run inside `/var/www/Ipan`):
 
 ```bash
-cd /var/www/Ipan
-git pull origin main
-composer install --no-dev
-php artisan migrate --force
-php artisan config:cache
-sudo supervisorctl restart laravel-worker:*
+# 🚀 Start / Build All Containers
+sudo docker compose up -d --build
+
+# 🛑 Stop All Containers
+sudo docker compose down
+
+# 📊 Check Status of Containers
+sudo docker compose ps
+
+# 📜 View Live Logs
+sudo docker compose logs -f
 ```
 
-### Useful Server Commands
+#### Useful Laravel Commands inside Docker:
 
 ```bash
-systemctl restart nginx              # Web server
-systemctl restart php8.3-fpm         # PHP process
-sudo supervisorctl restart laravel-worker:*  # Queue worker
-tail -f storage/logs/laravel.log     # View logs
+# 🧹 Clear Configuration & Cache
+sudo docker exec -it lims-app php artisan config:clear
+sudo docker exec -it lims-app php artisan cache:clear
+
+# 🔑 Fix Storage Permissions
+sudo docker exec -it lims-app chmod -R 777 storage bootstrap/cache
+
+# 🔗 Storage Link
+sudo docker exec -it lims-app php artisan storage:link
+
+# 🗄️ Database Import / Export
+sudo docker exec -i lims-db mysql -u root -plims-system lims_db < /tmp/lims_db.sql
+sudo docker exec lims-db mysqldump -u root -plims-system lims_db > /tmp/backup.sql
+
+# 🔍 View Laravel Log
+sudo docker exec -it lims-app tail -f storage/logs/laravel.log
 ```
+
