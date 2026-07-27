@@ -1,0 +1,87 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: lims-app
+    container_name: lims-app
+    restart: unless-stopped
+    tty: true
+    working_dir: /var/www
+    volumes:
+      - .:/var/www
+    networks:
+      - lims-network
+
+  web:
+    image: nginx:alpine
+    container_name: lims-web
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - .:/var/www
+      - ./docker/nginx/conf.d/:/etc/nginx/conf.d/
+    networks:
+      - lims-network
+    depends_on:
+      - app
+
+  db:
+    image: mariadb:10.11
+    container_name: lims-db
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE:-lims_db}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-secret}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-secret}
+      MYSQL_USER: ${DB_USERNAME:-lims_user}
+    volumes:
+      - dbdata:/var/lib/mysql
+    networks:
+      - lims-network
+
+  queue:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: lims-queue
+    restart: unless-stopped
+    command: php artisan queue:work --tries=3 --timeout=90
+    volumes:
+      - .:/var/www
+    networks:
+      - lims-network
+    depends_on:
+      - app
+      - db
+
+  scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: lims-scheduler
+    restart: unless-stopped
+    command: bash -c "while true; do php artisan schedule:run --no-interaction; sleep 60; done"
+    volumes:
+      - .:/var/www
+    networks:
+      - lims-network
+    depends_on:
+      - app
+      - db
+
+networks:
+  lims-network:
+    driver: bridge
+
+volumes:
+  dbdata:
+    driver: local
