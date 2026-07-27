@@ -55,6 +55,7 @@ services:
       - "8080:80"
     environment:
       PMA_HOST: db
+      PMA_ABSOLUTE_URI: https://lim-system.my/phpmyadmin/
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-secret}
     networks:
       - lims-network
