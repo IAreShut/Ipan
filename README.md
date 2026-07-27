@@ -196,3 +196,21 @@ sudo docker exec lims-db mysqldump -u root -plims-system lims_db > /tmp/backup.s
 sudo docker exec -it lims-app tail -f storage/logs/laravel.log
 ```
 
+#### 🔄 How to Pull & Update Azure Server After New Git Commit:
+
+```bash
+# 1. SSH into Azure Server:
+ssh azureuser@40.80.80.249
+
+# 2. Pull latest code & restart app container:
+cd /var/www/Ipan
+git pull origin main
+sudo docker compose restart app
+
+# 3. If you added new Composer packages or DB migrations:
+sudo docker exec -it lims-app composer install --no-dev --optimize-autoloader
+sudo docker exec -it lims-app php artisan migrate --force
+sudo docker exec -it lims-app php artisan config:clear
+```
+
+

@@ -21,6 +21,10 @@
 # --- 4. DATABASE DUMP & IMPORT ---
 # Import Database Dump:   sudo docker exec -i lims-db mysql -u root -plims-system lims_db < /tmp/lims_db.sql
 # Export Database Dump:   sudo docker exec lims-db mysqldump -u root -plims-system lims_db > /tmp/backup.sql
+# --- 5. HOW TO UPDATE AZURE SERVER AFTER NEW GIT COMMIT ---
+# Step 1: ssh azureuser@40.80.80.249
+# Step 2: cd /var/www/Ipan && git pull origin main
+# Step 3: sudo docker compose restart app
 # ==============================================================================
 
 FROM php:8.2-fpm
