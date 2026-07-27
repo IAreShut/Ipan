@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   app:
     build:
@@ -26,6 +24,7 @@ services:
     volumes:
       - .:/var/www
       - ./docker/nginx/conf.d/:/etc/nginx/conf.d/
+      - /etc/letsencrypt:/etc/letsencrypt:ro
     networks:
       - lims-network
     depends_on:
