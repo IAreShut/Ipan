@@ -234,11 +234,21 @@
                 <div class="d-flex justify-content-between align-items-start mb-2">
                     <h6 class="fw-bold m-0 {{ $task->isCompleted() ? 'text-decoration-line-through' : '' }}" style="font-size: 0.9rem;">{{ $task->title }}</h6>
                     @if($task->isCompleted())
-                    <span class="badge bg-success rounded-pill"><i class="fas fa-check"></i> Done</span>
+                    <div class="text-end">
+                        <span class="badge bg-success rounded-pill"><i class="fas fa-check"></i> Done</span>
+                        @if($task->target_week)
+                            <br><span class="badge bg-success-subtle text-success-emphasis rounded-pill mt-1" style="font-size: 0.65rem;">Completed automatically</span>
+                        @endif
+                    </div>
                     @else
                     <span class="badge bg-warning text-dark rounded-pill"><i class="fas fa-clock"></i> Pending</span>
                     @endif
                 </div>
+                @if($task->target_week)
+                    <div class="mb-2">
+                        <span class="badge bg-info text-dark rounded-pill" style="font-size: 0.7rem;"><i class="fas fa-crosshairs me-1"></i>Target: Week {{ $task->target_week }}</span>
+                    </div>
+                @endif
                 <div class="d-flex align-items-center mb-3" style="font-size: 0.8rem;">
                     <i class="far fa-calendar-alt me-2 text-primary"></i>
                     <span class="{{ $task->due_date->isPast() && !$task->isCompleted() ? 'text-danger fw-bold' : 'text-muted' }}">

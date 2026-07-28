@@ -101,7 +101,12 @@
                         <div class="d-flex justify-content-between align-items-start mb-2">
                             <h6 class="fw-bold m-0 {{ $task->isCompleted() ? 'text-decoration-line-through' : '' }}" style="font-size: 0.95rem;">{{ $task->title }}</h6>
                             @if($task->isCompleted())
-                                <span class="badge bg-success rounded-pill"><i class="fas fa-check"></i> Done</span>
+                                <div>
+                                    <span class="badge bg-success rounded-pill"><i class="fas fa-check"></i> Done</span>
+                                    @if($task->target_week)
+                                        <br><span class="badge bg-success-subtle text-success-emphasis rounded-pill mt-1" style="font-size: 0.65rem;">Completed automatically</span>
+                                    @endif
+                                </div>
                             @else
                                 <span class="badge bg-warning text-dark rounded-pill"><i class="fas fa-clock"></i> Pending</span>
                             @endif
@@ -113,12 +118,18 @@
                             </span>
                         </div>
                         @if(!$task->isCompleted())
-                            <form action="{{ route('student.tasks.complete', $task) }}" method="POST">
-                                @csrf
-                                <button type="submit" class="btn btn-sm btn-outline-success w-100 rounded-pill fw-semibold">
-                                    <i class="fas fa-check-circle me-1"></i> Mark as Done
-                                </button>
-                            </form>
+                            @if($task->target_week)
+                                <div class="text-center p-2 rounded mt-2" style="background-color: #E0F2FE; border: 1px dashed #7DD3FC;">
+                                    <span class="text-info-emphasis fw-bold" style="font-size: 0.75rem;"><i class="fas fa-magic me-1"></i>Auto-completes at Week {{ $task->target_week }} (Cumulative)</span>
+                                </div>
+                            @else
+                                <form action="{{ route('student.tasks.complete', $task) }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="btn btn-sm btn-outline-success w-100 rounded-pill fw-semibold mt-2">
+                                        <i class="fas fa-check-circle me-1"></i> Mark as Done
+                                    </button>
+                                </form>
+                            @endif
                         @endif
                     </div>
                 @empty

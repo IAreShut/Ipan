@@ -104,6 +104,12 @@ class LogEntryController extends Controller
 
             \DB::commit();
 
+            try {
+                \App\Services\TaskVerificationService::evaluateStudentTasks($user);
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Task verification failed: ' . $e->getMessage());
+            }
+
             $message = $request->has('save_draft') ? 'Draft saved successfully!' : 'Log entry submitted successfully!';
 
             return redirect()->route('student.log-entries.show', $logEntry->id)
@@ -221,6 +227,12 @@ class LogEntryController extends Controller
             }
 
             \DB::commit();
+
+            try {
+                \App\Services\TaskVerificationService::evaluateStudentTasks($user);
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Task verification failed: ' . $e->getMessage());
+            }
 
             $message = $request->has('save_draft') ? 'Draft updated successfully!' : 'Log entry submitted successfully!';
 

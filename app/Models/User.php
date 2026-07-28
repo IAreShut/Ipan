@@ -68,6 +68,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Get the latest internship for this user
+     */
+    public function internship()
+    {
+        return $this->hasOne(\App\Models\Internship::class, 'student_id')->latestOfMany();
+    }
+
+    /**
      * The attributes that should be hidden for serialization.
      *
      * @var list<string>

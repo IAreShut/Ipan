@@ -15,6 +15,7 @@ class Task extends Model
         'title',
         'due_date',
         'type',
+        'target_week',
         'completed_at',
         'reminder_sent',
     ];
@@ -23,6 +24,7 @@ class Task extends Model
         'due_date' => 'datetime',
         'completed_at' => 'datetime',
         'reminder_sent' => 'boolean',
+        'target_week' => 'integer',
     ];
 
     public function user()

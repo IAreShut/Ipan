@@ -60,7 +60,12 @@
                                 <td>
                                     <span class="badge bg-light text-dark border">{{ $task->user->programme_code ?? 'N/A' }}-{{ $task->user->class ?? 'N/A' }}</span>
                                 </td>
-                                <td>{{ $task->title }}</td>
+                                <td>
+                                    {{ $task->title }}
+                                    @if($task->target_week)
+                                        <br><span class="badge bg-info text-dark rounded-pill mt-1" style="font-size: 0.7rem;"><i class="fas fa-crosshairs me-1"></i>Target: Week {{ $task->target_week }}</span>
+                                    @endif
+                                </td>
                                 <td>
                                     <span class="{{ $isOverdue ? 'text-secondary' : ($isToday ? 'text-warning fw-bold' : '') }}">
                                         {{ $task->due_date->format('d/m/Y, h:i A') }}
@@ -116,6 +121,20 @@
                             @endforeach
                         </select>
                         @error('assign_to')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Logbook Target Week (Optional)</label>
+                        <select class="form-select @error('target_week') is-invalid @enderror" name="target_week">
+                            <option value="">None / General Task</option>
+                            @for($i = 1; $i <= 20; $i++)
+                                <option value="{{ $i }}" {{ old('target_week') == $i ? 'selected' : '' }}>Week {{ $i }}</option>
+                            @endfor
+                        </select>
+                        <small class="text-muted d-block mt-1"><i class="fas fa-magic me-1 text-info"></i> Auto-completes when student submits 5 logs for this week & all prior weeks.</small>
+                        @error('target_week')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>

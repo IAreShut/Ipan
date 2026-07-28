@@ -43,6 +43,7 @@ class TaskController extends Controller
             'due_date' => 'required|date',
             'due_time' => 'nullable|date_format:H:i',
             'assign_to' => 'required|string',
+            'target_week' => 'nullable|integer|min:1|max:24',
         ]);
 
         $supervisor = Auth::user();
@@ -75,6 +76,7 @@ class TaskController extends Controller
                     'title' => $request->title,
                     'due_date' => $dueDateTime,
                     'type' => 'sv_task',
+                    'target_week' => $request->target_week,
                 ]);
             }
             \DB::commit();
