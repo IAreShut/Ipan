@@ -10,7 +10,7 @@ Sistem pengurusan logbook latihan industri berasaskan Laravel untuk pelajar dan 
 | **Supervisor** | Review/approve/reject log entries, assign tasks to students, view analytics & performance dashboard             |
 | **Admin**      | Placeholder (Coming Soon)                                                                                       |
 
-**Live URL:** https://lim-system.my / https://lims-fyp-8a6cb0f71eca.herokuapp.com/
+**Live URL:** https://lim-system.my
 
 ---
 
@@ -19,12 +19,12 @@ Sistem pengurusan logbook latihan industri berasaskan Laravel untuk pelajar dan 
 | Layer        | Technology                                                                                          |
 | ------------ | --------------------------------------------------------------------------------------------------- |
 | **Backend**  | PHP 8.2+, Laravel 12, Eloquent ORM, Composer                                                        |
-| **Database** | MySQL 8.0 (Production: DigitalOcean / Development: XAMPP)                                           |
+| **Database** | MariaDB 10.11 / MySQL 8.0 (Production: Azure Docker / Development: XAMPP)                          |
 | **Frontend** | Blade, Bootstrap 5.3, Tailwind CSS 4, jQuery 3.7, DataTables 1.13, SweetAlert2 11, Font Awesome 6.4 |
 | **Build**    | Node.js 18+, Vite 7, Laravel Vite Plugin 2.0, Axios, Concurrently                                   |
 | **Cloud**    | Cloudinary (file storage), Gemini 2.5 Flash-Lite (AI summaries)                                     |
 | **Email**    | Mailtrap SDK (local dev), Brevo SMTP (production)                                                   |
-| **Server**   | DigitalOcean Droplet (Ubuntu 24.04, Nginx, PHP 8.3-FPM, MySQL 8.0)                                  |
+| **Server**   | Azure Virtual Machine (Ubuntu 24.04 LTS, Docker Compose: Nginx, PHP 8.3, MariaDB 10.11, phpMyAdmin)  |
 
 ---
 

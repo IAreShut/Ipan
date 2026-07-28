@@ -406,8 +406,8 @@ Gunakan `:root` CSS custom properties untuk konsistensi:
 
 | Field | Value |
 |-------|-------|
-| **Document Version** | 2.1 |
-| **Last Updated** | 2026-07-27 |
+| **Document Version** | 2.2 |
+| **Last Updated** | 2026-07-29 |
 | **Purpose** | UI Design System & Visual Conventions |
 | **Source** | `public/css/*.css`, `resources/views/layouts/*.blade.php`, `public/js/*.js` |
 | **Project** | LIMS — Logbook Internship Management System |

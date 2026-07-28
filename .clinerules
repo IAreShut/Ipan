@@ -25,7 +25,7 @@
 
 | Technology | Version    | Role                                |
 | ---------- | ---------- | ----------------------------------- |
-| MySQL      | 8.0+       | Primary database & production (DO)  |
+| MariaDB / MySQL | 10.11 / 8.0+ | Primary database & production (Azure Docker) |
 | XAMPP      | Latest     | Local dev server (Apache + MySQL)   |
 
 ### Frontend
@@ -402,16 +402,17 @@ Schedule::call(function () {
 
 ---
 
-## 10. Deployment (DigitalOcean)
+## 10. Deployment (Azure Virtual Machine + Docker)
 
 ### Configuration
 
-- **Server:** Ubuntu 24.04 LTS Droplet
-- **Web Server:** Nginx
-- **PHP:** PHP 8.3-FPM
-- **Database:** MySQL Server 8.0
+- **Server:** Azure Virtual Machine (`B2s` / Ubuntu 24.04 LTS)
+- **Architecture:** Docker Compose (Nginx, App PHP 8.3, MariaDB 10.11, Queue Worker, Scheduler, phpMyAdmin)
 - **Domain:** `lim-system.my` (Exabytes)
 - **SSL:** Let's Encrypt (Certbot)
+- **phpMyAdmin:** `https://lim-system.my/phpmyadmin/`
+- **Server IP:** `40.80.80.249`
+- **SSH:** `ssh azureuser@40.80.80.249`
 
 ### HTTPS Enforcement
 
@@ -429,34 +430,28 @@ To update the live server after pushing to GitHub:
 ```bash
 cd /var/www/Ipan
 git pull origin main
-composer install --no-dev
-php artisan migrate --force
-php artisan config:clear
-php artisan view:clear
-php artisan config:cache
-sudo supervisorctl restart laravel-worker:*
+sudo docker compose restart app web
+sudo docker exec -it lims-app php artisan migrate --force
+sudo docker exec -it lims-app php artisan config:clear
 ```
-
-_(Or use `./deploy.sh` if configured)_
-
-### Scheduler & Queue (Supervisor) Configuration
-
-1. **Laravel Scheduler (Cron Job)**: Runs every minute to trigger reminders and scheduled tasks. Registered via `crontab -e`:
-    ```cron
-    * * * * * cd /var/www/Ipan && php artisan schedule:run >> /dev/null 2>&1
-    ```
-2. **Queue Worker (Supervisor)**: Automatically handles background jobs using configurations at `/etc/supervisor/conf.d/laravel-worker.conf`. Run to restart or start:
-    ```bash
-    sudo supervisorctl restart laravel-worker:*
-    ```
 
 ### Useful Server Commands
 
 ```bash
-systemctl restart nginx                   # Restart web server
-systemctl restart php8.3-fpm              # Restart PHP process
-sudo supervisorctl restart laravel-worker:* # Restart queue worker
-tail -f storage/logs/laravel.log          # View Laravel logs
+# 🚀 Start / Build All Containers
+sudo docker compose up -d --build
+
+# 🛑 Stop All Containers
+sudo docker compose down
+
+# 📊 Check Status of Containers
+sudo docker compose ps
+
+# 📜 View Live Container Logs
+sudo docker compose logs -f
+
+# 🔍 View Laravel Logs inside Container
+sudo docker exec -it lims-app tail -f storage/logs/laravel.log
 ```
 
 ---
