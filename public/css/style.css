@@ -12,7 +12,7 @@
     /* Red */
     --warning-color: #F59E0B;
     /* Yellow/Amber */
-    --light-bg: #F3F4F6;
+    --light-bg: #E3EBF8;
     --text-dark: #1F2937;
     --text-muted: #6B7280;
     --sidebar-width: 260px;
@@ -20,8 +20,10 @@
 
 body {
     font-family: 'Inter', sans-serif;
-    background-color: var(--light-bg);
+    background: linear-gradient(135deg, #F3F4F6 0%, #E0E7FF 100%);
+    background-attachment: fixed;
     color: var(--text-dark);
+    min-height: 100vh;
 }
 
 /* Typography */

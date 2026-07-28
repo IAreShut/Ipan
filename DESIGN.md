@@ -29,7 +29,7 @@
 
 | Token | HEX | Usage |
 |-------|-----|-------|
-| Light BG | `#F3F4F6` | Body background (global) |
+| Light BG | `#E0E7FF` | Body background (global) |
 | Card BG | `#ffffff` | Semua card, sidebar, modal |
 | Soft BG | `#F8FAFC` | Input fields, task content box, student list items |
 | Table Header | `#F8FAFC` | Table `thead` background |
@@ -381,7 +381,7 @@ Gunakan `:root` CSS custom properties untuk konsistensi:
     --success-color: #10B981;
     --danger-color: #EF4444;
     --warning-color: #F59E0B;
-    --light-bg: #F3F4F6;
+    --light-bg: #E3EBF8;
     --text-dark: #1F2937;
     --text-muted: #6B7280;
     --sidebar-width: 260px;
