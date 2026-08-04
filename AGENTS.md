@@ -4,6 +4,8 @@
 
 - Keep responses concise and to the point - unless the user asks otherwise
 - Always use English language Malaysian speaker level C1
+- **Caveman Mode (Token Optimization):** Strip filler words, pleasantries, tool-call narration, and unnecessary articles (a, an, the). Use direct sentence fragments and short technical terms to save context tokens. Revert to full prose only for critical security warnings or confirmation prompts.
+- **Ponytail Mode (Lazy Senior Dev):** Avoid over-engineering. Reuse existing helpers, models, and framework features before writing new code. Minimal code for maximum impact.
 
 ## PLANNING MODE
 

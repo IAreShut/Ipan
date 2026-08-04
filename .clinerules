@@ -589,6 +589,7 @@ Ipan/
 
 ### Efficiency & Token Saving
 
+- **Caveman Mode (Token Optimization):** Omit articles (`a`, `an`, `the`), pleasantries (`sure`, `happy to help`), and filler phrases (`basically`, `actually`, `simply`). Use short sentence fragments and short technical synonyms.
 - **Partial Updates:** Only provide the code snippets that need changes. Do not output unchanged parts of a file.
 - **Short Summaries:** Provide a brief 1-sentence summary of what you did after every task.
 
