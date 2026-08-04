@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Supervisor;
 use App\Http\Controllers\Controller;
 use App\Models\Task;
 use App\Models\User;
+use App\Services\TaskVerificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -20,6 +21,10 @@ class TaskController extends Controller
         $students = User::where('supervisor_id', $supervisor->id)
             ->where('role', 'student')
             ->get();
+
+        foreach ($students as $student) {
+            TaskVerificationService::evaluateStudentTasks($student);
+        }
 
         // Get all tasks assigned by this supervisor
         $tasks = Task::where('created_by', $supervisor->id)
@@ -97,6 +102,7 @@ class TaskController extends Controller
         $delaySeconds = 0;
         $isLocal = app()->environment('local');
         foreach ($students as $student) {
+            TaskVerificationService::evaluateStudentTasks($student);
             try {
                 $task = $createdTasks->get($student->id);
                 if ($task) {

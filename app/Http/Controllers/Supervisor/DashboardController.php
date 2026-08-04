@@ -103,7 +103,12 @@ class DashboardController extends Controller
             $totalWeeks = $internship->total_weeks ?? 12;
         }
 
+        $totalTargetLogs = 0;
+
         for ($w = 1; $w <= $totalWeeks; $w++) {
+            $targetLogs = $internship ? $internship->getWeekTargetLogs($w) : 5;
+            $totalTargetLogs += $targetLogs;
+
             if (! $weeklyLogs->has($w)) {
                 $weeklyProgress[$w] = 'empty';
 
@@ -111,10 +116,10 @@ class DashboardController extends Controller
             }
 
             $weekLogs = $weeklyLogs[$w];
-            $weeklyProgress[$w] = \App\Models\LogEntry::getWeeklyStatus($weekLogs);
+            $weeklyProgress[$w] = \App\Models\LogEntry::getWeeklyStatus($weekLogs, $targetLogs);
         }
 
-        $progressPct = $totalWeeks > 0 ? min(100, round(($approvedCount / ($totalWeeks * 5)) * 100)) : 0;
+        $progressPct = $totalTargetLogs > 0 ? min(100, round(($approvedCount / $totalTargetLogs) * 100)) : 0;
 
         return view('supervisor.student-show', compact(
             'supervisor', 'student', 'internship', 'logEntries', 'tasks',

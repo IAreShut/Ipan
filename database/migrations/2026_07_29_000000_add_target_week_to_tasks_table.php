@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('tasks', function (Blueprint $table) {
-            $table->unsignedInteger('target_week')->nullable()->after('type');
+            $table->integer('target_week')->unsigned()->nullable()->after('type');
         });
     }
 

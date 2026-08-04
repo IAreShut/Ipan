@@ -99,7 +99,12 @@
                 @forelse($tasks->where('type', 'sv_task') as $task)
                     <div class="p-3 {{ $task->isCompleted() ? 'bg-light text-muted' : 'bg-white shadow-sm' }}" style="border-radius: 1rem; border: 1px solid #e2e8f0;">
                         <div class="d-flex justify-content-between align-items-start mb-2">
-                            <h6 class="fw-bold m-0 {{ $task->isCompleted() ? 'text-decoration-line-through' : '' }}" style="font-size: 0.95rem;">{{ $task->title }}</h6>
+                            <h6 class="fw-bold m-0 {{ $task->isCompleted() ? 'text-decoration-line-through' : '' }}" style="font-size: 0.95rem;">
+                                {{ $task->title }}
+                                @if($task->target_week)
+                                    <span class="badge bg-info text-dark rounded-pill"><i class="fas fa-robot me-1"></i> Week {{ $task->target_week }}</span>
+                                @endif
+                            </h6>
                             @if($task->isCompleted())
                                 <div>
                                     <span class="badge bg-success rounded-pill"><i class="fas fa-check"></i> Done</span>
@@ -119,9 +124,7 @@
                         </div>
                         @if(!$task->isCompleted())
                             @if($task->target_week)
-                                <div class="text-center p-2 rounded mt-2" style="background-color: #E0F2FE; border: 1px dashed #7DD3FC;">
-                                    <span class="text-info-emphasis fw-bold" style="font-size: 0.75rem;"><i class="fas fa-magic me-1"></i>Auto-completes at Week {{ $task->target_week }} (Cumulative)</span>
-                                </div>
+                                <div class="text-muted small mt-2"><i class="fas fa-info-circle me-1"></i> Auto-completes when Week {{ $task->target_week }} logbook is logged (5 days/week)</div>
                             @else
                                 <form action="{{ route('student.tasks.complete', $task) }}" method="POST">
                                     @csrf

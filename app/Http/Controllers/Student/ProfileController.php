@@ -83,18 +83,20 @@ class ProfileController extends Controller
         if ($request->filled('start_date') && $request->filled('end_date')) {
             $startDate = \Carbon\Carbon::parse($request->start_date);
             $endDate = \Carbon\Carbon::parse($request->end_date);
-            $totalWeeks = ceil($startDate->diffInDays($endDate) / 7);
 
-            Internship::updateOrCreate(
+            $internshipRecord = Internship::updateOrCreate(
                 ['student_id' => $user->id],
                 [
                     'start_date' => $startDate,
                     'end_date' => $endDate,
-                    'total_weeks' => $totalWeeks,
                     'company_name' => $user->company ?? 'Not Set',
                     'company_address' => $request->location ?? '-',
                 ]
             );
+
+            $internshipRecord->update([
+                'total_weeks' => $internshipRecord->calculateTotalWeeks()
+            ]);
         }
 
         return redirect()->route('student.profile')->with('success', 'Profile updated successfully.');

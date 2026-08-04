@@ -35,7 +35,7 @@ class DashboardController extends Controller
         if ($internship && $internship->total_weeks > 0 && $internship->start_date) {
             if (now()->gte($internship->start_date)) {
                 // Internship has started — calculate weeks elapsed
-                $currentWeek = $internship->start_date->diffInWeeks(now()) + 1;
+                $currentWeek = $internship->getInternshipWeek(now());
                 $progress = min(100, round(($currentWeek / $internship->total_weeks) * 100));
             }
             // else: internship hasn't started yet, progress stays at 0

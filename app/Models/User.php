@@ -68,11 +68,11 @@ class User extends Authenticatable
     }
 
     /**
-     * Get the latest internship for this user
+     * Get the internship for this user
      */
     public function internship()
     {
-        return $this->hasOne(\App\Models\Internship::class, 'student_id')->latestOfMany();
+        return $this->hasOne(Internship::class, 'student_id');
     }
 
     /**

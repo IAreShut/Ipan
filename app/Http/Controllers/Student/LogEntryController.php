@@ -9,6 +9,7 @@ use App\Models\LogEntry;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use App\Services\TaskVerificationService;
 
 class LogEntryController extends Controller
 {
@@ -44,9 +45,27 @@ class LogEntryController extends Controller
      */
     public function store(Request $request)
     {
+        $user = Auth::user();
+        $internship = Internship::where('student_id', $user->id)->first();
+
         $request->validate([
-            'entry_date' => 'required|date',
-            'week_number' => 'required|integer|min:1',
+            'entry_date' => [
+                'required',
+                'date',
+                function ($attribute, $value, $fail) use ($internship) {
+                    $date = \Carbon\Carbon::parse($value);
+                    if ($date->isWeekend()) {
+                        $fail('The entry date cannot be on a weekend.');
+                    }
+                    if ($internship && $internship->start_date && $internship->end_date) {
+                        if ($date->startOfDay()->lt(\Carbon\Carbon::parse($internship->start_date)->startOfDay()) || 
+                            $date->startOfDay()->gt(\Carbon\Carbon::parse($internship->end_date)->startOfDay())) {
+                            $fail('The entry date must fall within your internship duration.');
+                        }
+                    }
+                }
+            ],
+            'week_number' => 'nullable|integer|min:1',
             'log_type' => 'required|in:work,holiday,leave',
             'task_description' => 'required|string',
             'attachments.*' => 'nullable|image|mimes:jpg,jpeg,png,gif,webp|max:5120',
@@ -55,10 +74,7 @@ class LogEntryController extends Controller
         try {
             \DB::beginTransaction();
 
-            $user = Auth::user();
-
             // Get or create internship with ALL required fields
-            $internship = Internship::where('student_id', $user->id)->first();
             if (! $internship) {
                 $internship = Internship::create([
                     'student_id' => $user->id,
@@ -70,12 +86,14 @@ class LogEntryController extends Controller
                 ]);
             }
 
+            $weekNumber = $internship->getInternshipWeek($request->entry_date);
+
             // Create the log entry
             $logEntry = LogEntry::create([
                 'student_id' => $user->id,
                 'internship_id' => $internship->id,
                 'entry_date' => $request->entry_date,
-                'week_number' => $request->week_number,
+                'week_number' => $weekNumber,
                 'log_type' => $request->log_type,
                 'task_description' => $request->task_description,
                 'status' => $request->has('save_draft') ? 'draft' : 'pending',
@@ -105,7 +123,7 @@ class LogEntryController extends Controller
             \DB::commit();
 
             try {
-                \App\Services\TaskVerificationService::evaluateStudentTasks($user);
+                TaskVerificationService::evaluateStudentTasks($user);
             } catch (\Exception $e) {
                 \Illuminate\Support\Facades\Log::error('Task verification failed: ' . $e->getMessage());
             }
@@ -186,9 +204,26 @@ class LogEntryController extends Controller
                 ->with('error', 'Only draft entries can be updated.');
         }
 
+        $internship = Internship::where('student_id', $user->id)->first();
+
         $request->validate([
-            'entry_date' => 'required|date',
-            'week_number' => 'required|integer|min:1',
+            'entry_date' => [
+                'required',
+                'date',
+                function ($attribute, $value, $fail) use ($internship) {
+                    $date = \Carbon\Carbon::parse($value);
+                    if ($date->isWeekend()) {
+                        $fail('The entry date cannot be on a weekend.');
+                    }
+                    if ($internship && $internship->start_date && $internship->end_date) {
+                        if ($date->startOfDay()->lt(\Carbon\Carbon::parse($internship->start_date)->startOfDay()) || 
+                            $date->startOfDay()->gt(\Carbon\Carbon::parse($internship->end_date)->startOfDay())) {
+                            $fail('The entry date must fall within your internship duration.');
+                        }
+                    }
+                }
+            ],
+            'week_number' => 'nullable|integer|min:1',
             'log_type' => 'required|in:work,holiday,leave',
             'task_description' => 'required|string',
             'attachments.*' => 'nullable|image|mimes:jpg,jpeg,png,gif,webp|max:5120',
@@ -197,9 +232,11 @@ class LogEntryController extends Controller
         try {
             \DB::beginTransaction();
 
+            $weekNumber = $internship ? $internship->getInternshipWeek($request->entry_date) : $request->week_number;
+
             $logEntry->update([
                 'entry_date' => $request->entry_date,
-                'week_number' => $request->week_number,
+                'week_number' => $weekNumber,
                 'log_type' => $request->log_type,
                 'task_description' => $request->task_description,
                 'status' => $request->has('save_draft') ? 'draft' : 'pending',
@@ -229,7 +266,7 @@ class LogEntryController extends Controller
             \DB::commit();
 
             try {
-                \App\Services\TaskVerificationService::evaluateStudentTasks($user);
+                TaskVerificationService::evaluateStudentTasks($user);
             } catch (\Exception $e) {
                 \Illuminate\Support\Facades\Log::error('Task verification failed: ' . $e->getMessage());
             }

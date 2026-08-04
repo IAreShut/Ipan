@@ -56,7 +56,7 @@ class LogEntry extends Model
      * @param \Illuminate\Support\Collection $weekLogs
      * @return string (completed, rejected, mixed, pending, empty)
      */
-    public static function getWeeklyStatus($weekLogs)
+    public static function getWeeklyStatus($weekLogs, int $targetLogs = 5)
     {
         if ($weekLogs->isEmpty()) {
             return 'empty';
@@ -74,7 +74,7 @@ class LogEntry extends Model
         $rejectedCount = $weekLogs->where('status', 'rejected')->count();
         $pendingCount = $weekLogs->where('status', 'pending')->count();
 
-        if ($approvedUniqueDaysCount >= 5) {
+        if ($approvedUniqueDaysCount >= $targetLogs) {
             return 'completed';
         } elseif ($rejectedCount > 0) {
             return 'rejected';

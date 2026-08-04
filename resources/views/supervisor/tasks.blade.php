@@ -63,7 +63,7 @@
                                 <td>
                                     {{ $task->title }}
                                     @if($task->target_week)
-                                        <br><span class="badge bg-info text-dark rounded-pill mt-1" style="font-size: 0.7rem;"><i class="fas fa-crosshairs me-1"></i>Target: Week {{ $task->target_week }}</span>
+                                        <span class="badge bg-info text-dark ms-1">Week {{ $task->target_week }}</span>
                                     @endif
                                 </td>
                                 <td>
@@ -72,12 +72,14 @@
                                     </span>
                                 </td>
                                 <td>
-                                    @if($isOverdue)
+                                    @if($task->isCompleted())
+                                        <span class="badge bg-success rounded-pill px-3"><i class="fas fa-check me-1"></i>Completed</span>
+                                    @elseif($isOverdue)
                                         <span class="badge bg-secondary rounded-pill px-3">Past</span>
                                     @elseif($isToday)
                                         <span class="badge bg-warning text-dark rounded-pill px-3">Today</span>
                                     @else
-                                        <span class="badge bg-success rounded-pill px-3">Upcoming</span>
+                                        <span class="badge bg-primary rounded-pill px-3">Upcoming</span>
                                     @endif
                                 </td>
                             </tr>
@@ -126,14 +128,14 @@
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Logbook Target Week (Optional)</label>
+                        <label class="form-label fw-bold">Target Logbook Week (Optional)</label>
                         <select class="form-select @error('target_week') is-invalid @enderror" name="target_week">
-                            <option value="">None / General Task</option>
+                            <option value="">None (General Task)</option>
                             @for($i = 1; $i <= 20; $i++)
                                 <option value="{{ $i }}" {{ old('target_week') == $i ? 'selected' : '' }}>Week {{ $i }}</option>
                             @endfor
                         </select>
-                        <small class="text-muted d-block mt-1"><i class="fas fa-magic me-1 text-info"></i> Auto-completes when student submits 5 logs for this week & all prior weeks.</small>
+                        <small class="text-muted d-block mt-1">System auto-completes this task when student logs 5 unique days for every week up to this week.</small>
                         @error('target_week')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror

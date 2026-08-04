@@ -38,6 +38,10 @@ class ReviewController extends Controller
             'supervisor_comment' => $request->comment,
         ]);
 
+        if ($log->student) {
+            \App\Services\TaskVerificationService::evaluateStudentTasks($log->student);
+        }
+
         return back()->with('success', 'Log entry approved successfully!');
     }
 

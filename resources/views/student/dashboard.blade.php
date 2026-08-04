@@ -31,7 +31,7 @@
             $currentWeek = $totalWeeks;
         } else {
             // Internship in progress — same formula as controller
-            $currentWeek = min($totalWeeks, floor($internship->start_date->diffInWeeks(now())) + 1);
+            $currentWeek = $internship->getInternshipWeek(now());
         }
     }
 @endphp

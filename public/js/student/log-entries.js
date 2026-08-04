@@ -30,7 +30,17 @@ $(document).ready(function() {
             const selectedDate = new Date(dateStr);
             selectedDate.setHours(0,0,0,0);
             
-            const diffTime = selectedDate.getTime() - internshipStartDate.getTime();
+            // Align start date to its Monday
+            const startDay = internshipStartDate.getDay();
+            const alignStart = new Date(internshipStartDate);
+            alignStart.setDate(alignStart.getDate() - (startDay === 0 ? 6 : startDay - 1));
+
+            // Align selected date to its Monday
+            const selDay = selectedDate.getDay();
+            const alignSel = new Date(selectedDate);
+            alignSel.setDate(alignSel.getDate() - (selDay === 0 ? 6 : selDay - 1));
+            
+            const diffTime = alignSel.getTime() - alignStart.getTime();
             const diffDays = Math.floor(diffTime / (1000 * 3600 * 24));
             
             let weekNum = Math.floor(diffDays / 7) + 1;
@@ -56,6 +66,7 @@ $(document).ready(function() {
             minDate: minDate,
             maxDate: maxDate,
             disableMobile: "true", // Force custom UI to ensure highlights work
+            disable: [function(date) { return (date.getDay() === 0 || date.getDay() === 6); }],
             onChange: function(selectedDates, dateStr, instance) {
                 calculateWeek(dateStr);
                 instance.redraw(); // Redraw to update the week highlight based on new selection

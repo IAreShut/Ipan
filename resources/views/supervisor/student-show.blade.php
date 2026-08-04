@@ -104,7 +104,7 @@
                 @endfor
             </div>
             <div class="d-flex justify-content-center gap-3 mt-3 flex-wrap" style="font-size: 0.75rem;">
-                <div class="d-flex align-items-center gap-1"><span class="legend-color completed"></span> Completed (5/5)</div>
+                <div class="d-flex align-items-center gap-1"><span class="legend-color completed"></span> Completed (Target Met)</div>
                 <div class="d-flex align-items-center gap-1"><span class="legend-color mixed"></span> In Progress</div>
                 <div class="d-flex align-items-center gap-1"><span class="legend-color pending"></span> Pending</div>
                 <div class="d-flex align-items-center gap-1"><span class="legend-color rejected"></span> Rejected</div>
@@ -232,7 +232,12 @@
             @forelse($tasks as $task)
             <div class="p-3 {{ $task->isCompleted() ? 'bg-light text-muted' : 'bg-white shadow-sm' }}" style="border-radius: 1rem; border: 1px solid #e2e8f0;">
                 <div class="d-flex justify-content-between align-items-start mb-2">
-                    <h6 class="fw-bold m-0 {{ $task->isCompleted() ? 'text-decoration-line-through' : '' }}" style="font-size: 0.9rem;">{{ $task->title }}</h6>
+                    <h6 class="fw-bold m-0 {{ $task->isCompleted() ? 'text-decoration-line-through' : '' }}" style="font-size: 0.9rem;">
+                        {{ $task->title }}
+                        @if($task->target_week)
+                            <span class="badge bg-info text-dark rounded-pill ms-1">Week {{ $task->target_week }}</span>
+                        @endif
+                    </h6>
                     @if($task->isCompleted())
                     <div class="text-end">
                         <span class="badge bg-success rounded-pill"><i class="fas fa-check"></i> Done</span>
@@ -244,11 +249,6 @@
                     <span class="badge bg-warning text-dark rounded-pill"><i class="fas fa-clock"></i> Pending</span>
                     @endif
                 </div>
-                @if($task->target_week)
-                    <div class="mb-2">
-                        <span class="badge bg-info text-dark rounded-pill" style="font-size: 0.7rem;"><i class="fas fa-crosshairs me-1"></i>Target: Week {{ $task->target_week }}</span>
-                    </div>
-                @endif
                 <div class="d-flex align-items-center mb-3" style="font-size: 0.8rem;">
                     <i class="far fa-calendar-alt me-2 text-primary"></i>
                     <span class="{{ $task->due_date->isPast() && !$task->isCompleted() ? 'text-danger fw-bold' : 'text-muted' }}">

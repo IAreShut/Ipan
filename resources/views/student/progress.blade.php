@@ -52,15 +52,16 @@
     <div class="row g-4" id="weeklyGrid">
         @for($week = 1; $week <= $internship->total_weeks; $week++)
             @php
+                $targetLogs = $internship->getWeekTargetLogs($week);
                 $weekLogs = $logs->where('week_number', $week);
                 $logCount = $weekLogs->count();
                 $rejectedCount = $weekLogs->where('status', 'rejected')->count();
                 $approvedCount = $weekLogs->where('status', 'approved')->count();
                 
                 $isActive = ($week == $currentWeek);
-                $progressPercent = min(100, ($approvedCount / 5) * 100); // Assume 5 logs make a full week
+                $progressPercent = $targetLogs > 0 ? min(100, round(($approvedCount / $targetLogs) * 100)) : 0;
                 
-                $statusKey = \App\Models\LogEntry::getWeeklyStatus($weekLogs);
+                $statusKey = \App\Models\LogEntry::getWeeklyStatus($weekLogs, $targetLogs);
 
                 // Status Determination
                 if ($statusKey === 'empty') {
@@ -76,7 +77,7 @@
                     $statusStr = '100% Completed';
                     $statusIcon = 'fas fa-check-circle text-success';
                 } else {
-                    $statusStr = $approvedCount . '/5 Progress';
+                    $statusStr = $approvedCount . '/' . $targetLogs . ' Progress';
                     $statusIcon = 'fas fa-spinner text-info';
                 }
             @endphp
@@ -89,7 +90,7 @@
                                 <i class="{{ $statusIcon }} fs-5" title="{{ $statusStr }}"></i>
                             </div>
                             <div class="text-muted small mb-3">
-                                <i class="fas fa-file-alt me-1"></i> {{ $approvedCount }} of 5 logs approved
+                                <i class="fas fa-file-alt me-1"></i> {{ $approvedCount }} of {{ $targetLogs }} logs approved
                             </div>
                             <span class="badge bg-white shadow-sm text-dark border py-2 px-3">{{ $statusStr }}</span>
                         </div>

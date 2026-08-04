@@ -46,7 +46,7 @@
                         <div class="input-group">
                             <span class="input-group-text bg-white"><i class="fas fa-calendar-day"></i></span>
                             <input type="text" id="entryDate" name="entry_date" class="form-control @error('entry_date') is-invalid @enderror" 
-                                   value="{{ old('entry_date', isset($logEntry) ? $logEntry->entry_date->format('Y-m-d') : date('Y-m-d')) }}"
+                                   value="{{ old('entry_date', isset($logEntry) ? $logEntry->entry_date->format('Y-m-d') : (now()->isWeekend() ? now()->previous(\Carbon\Carbon::FRIDAY)->format('Y-m-d') : now()->format('Y-m-d'))) }}"
                                    @if($internship && $internship->start_date && $internship->end_date)
                                        data-min-date="{{ $internship->start_date->format('Y-m-d') }}"
                                        data-max-date="{{ $internship->end_date->format('Y-m-d') }}"
