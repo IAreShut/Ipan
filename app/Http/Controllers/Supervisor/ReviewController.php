@@ -50,6 +50,10 @@ class ReviewController extends Controller
      */
     public function reject(Request $request, $id)
     {
+        if (!$request->has('comment') && $request->has('supervisor_comment')) {
+            $request->merge(['comment' => $request->input('supervisor_comment')]);
+        }
+
         $request->validate([
             'comment' => 'required|string|max:500',
         ]);

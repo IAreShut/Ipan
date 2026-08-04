@@ -182,7 +182,7 @@
                         <form action="{{ route('supervisor.reject', $log->id) }}" method="POST" class="p-3 border rounded bg-white shadow-sm">
                             @csrf
                             <label class="form-label fw-bold text-danger" style="font-size: 0.85rem;">Reason for Rejection (Required)</label>
-                            <textarea name="supervisor_comment" class="form-control mb-2" rows="2" required placeholder="Please explain what needs to be fixed..."></textarea>
+                            <textarea name="comment" class="form-control mb-2" rows="2" required placeholder="Please explain what needs to be fixed..."></textarea>
                             <div class="d-flex justify-content-end gap-2">
                                 <button type="button" class="btn btn-sm btn-light" data-bs-toggle="collapse" data-bs-target="#rejectForm-{{ $log->id }}">Cancel</button>
                                 <button type="submit" class="btn btn-sm btn-danger fw-semibold">Confirm Rejection</button>
@@ -223,9 +223,9 @@
     <div class="card premium-card p-4 sticky-top" style="top: 2rem;">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h5 class="fw-bold m-0"><i class="fas fa-tasks text-primary me-2"></i> Tasks Assigned</h5>
-            <button class="btn btn-sm btn-primary-custom rounded-circle" style="width: 32px; height: 32px;" title="Assign new task to all students (global)">
+            <!-- <button class="btn btn-sm btn-primary-custom rounded-circle" style="width: 32px; height: 32px;" title="Assign new task to all students (global)">
                 <i class="fas fa-plus"></i>
-            </button>
+            </button> -->
         </div>
 
         <div class="task-list d-flex flex-column gap-3">
