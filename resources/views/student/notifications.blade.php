@@ -124,7 +124,7 @@
                         </div>
                         @if(!$task->isCompleted())
                             @if($task->target_week)
-                                <div class="text-muted small mt-2"><i class="fas fa-info-circle me-1"></i> Auto-completes when Week {{ $task->target_week }} logbook is logged (5 days/week)</div>
+                                <div class="text-muted small mt-2"><i class="fas fa-info-circle me-1"></i> Auto-completes when Week 1 until Week {{ $task->target_week }} logbook is submitted</div>
                             @else
                                 <form action="{{ route('student.tasks.complete', $task) }}" method="POST">
                                     @csrf

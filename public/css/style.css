@@ -16,6 +16,18 @@
     --text-dark: #1F2937;
     --text-muted: #6B7280;
     --sidebar-width: 260px;
+
+    /* Status Badge Variables */
+    --badge-approved-bg: #D1FAE5;
+    --badge-approved-text: #065F46;
+    --badge-rejected-bg: #FEE2E2;
+    --badge-rejected-text: #991B1B;
+    --badge-pending-bg: #FEF3C7;
+    --badge-pending-text: #92400E;
+    --badge-draft-bg: #f1f5f9;
+    --badge-draft-text: #64748b;
+    --badge-upcoming-bg: #EFF6FF;
+    --badge-upcoming-text: #1E40AF;
 }
 
 body {
@@ -229,31 +241,47 @@ h6 {
 }
 
 .badge-status {
-    padding: 0.4rem 0.8rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    padding: 0.35rem 0.85rem;
     border-radius: 2rem;
     font-size: 0.75rem;
     font-weight: 600;
-    letter-spacing: 0.3px;
+    line-height: 1;
+    white-space: nowrap;
+    border: 1px solid transparent;
 }
 
-.badge-status.approved {
-    background-color: var(--success-soft);
-    color: var(--success-text);
+.badge-status i {
+    margin-right: 0 !important;
+    font-size: 0.85em;
 }
 
-.badge-status.rejected {
-    background-color: var(--danger-soft);
-    color: var(--danger-text);
+.badge-status.approved, .badge-status.completed {
+    background-color: var(--badge-approved-bg);
+    color: var(--badge-approved-text);
 }
 
-.badge-status.pending {
-    background-color: var(--warning-soft);
-    color: var(--warning-text);
+.badge-status.rejected, .badge-status.past {
+    background-color: var(--badge-rejected-bg);
+    color: var(--badge-rejected-text);
+}
+
+.badge-status.pending, .badge-status.today {
+    background-color: var(--badge-pending-bg);
+    color: var(--badge-pending-text);
 }
 
 .badge-status.draft {
-    background-color: #f1f5f9;
-    color: #64748b;
+    background-color: var(--badge-draft-bg);
+    color: var(--badge-draft-text);
+}
+
+.badge-status.upcoming, .badge-status.info {
+    background-color: var(--badge-upcoming-bg);
+    color: var(--badge-upcoming-text);
 }
 
 /* Laravel Pagination */

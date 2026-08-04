@@ -73,13 +73,13 @@
                                 </td>
                                 <td>
                                     @if($task->isCompleted())
-                                        <span class="badge bg-success rounded-pill px-3"><i class="fas fa-check me-1"></i>Completed</span>
+                                        <span class="badge-status approved"><i class="fas fa-check"></i> Completed</span>
                                     @elseif($isOverdue)
-                                        <span class="badge bg-secondary rounded-pill px-3">Past</span>
+                                        <span class="badge-status rejected">Past</span>
                                     @elseif($isToday)
-                                        <span class="badge bg-warning text-dark rounded-pill px-3">Today</span>
+                                        <span class="badge-status pending">Today</span>
                                     @else
-                                        <span class="badge bg-primary rounded-pill px-3">Upcoming</span>
+                                        <span class="badge-status upcoming">Upcoming</span>
                                     @endif
                                 </td>
                             </tr>

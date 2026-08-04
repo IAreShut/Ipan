@@ -207,9 +207,9 @@
                             </td>
                             <td class="text-center text-nowrap">
                                 @if($row->registered)
-                                    <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-3 py-2 rounded-pill text-nowrap"><i class="fas fa-check-circle me-1"></i>Active</span>
+                                    <span class="badge-status approved"><i class="fas fa-check-circle"></i> Active</span>
                                 @else
-                                    <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 px-3 py-2 rounded-pill text-nowrap"><i class="fas fa-clock me-1"></i>Pending Reg</span>
+                                    <span class="badge-status pending"><i class="fas fa-clock"></i> Pending Reg</span>
                                 @endif
                             </td>
                             <td class="text-center">

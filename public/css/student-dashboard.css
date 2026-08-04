@@ -2,12 +2,6 @@
 :root {
     --navy-primary: #1e3a8a;
     --navy-light: #eff6ff;
-    --success-soft: #ecfdf5;
-    --success-text: #10b981;
-    --warning-soft: #fffbeb;
-    --warning-text: #f59e0b;
-    --danger-soft: #fef2f2;
-    --danger-text: #ef4444;
     --card-shadow: 0 10px 25px rgba(0, 0, 0, 0.03);
     --border-soft: #f1f5f9;
 }
@@ -169,34 +163,6 @@ body {
     color: var(--navy-primary);
 }
 
-/* Status Badges */
-.badge-status {
-    padding: 0.4rem 0.8rem;
-    border-radius: 2rem;
-    font-size: 0.75rem;
-    font-weight: 600;
-    letter-spacing: 0.3px;
-}
-
-.badge-status.approved {
-    background-color: var(--success-soft);
-    color: var(--success-text);
-}
-
-.badge-status.rejected {
-    background-color: var(--danger-soft);
-    color: var(--danger-text);
-}
-
-.badge-status.pending {
-    background-color: var(--warning-soft);
-    color: var(--warning-text);
-}
-
-.badge-status.draft {
-    background-color: #f1f5f9;
-    color: #64748b;
-}
 
 /* Responsive adjustments */
 @media (max-width: 768px) {

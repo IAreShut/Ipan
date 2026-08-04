@@ -191,9 +191,7 @@
                     </td>
                     <td class="fw-bold">{{ $stdTotal }}</td>
                     <td>
-                        <span class="badge bg-{{ $rate > 70 ? 'success' : ($rate > 40 ? 'warning' : 'danger') }} bg-opacity-10 text-{{ $rate > 70 ? 'success' : ($rate > 40 ? 'warning' : 'danger') }} border border-{{ $rate > 70 ? 'success' : ($rate > 40 ? 'warning' : 'danger') }} border-opacity-25 p-2 rounded-pill">
-                            {{ $rate }}% Approved
-                        </span>
+                        <span class="badge-status {{ $rate > 70 ? 'approved' : ($rate > 40 ? 'pending' : 'rejected') }}">{{ $rate }}% Approved</span>
                     </td>
                     <td><i class="fas fa-arrow-{{ $rate > 50 ? 'up text-success' : 'down text-danger' }}"></i></td>
                 </tr>
