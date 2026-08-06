@@ -62,8 +62,13 @@
                     
                     <div class="mt-4 p-3 bg-light rounded text-center small border">
                         <strong class="text-muted">Test Credentials:</strong><br>
-                        <span class="text-muted">Student:</span> <code>student@test.com</code> | <code>password123</code><br>
-                        <span class="text-muted">Supervisor:</span> <code>supervisor@test.com</code> | <code>password123</code>
+                        @if(app()->environment('local'))
+                            <span class="text-muted">Student:</span> <code>student@test.com</code> | <code>password123</code><br>
+                            <span class="text-muted">Supervisor:</span> <code>supervisor@test.com</code> | <code>password123</code>
+                        @else
+                            <span class="text-muted">Student:</span> <code>2024692246</code> | <code>11111111</code><br>
+                            <span class="text-muted">Supervisor:</span> <code>sv1@sv.com</code> | <code>password</code>
+                        @endif
                     </div>
                 </form>
             </div>
