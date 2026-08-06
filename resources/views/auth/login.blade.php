@@ -59,6 +59,12 @@
                     <div class="d-grid">
                         <button type="submit" class="btn btn-primary-custom btn-lg">Login</button>
                     </div>
+                    
+                    <div class="mt-4 p-3 bg-light rounded text-center small border">
+                        <strong class="text-muted">Test Credentials:</strong><br>
+                        <span class="text-muted">Student:</span> <code>student@test.com</code> | <code>password123</code><br>
+                        <span class="text-muted">Supervisor:</span> <code>supervisor@test.com</code> | <code>password123</code>
+                    </div>
                 </form>
             </div>
 

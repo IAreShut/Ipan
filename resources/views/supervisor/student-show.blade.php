@@ -150,7 +150,7 @@
                     <div class="ai-summary-box p-3 rounded mb-3 position-relative" style="background-color: #EFF6FF; border: 1px solid #BFDBFE;">
                         <i class="fas fa-sparkles position-absolute text-primary" style="top: -8px; left: -8px; font-size: 1.2rem;"></i>
                         <h6 class="fw-bold text-primary mb-1" style="font-size: 0.8rem; text-transform: uppercase;">AI Summary</h6>
-                        <p class="mb-0 text-dark" style="font-size: 0.85rem;">{{ $log->ai_summary }}</p>
+                        <p class="mb-0 text-dark" style="font-size: 0.85rem; text-align: justify;">{{ $log->ai_summary }}</p>
                     </div>
                     @endif
 

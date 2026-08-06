@@ -190,6 +190,15 @@ $(document).ready(function() {
         });
     }
 
+    // Clean Markdown text helper
+    function cleanAiText(text) {
+        if (!text) return '';
+        return text
+            .replace(/^#+\s*/gm, '')
+            .replace(/[\*#]/g, '')
+            .replace(/\n/g, '<br>');
+    }
+
     // AI Assistant Actions
     $('.ai-action').click(function(e) {
         e.preventDefault();
@@ -205,34 +214,16 @@ $(document).ready(function() {
             endpoint = '/supervisor/analytics/ai-at-risk';
             title = 'At-Risk Students';
         } else if (action === 'chat') {
-            Swal.fire({
-                title: 'Ask AI Assistant',
-                input: 'text',
-                inputLabel: 'What do you want to know about your data?',
-                inputPlaceholder: 'e.g., Which student has the most rejected logs?',
-                showCancelButton: true,
-                confirmButtonText: 'Ask',
-                showLoaderOnConfirm: true,
-                preConfirm: function(question) {
-                    return $.post('/supervisor/analytics/ai-chat', { question: question })
-                        .then(function(response) {
-                            if (!response.success) throw new Error(response.error);
-                            return response.data;
-                        })
-                        .catch(function(error) {
-                            Swal.showValidationMessage('Request failed: ' + error);
-                        });
-                },
-                allowOutsideClick: function() { return !Swal.isLoading(); }
-            }).then(function(result) {
-                if (result.isConfirmed) {
-                    Swal.fire({
-                        title: 'AI Answer',
-                        html: '<div style="text-align: left; font-size: 0.95rem;">' + result.value.replace(/\n/g, '<br>') + '</div>',
-                        icon: 'success'
-                    });
+            if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                var aiModal = bootstrap.Modal.getInstance(document.getElementById('aiChatModal'));
+                if (!aiModal) {
+                    aiModal = new bootstrap.Modal(document.getElementById('aiChatModal'));
                 }
-            });
+                aiModal.show();
+            } else {
+                $('#aiChatModal').modal('show');
+            }
+            setTimeout(function() { $('#aiChatInput').focus(); }, 500);
             return;
         }
 
@@ -247,7 +238,7 @@ $(document).ready(function() {
                         if (res.success) {
                             Swal.fire({
                                 title: title,
-                                html: '<div style="text-align: left; font-size: 0.95rem;">' + res.data.replace(/\n/g, '<br>') + '</div>',
+                                html: '<div style="text-align: justify; font-size: 0.95rem;">' + cleanAiText(res.data) + '</div>',
                                 icon: 'success',
                                 confirmButtonColor: '#1E3A8A'
                             });
@@ -260,6 +251,135 @@ $(document).ready(function() {
                     });
             }
         });
+    });
+
+    // AI Chat Modal Logic
+    var chatHistoryKey = 'sv_ai_chat_history';
+    var chatHistory = JSON.parse(localStorage.getItem(chatHistoryKey)) || [];
+
+    function renderChat() {
+        var $historyContainer = $('#aiChatHistory');
+        $historyContainer.empty();
+        
+        if (chatHistory.length === 0) {
+            $historyContainer.html('<div class="text-center text-muted mt-5"><i class="fas fa-comment-dots fa-3x mb-3 opacity-50"></i><p>No messages yet. Ask me anything about your data!</p></div>');
+            return;
+        }
+
+        chatHistory.forEach(function(msg) {
+            appendMessage(msg.role, msg.content, false);
+        });
+        scrollToBottom();
+    }
+
+    function scrollToBottom() {
+        var $historyContainer = $('#aiChatHistory');
+        if ($historyContainer.length) {
+            $historyContainer.scrollTop($historyContainer[0].scrollHeight);
+        }
+    }
+
+    function appendMessage(role, content, animate) {
+        var $historyContainer = $('#aiChatHistory');
+        var isUser = role === 'user';
+        
+        // Remove empty state if exists
+        $historyContainer.find('.text-center.text-muted').remove();
+
+        var avatar = isUser ? '<i class="fas fa-user-circle fa-2x text-secondary"></i>' : '<i class="fas fa-robot fa-2x text-primary"></i>';
+        var alignment = isUser ? 'flex-row-reverse' : 'flex-row';
+        var bgColor = isUser ? 'bg-primary text-white' : 'bg-white border shadow-sm';
+        var textStyle = isUser ? '' : 'text-align: justify;';
+        var parsedContent = isUser ? content : cleanAiText(content);
+
+        var msgHtml = `
+            <div class="d-flex ${alignment} mb-3" ${animate ? 'style="display:none;"' : ''}>
+                <div class="flex-shrink-0 ${isUser ? 'ms-3' : 'me-3'}">
+                    ${avatar}
+                </div>
+                <div class="p-3 rounded-4 ${bgColor}" style="max-width: 80%; ${textStyle}">
+                    ${parsedContent}
+                </div>
+            </div>
+        `;
+
+        var $msgElement = $(msgHtml);
+        $historyContainer.append($msgElement);
+        if (animate) {
+            $msgElement.fadeIn(300);
+        }
+        scrollToBottom();
+    }
+
+    $('#aiChatModal').on('show.bs.modal', function () {
+        renderChat();
+    });
+
+    function sendAiMessage() {
+        var $input = $('#aiChatInput');
+        var text = $input.val().trim();
+        if (!text) return;
+
+        $input.val('');
+        
+        // Add user msg
+        chatHistory.push({ role: 'user', content: text });
+        localStorage.setItem(chatHistoryKey, JSON.stringify(chatHistory));
+        appendMessage('user', text, true);
+
+        // Add loading
+        var $historyContainer = $('#aiChatHistory');
+        var loadingHtml = `
+            <div class="d-flex flex-row mb-3" id="aiChatLoading">
+                <div class="flex-shrink-0 me-3">
+                    <i class="fas fa-robot fa-2x text-primary"></i>
+                </div>
+                <div class="p-3 rounded-4 bg-white border shadow-sm d-flex align-items-center">
+                    <div class="spinner-grow spinner-grow-sm text-primary me-1" role="status"></div>
+                    <div class="spinner-grow spinner-grow-sm text-primary me-1" role="status" style="animation-delay: 0.2s"></div>
+                    <div class="spinner-grow spinner-grow-sm text-primary" role="status" style="animation-delay: 0.4s"></div>
+                </div>
+            </div>
+        `;
+        $historyContainer.append(loadingHtml);
+        scrollToBottom();
+        
+        $('#sendAiChatBtn, #aiChatInput').prop('disabled', true);
+
+        $.post('/supervisor/analytics/ai-chat', { question: text, history: chatHistory })
+            .done(function(response) {
+                $('#aiChatLoading').remove();
+                if (response.success) {
+                    var aiResponse = response.data;
+                    chatHistory.push({ role: 'model', content: aiResponse });
+                    localStorage.setItem(chatHistoryKey, JSON.stringify(chatHistory));
+                    appendMessage('model', aiResponse, true);
+                } else {
+                    appendMessage('model', 'Error: ' + (response.error || 'Something went wrong.'), true);
+                }
+            })
+            .fail(function() {
+                $('#aiChatLoading').remove();
+                appendMessage('model', 'Failed to connect to AI server.', true);
+            })
+            .always(function() {
+                $('#sendAiChatBtn, #aiChatInput').prop('disabled', false);
+                $('#aiChatInput').focus();
+            });
+    }
+
+    $('#sendAiChatBtn').click(sendAiMessage);
+    $('#aiChatInput').keypress(function(e) {
+        if (e.which == 13) {
+            e.preventDefault();
+            sendAiMessage();
+        }
+    });
+
+    $('#clearAiChatBtn').click(function() {
+        chatHistory = [];
+        localStorage.removeItem(chatHistoryKey);
+        renderChat();
     });
 
     // Initialize DataTables

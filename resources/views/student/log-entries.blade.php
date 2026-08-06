@@ -101,7 +101,7 @@
                         @foreach($logEntry->attachments as $attachment)
                             <div class="position-relative border rounded p-1" style="width:80px;" id="attachment-{{ $attachment->id }}">
                                 <img src="{{ str_starts_with($attachment->file_path, 'http') ? $attachment->file_path : asset('storage/' . $attachment->file_path) }}" alt="{{ $attachment->file_name }}" 
-                                     class="rounded" style="width:100%; height:60px; object-fit:cover;">
+                                     class="rounded" data-bs-toggle="modal" data-bs-target="#imageModal" data-img-src="{{ str_starts_with($attachment->file_path, 'http') ? $attachment->file_path : asset('storage/' . $attachment->file_path) }}" data-img-name="" style="width:100%; height:60px; object-fit:cover; cursor:pointer;" title="Click to enlarge">
                                 <button type="button" class="btn btn-danger btn-sm rounded-circle p-0 position-absolute top-0 end-0 delete-attachment-btn"
                                         style="width:20px;height:20px;font-size:0.6rem;line-height:1;"
                                         data-attachment-id="{{ $attachment->id }}"

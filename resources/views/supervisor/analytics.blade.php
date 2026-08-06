@@ -200,6 +200,32 @@
         </table>
     </div>
 </div>
+
+<!-- AI Chat Modal -->
+<div class="modal fade" id="aiChatModal" tabindex="-1" aria-labelledby="aiChatModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-light border-bottom-0">
+                <h5 class="modal-title fw-bold" id="aiChatModalLabel"><i class="fas fa-robot text-primary me-2"></i> Ask Your Data</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4" id="aiChatHistory" style="background-color: #f8fafc; height: 400px; overflow-y: auto;">
+                <!-- Chat messages will be injected here -->
+            </div>
+            <div class="modal-footer bg-light border-top-0 d-flex justify-content-between align-items-center">
+                <button type="button" class="btn btn-outline-danger btn-sm rounded-pill" id="clearAiChatBtn">
+                    <i class="fas fa-trash-alt me-1"></i> Clear Chat
+                </button>
+                <div class="input-group w-75">
+                    <input type="text" class="form-control rounded-start-pill border-end-0 shadow-none px-3" id="aiChatInput" placeholder="Ask something about your data..." autocomplete="off">
+                    <button class="btn btn-primary rounded-end-pill px-4" type="button" id="sendAiChatBtn">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 
 @push('scripts')

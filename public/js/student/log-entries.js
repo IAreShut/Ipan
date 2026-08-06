@@ -256,8 +256,7 @@ function renderPreviews() {
             const wrapper = document.createElement('div');
             wrapper.className = 'preview-item';
             wrapper.innerHTML = `
-                <img src="${e.target.result}" alt="${file.name}">
-                <span class="preview-name">${file.name}</span>
+                <img src="${e.target.result}" alt="${file.name}" data-bs-toggle="modal" data-bs-target="#imageModal" data-img-src="${e.target.result}" data-img-name="" style="cursor:pointer;" title="Click to enlarge">
                 <button type="button" class="btn-preview-remove" data-index="${index}" title="Remove">
                     <i class="fas fa-times"></i>
                 </button>
@@ -286,7 +285,7 @@ function removeFile(index) {
 document.getElementById('imageModal')?.addEventListener('show.bs.modal', function (event) {
     const trigger = event.relatedTarget;
     document.getElementById('modalImage').src = trigger.dataset.imgSrc;
-    document.getElementById('imageModalLabel').textContent = trigger.dataset.imgName;
+    document.getElementById('imageModalLabel').textContent = trigger.dataset.imgName || 'Attachment Preview';
 });
 
 // ===== LOG TYPE AUTO-FILL & AI TOGGLE =====

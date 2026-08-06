@@ -6,10 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\Internship;
 use App\Models\LogAttachment;
 use App\Models\LogEntry;
+use App\Services\TaskVerificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use App\Services\TaskVerificationService;
 
 class LogEntryController extends Controller
 {
@@ -58,12 +58,12 @@ class LogEntryController extends Controller
                         $fail('The entry date cannot be on a weekend.');
                     }
                     if ($internship && $internship->start_date && $internship->end_date) {
-                        if ($date->startOfDay()->lt(\Carbon\Carbon::parse($internship->start_date)->startOfDay()) || 
+                        if ($date->startOfDay()->lt(\Carbon\Carbon::parse($internship->start_date)->startOfDay()) ||
                             $date->startOfDay()->gt(\Carbon\Carbon::parse($internship->end_date)->startOfDay())) {
                             $fail('The entry date must fall within your internship duration.');
                         }
                     }
-                }
+                },
             ],
             'week_number' => 'nullable|integer|min:1',
             'log_type' => 'required|in:work,holiday,leave',
@@ -125,7 +125,7 @@ class LogEntryController extends Controller
             try {
                 TaskVerificationService::evaluateStudentTasks($user);
             } catch (\Exception $e) {
-                \Illuminate\Support\Facades\Log::error('Task verification failed: ' . $e->getMessage());
+                \Illuminate\Support\Facades\Log::error('Task verification failed: '.$e->getMessage());
             }
 
             $message = $request->has('save_draft') ? 'Draft saved successfully!' : 'Log entry submitted successfully!';
@@ -216,12 +216,12 @@ class LogEntryController extends Controller
                         $fail('The entry date cannot be on a weekend.');
                     }
                     if ($internship && $internship->start_date && $internship->end_date) {
-                        if ($date->startOfDay()->lt(\Carbon\Carbon::parse($internship->start_date)->startOfDay()) || 
+                        if ($date->startOfDay()->lt(\Carbon\Carbon::parse($internship->start_date)->startOfDay()) ||
                             $date->startOfDay()->gt(\Carbon\Carbon::parse($internship->end_date)->startOfDay())) {
                             $fail('The entry date must fall within your internship duration.');
                         }
                     }
-                }
+                },
             ],
             'week_number' => 'nullable|integer|min:1',
             'log_type' => 'required|in:work,holiday,leave',
@@ -268,7 +268,7 @@ class LogEntryController extends Controller
             try {
                 TaskVerificationService::evaluateStudentTasks($user);
             } catch (\Exception $e) {
-                \Illuminate\Support\Facades\Log::error('Task verification failed: ' . $e->getMessage());
+                \Illuminate\Support\Facades\Log::error('Task verification failed: '.$e->getMessage());
             }
 
             $message = $request->has('save_draft') ? 'Draft updated successfully!' : 'Log entry submitted successfully!';
@@ -352,24 +352,79 @@ class LogEntryController extends Controller
             'images.*' => 'nullable|image|max:10240',
         ]);
 
-        $systemPrompt = "Act as a professional internship student. Based on the student's raw task description and any attached images of their work, 
-        generate an informal daily summary 1 paragraph minimum 50 words depends on the task description, can use bullet point if needed. 
-        Use professional verbs like 'Assisted', 'Analyzed', 'Developed', 'Implemented', 'Configured', or 'Monitored'. Focus on the technical contribution. 
-        Do not include greetings or sign-offs. Output only the summary text. Write using malaysian basic english";
+        $systemPrompt = "Act as a professional internship student writing daily logbook entry. Based on the student's raw task description and any attached images of their work, generate structured logbook entries containing Task Titles and detailed bullet points for descriptions.
+
+        Formatting guidelines:
+        - Group activities into clear Task Titles (e.g. 'Onboarding session', 'Explore Sentinel POS system').
+        - For each Task Title, provide detailed bullet points (using '•') describing the work done, learnings, and technical contributions.
+        - Use professional action verbs like 'Learned', 'Explored', 'Assisted', 'Analyzed', 'Developed', 'Implemented', 'Configured', or 'Monitored'.
+        - Do not include greetings, introductions, or sign-offs. Output only the structured titles and bullet points in clear Malaysian speaker english level A1.
+        - Try to write 1 bullet point must has minimum 30 to 50 words, can use more than 1 bullet point if needed.
+        - Do not use markdown formatting symbols (such as ##, **, *, #, etc.). Output pure clean plain text only without markdown formatting symbols.";
 
         try {
             // Build the parts array for the Gemini SDK
             $parts = [];
             $parts[] = $systemPrompt."\n\nStudent's raw task description:\n".$request->task_description;
 
-            // Add images if present
+            // Add images if present (compress & resize to 1024px max for ultra-fast Gemini processing)
             if ($request->hasFile('images')) {
                 foreach ($request->file('images') as $image) {
+                    $realPath = $image->getRealPath();
                     $mimeType = $image->getMimeType();
-                    $base64Data = base64_encode(file_get_contents($image->getRealPath()));
+                    $base64Data = null;
+                    $sdkMime = \Gemini\Enums\MimeType::IMAGE_JPEG;
 
-                    // Map mime type to SDK enum, fallback to JPEG
-                    $sdkMime = \Gemini\Enums\MimeType::tryFrom($mimeType) ?? \Gemini\Enums\MimeType::IMAGE_JPEG;
+                    // If image is larger than 300KB, resize and compress down to 1024px
+                    if (extension_loaded('gd') && filesize($realPath) > 300 * 1024) {
+                        try {
+                            $srcImg = match ($mimeType) {
+                                'image/jpeg', 'image/jpg' => @imagecreatefromjpeg($realPath),
+                                'image/png' => @imagecreatefrompng($realPath),
+                                'image/webp' => @imagecreatefromwebp($realPath),
+                                default => false,
+                            };
+
+                            if ($srcImg) {
+                                $origW = imagesx($srcImg);
+                                $origH = imagesy($srcImg);
+                                $maxDim = 1024;
+
+                                if ($origW > $maxDim || $origH > $maxDim) {
+                                    $ratio = min($maxDim / $origW, $maxDim / $origH);
+                                    $newW = (int) ($origW * $ratio);
+                                    $newH = (int) ($origH * $ratio);
+                                } else {
+                                    $newW = $origW;
+                                    $newH = $origH;
+                                }
+
+                                $dstImg = imagecreatetruecolor($newW, $newH);
+                                // Preserve transparency for PNG if needed or render on white
+                                $white = imagecolorallocate($dstImg, 255, 255, 255);
+                                imagefill($dstImg, 0, 0, $white);
+                                imagecopyresampled($dstImg, $srcImg, 0, 0, 0, 0, $newW, $newH, $origW, $origH);
+
+                                ob_start();
+                                imagejpeg($dstImg, null, 75); // 75% quality JPEG compression
+                                $compressedBinary = ob_get_clean();
+
+                                imagedestroy($dstImg);
+                                imagedestroy($srcImg);
+
+                                if ($compressedBinary) {
+                                    $base64Data = base64_encode($compressedBinary);
+                                }
+                            }
+                        } catch (\Throwable $t) {
+                            // Fallback to original binary if GD processing fails
+                        }
+                    }
+
+                    if (!$base64Data) {
+                        $base64Data = base64_encode(file_get_contents($realPath));
+                        $sdkMime = \Gemini\Enums\MimeType::tryFrom($mimeType) ?? \Gemini\Enums\MimeType::IMAGE_JPEG;
+                    }
 
                     $parts[] = new \Gemini\Data\Blob(
                         mimeType: $sdkMime,
@@ -388,10 +443,18 @@ class LogEntryController extends Controller
                 return response()->json(['error' => 'AI did not return a valid summary. Please try again.'], 500);
             }
 
+            // Remove markdown header prefixes (##, #, etc.) and bold/italic indicators (** or * or __)
+            $summary = preg_replace('/^#+\s*/m', '', $summary);
+            $summary = preg_replace('/(#+|\*\*|\*|__)/', '', $summary);
+
             return response()->json(['summary' => trim($summary)]);
 
         } catch (\Exception $e) {
-            return response()->json(['error' => 'AI Error: '.$e->getMessage()], 500);
+            $errorMsg = $e->getMessage();
+            if (str_contains($errorMsg, 'cURL error 28') || str_contains($errorMsg, 'timed out')) {
+                $errorMsg = 'Request timed out while processing image with Gemini AI. Please try again or use a smaller image attachment.';
+            }
+            return response()->json(['error' => $errorMsg], 500);
         }
     }
 }
