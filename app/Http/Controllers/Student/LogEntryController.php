@@ -186,7 +186,17 @@ class LogEntryController extends Controller
             ->orderBy('entry_date', 'desc')
             ->get();
 
-        return view('student.log-entries', compact('user', 'internship', 'logs', 'logEntry'));
+        // Check if essential profile fields are filled (all except avatar)
+        $profileComplete = ! empty($user->phone)
+            && ! empty($user->faculty)
+            && ! empty($user->class)
+            && ! empty($user->programme_code)
+            && ! empty($user->company)
+            && $internship
+            && ! empty($internship->start_date)
+            && ! empty($internship->end_date);
+
+        return view('student.log-entries', compact('user', 'internship', 'logs', 'logEntry', 'profileComplete'));
     }
 
     /**
